@@ -17,7 +17,8 @@ const arg = (k: string, d: string) => {
   const i = process.argv.indexOf(`--${k}`);
   return i > 0 ? process.argv[i + 1] : d;
 };
-const DIR = process.env.REAL_EVAL_DIR ?? "C:/Users/anton/OneDrive/anton/competiciones/meta/datos-reales";
+const DIR = process.env.REAL_EVAL_DIR ?? "";
+if (!DIR) throw new Error("Set REAL_EVAL_DIR to the private folder with gt/ and img/ (never inside this repo).");
 const effort = arg("effort", "low") as Effort;
 const side = Number(arg("side", "2048"));
 const set = arg("set", "R");

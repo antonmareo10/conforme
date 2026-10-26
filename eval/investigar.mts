@@ -11,7 +11,8 @@ import type { Contexto } from "../src/lib/checks/types";
 
 const [modo = "encimera", ids = "", tag = "low-2048"] = process.argv.slice(2);
 const vacio: Contexto = { historial: [], registrados: [], pedidos: [] };
-const DIR = process.env.REAL_EVAL_DIR ?? "C:/Users/anton/OneDrive/anton/competiciones/meta/datos-reales";
+const DIR = process.env.REAL_EVAL_DIR ?? "";
+if (modo === "real" && !DIR) throw new Error("Set REAL_EVAL_DIR to the private folder with gt/ and img/ (never inside this repo).");
 
 async function caso(nombre: string, leido: AlbaranLeido, imagen: Buffer, ctx: Contexto, privado: boolean) {
   const inv = await investigar(nombre, leido, imagen, ctx);
