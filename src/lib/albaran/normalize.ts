@@ -1,4 +1,4 @@
-import { parsePrinted } from "../numbers";
+import { decimalMark, parsePrinted, withDecimalMark } from "../numbers";
 import type { Albaran, Impuesto, Linea } from "../checks/types";
 import type { AlbaranLeido } from "./schema";
 
@@ -22,22 +22,36 @@ export function parseFecha(texto: string | null): string | null {
   return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
-function pct(texto: string | null): number | null {
-  const p = parsePrinted(texto);
-  return p ? p.candidates[0] : null;
-}
-
 const clean = (t: string | null) => (t && t.trim() ? t.trim() : null);
 
 export function normalize(docId: string, leido: AlbaranLeido): Albaran {
+  // One decimal mark per document, decided from its unambiguous numbers.
+  const numericTexts = [
+    ...leido.lineas.flatMap((l) => [l.cantidad.texto, l.precio_unitario.texto, l.importe.texto, l.descuento_pct.texto]),
+    ...leido.impuestos.flatMap((t) => [t.base.texto, t.cuota.texto]),
+    leido.total.texto,
+  ];
+  const mark = decimalMark(numericTexts);
+  const noNumericos: string[] = [];
+  const num = (texto: string | null, campo: string) => {
+    const p = withDecimalMark(parsePrinted(texto), mark);
+    if (texto && texto.trim() && !p) noNumericos.push(campo);
+    return p;
+  };
+  // VAT rates are small numbers: "10,00" → 10, "21,0" → 21, "4%" → 4.
+  const pct = (texto: string | null) => {
+    const p = parsePrinted(texto);
+    return p ? (p.candidates.find((c) => c >= 0 && c <= 100) ?? null) : null;
+  };
+
   const lineas: Linea[] = leido.lineas.map((l, idx) => ({
     idx,
     descripcion: clean(l.descripcion.texto),
     unidad: clean(l.unidad),
-    cantidad: parsePrinted(l.cantidad.texto),
-    precio: parsePrinted(l.precio_unitario.texto),
-    descuentoPct: parsePrinted(l.descuento_pct.texto),
-    importe: parsePrinted(l.importe.texto),
+    cantidad: num(l.cantidad.texto, `linea ${idx + 1} cantidad`),
+    precio: num(l.precio_unitario.texto, `linea ${idx + 1} precio`),
+    descuentoPct: num(l.descuento_pct.texto, `linea ${idx + 1} descuento`),
+    importe: num(l.importe.texto, `linea ${idx + 1} importe`),
     ivaPct: pct(l.iva_pct.texto),
     cajas: {
       fila: l.caja_fila,
@@ -47,10 +61,10 @@ export function normalize(docId: string, leido: AlbaranLeido): Albaran {
       descripcion: l.descripcion.caja,
     },
   }));
-  const impuestos: Impuesto[] = leido.impuestos.map((t) => ({
+  const impuestos: Impuesto[] = leido.impuestos.map((t, i) => ({
     ivaPct: pct(t.iva_pct.texto),
-    base: parsePrinted(t.base.texto),
-    cuota: parsePrinted(t.cuota.texto),
+    base: num(t.base.texto, `impuestos ${i + 1} base`),
+    cuota: num(t.cuota.texto, `impuestos ${i + 1} cuota`),
     cajas: { base: t.base.caja, cuota: t.cuota.caja },
   }));
   return {
@@ -61,9 +75,10 @@ export function normalize(docId: string, leido: AlbaranLeido): Albaran {
     fecha: parseFecha(leido.fecha.texto),
     lineas,
     impuestos,
-    total: parsePrinted(leido.total.texto),
+    total: num(leido.total.texto, "total"),
     filasContadas: Number.isInteger(leido.filas_de_producto_contadas) ? leido.filas_de_producto_contadas : null,
     ilegible: leido.ilegible,
+    noNumericos,
     cajas: {
       proveedor: leido.proveedor.caja,
       nif: leido.nif_proveedor.caja,

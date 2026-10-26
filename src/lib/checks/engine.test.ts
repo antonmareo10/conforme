@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { parsePrinted, formatCents } from "../numbers";
+import { parsePrinted, formatCents, decimalMark, withDecimalMark } from "../numbers";
 import { isValidNif } from "./nif";
-import { aritmeticaLinea, comprobar, enJuego, sello, totales } from "./engine";
+import { aritmeticaLinea, comprobar, enJuego, inferirIva, sello, totales } from "./engine";
 import type { Albaran, Contexto, Linea } from "./types";
 import { parseFecha } from "../albaran/normalize";
 
@@ -28,6 +28,7 @@ const A = (docId: string, proveedor: string, fecha: string, lineas: Linea[], imp
   total: parsePrinted(total),
   filasContadas: lineas.length,
   ilegible: [],
+  noNumericos: [],
   cajas: { proveedor: null, nif: null, numero: null, fecha: null, total: null },
   ...extra,
 });
@@ -185,5 +186,46 @@ describe("honesty rules", () => {
   it("flags totals that do not add up", () => {
     const a = { ...musel, total: parsePrinted("170,00") };
     expect(totales(a)).toMatchObject({ ok: false, motivo: "total" });
+  });
+});
+
+describe("documents that print a decimal dot", () => {
+  it("detects the document's decimal mark from unambiguous numbers", () => {
+    expect(decimalMark(["152.92", "6.12", "13.800", "152.918"])).toBe(".");
+    expect(decimalMark(["86,40", "8,64", "1.000"])).toBe(",");
+    expect(decimalMark(["1.000", "2,000"])).toBeNull();
+  });
+  it("reads 152.918 as a decimal on a dot-decimal document", () => {
+    expect(withDecimalMark(parsePrinted("152.918"), ".")?.candidates[0]).toBe(152.918);
+    expect(withDecimalMark(parsePrinted("152.918"), ",")?.candidates[0]).toBe(152918);
+  });
+  it("reads a quantity with a unit suffix", () => {
+    expect(parsePrinted("3U")?.candidates).toEqual([3]);
+    expect(parsePrinted("12,00 kg")?.candidates).toEqual([12]);
+  });
+});
+
+describe("two VAT rates without a rate on each line", () => {
+  const sinTipo = (l: Linea) => ({ ...l, ivaPct: null });
+  it("finds the only split of lines that matches the bases and fills the rates", () => {
+    const a = { ...bebidas, lineas: bebidas.lineas.map(sinTipo) };
+    expect(totales(a)?.ok).toBe(true);
+    expect(inferirIva(a).lineas.map((l) => l.ivaPct)).toEqual([10, 10, 21]);
+  });
+  it("flags the note when no split matches the printed bases", () => {
+    const a = { ...bebidas, lineas: bebidas.lineas.map(sinTipo), impuestos: [T(10, "40,00", "4,00"), T(21, "63,00", "13,23")] };
+    expect(totales(a)).toMatchObject({ ok: false, motivo: "suma_base" });
+  });
+  it("fills the single rate when the table has one", () => {
+    expect(inferirIva({ ...musel, lineas: musel.lineas.map(sinTipo) }).lineas.every((l) => l.ivaPct === 10)).toBe(true);
+  });
+});
+
+describe("what changes the stamp", () => {
+  it("an unreadable product name or tax ID does not, an unreadable amount does", () => {
+    const vacio = { historial: [], registrados: [], pedidos: [] };
+    expect(sello(comprobar({ ...musel, ilegible: ["linea 1 descripcion", "nif_proveedor"] }, vacio))).toBe("CONFORME");
+    expect(sello(comprobar({ ...musel, ilegible: ["linea 1 importe"] }, vacio))).toBe("REVISAR");
+    expect(sello(comprobar({ ...musel, noNumericos: ["linea 2 precio"] }, vacio))).toBe("REVISAR");
   });
 });

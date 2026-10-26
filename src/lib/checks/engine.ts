@@ -84,11 +84,63 @@ export function precioReferencia(ctx: Contexto, proveedor: string | null, produc
   return { ultimo: ultimo.precioUnit, mediana: ventana.length ? mediana(ventana) : ultimo.precioUnit, unidad: ultimo.unidad, n: ventana.length };
 }
 
+/** Unreadable fields that touch money make the note doubtful; a blurry name or tax ID does not. */
+const CAMPO_DE_DINERO = /cantidad|precio|importe|base|cuota|total|iva|descuento|dto|unidades|peso/i;
+
+/**
+ * Fill the VAT rate of lines that do not print one, from the tax table: with one rate, every line
+ * gets it; with several, the only split of lines whose sums match the printed bases. Code decides.
+ */
+export function inferirIva(a: Albaran): Albaran {
+  const tipos = a.impuestos.filter((t) => t.ivaPct != null && t.base);
+  const faltan = a.lineas.filter((l) => l.ivaPct == null);
+  if (!faltan.length || !tipos.length) return a;
+  if (tipos.length === 1) {
+    const iva = tipos[0].ivaPct;
+    return { ...a, ivaInferido: true, lineas: a.lineas.map((l) => (l.ivaPct == null ? { ...l, ivaPct: iva } : l)) };
+  }
+  const reparto = repartoPorTipo(a);
+  if (!reparto) return a;
+  return { ...a, ivaInferido: true, lineas: a.lineas.map((l, i) => ({ ...l, ivaPct: reparto[i] })) };
+}
+
+/** Search an assignment of lines to VAT rates whose per-rate sums equal the printed bases (±0,02 €). */
+function repartoPorTipo(a: Albaran): number[] | null {
+  const tipos = a.impuestos.filter((t) => t.ivaPct != null && t.base).map((t) => ({ iva: t.ivaPct as number, base: toCents(t.base!.candidates[0]) }));
+  const cents = a.lineas.map((l) => importeLinea(l));
+  if (cents.some((c) => c == null) || a.lineas.length > 14 || tipos.length > 3) return null;
+  const fijo = a.lineas.map((l) => l.ivaPct);
+  const asign: number[] = new Array(a.lineas.length);
+  const sumas = new Map(tipos.map((t) => [t.iva, 0]));
+  let encontrado: number[] | null = null;
+  const go = (i: number) => {
+    if (encontrado) return;
+    if (i === a.lineas.length) {
+      if (tipos.every((t) => Math.abs((sumas.get(t.iva) ?? 0) - t.base) <= 2)) encontrado = [...asign];
+      return;
+    }
+    const opciones = fijo[i] != null ? [fijo[i] as number] : tipos.map((t) => t.iva);
+    for (const iva of opciones) {
+      if (!sumas.has(iva)) continue;
+      asign[i] = iva;
+      sumas.set(iva, (sumas.get(iva) ?? 0) + (cents[i] as number));
+      go(i + 1);
+      sumas.set(iva, (sumas.get(iva) ?? 0) - (cents[i] as number));
+    }
+  };
+  go(0);
+  return encontrado;
+}
+
 export function comprobar(a: Albaran, ctx: Contexto): Aviso[] {
   const avisos: Aviso[] = [];
   const conPrecio = a.lineas.filter((l) => l.precio || l.importe);
 
-  for (const campo of a.ilegible) avisos.push(aviso("ILEGIBLE", a.docId, 0, { campo }));
+  for (const campo of a.ilegible) {
+    const av = aviso("ILEGIBLE", a.docId, 0, { campo });
+    avisos.push(CAMPO_DE_DINERO.test(campo) ? av : { ...av, clase: "info" });
+  }
+  for (const campo of a.noNumericos ?? []) avisos.push(aviso("ILEGIBLE", a.docId, 0, { campo, motivo: "no_numerico" }));
 
   if (a.filasContadas != null && a.filasContadas !== a.lineas.length)
     avisos.push(aviso("RECUENTO_FILAS", a.docId, 0, { contadas: a.filasContadas, leidas: a.lineas.length }));
@@ -180,6 +232,14 @@ export function totales(a: Albaran): ResultadoTotales | null {
   const lineas = a.lineas.map((l) => ({ l, cents: importeLinea(l) })).filter((x) => x.cents != null) as { l: Linea; cents: number }[];
   const tol = 2;
   if (a.impuestos.length) {
+    // Several rates and lines without a printed rate: the lines must split exactly into the bases.
+    if (a.impuestos.length > 1 && lineas.some((x) => x.l.ivaPct == null) && lineas.length === a.lineas.length) {
+      if (!repartoPorTipo(a)) {
+        const suma = lineas.reduce((s, x) => s + x.cents, 0);
+        const bases = a.impuestos.reduce((s, t) => s + (t.base ? toCents(t.base.candidates[0]) : 0), 0);
+        return { ok: false, difCents: bases - suma, motivo: "suma_base" };
+      }
+    }
     for (const t of a.impuestos) {
       if (!t.base) continue;
       const base = toCents(t.base.candidates[0]);

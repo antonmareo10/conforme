@@ -21,7 +21,8 @@ const CLEAN = /[\s€%]|EUR|eur/g;
  */
 export function parsePrinted(raw: string | null | undefined): ParsedNumber | null {
   if (raw == null) return null;
-  let s = raw.replace(CLEAN, "").trim();
+  // Drop a trailing unit the model sometimes copies with the number ("3U", "12,00 kg", "4 uds.").
+  let s = raw.replace(CLEAN, "").trim().replace(/(?<=\d)\s*[A-Za-zÀ-ÿ]{1,6}\.?$/, "").trim();
   if (!s) return null;
   let sign = 1;
   if (/^-|-$/.test(s) || /^\(.*\)$/.test(s)) {
@@ -67,6 +68,35 @@ export function parsePrinted(raw: string | null | undefined): ParsedNumber | nul
   return sep === ","
     ? { text, candidates: [asDecimal, asThousands], decimals: 3, ambiguous: true }
     : { text, candidates: [asThousands, asDecimal], decimals: 0, ambiguous: true };
+}
+
+/**
+ * Which decimal mark a document uses, from its unambiguous numbers: one separator followed by
+ * 1, 2 or 4+ digits ("6.12", "86,40", "27,7500"). Returns null when there is no evidence.
+ */
+export function decimalMark(texts: (string | null | undefined)[]): "," | "." | null {
+  let comma = 0, dot = 0;
+  for (const t of texts) {
+    const s = (t ?? "").replace(CLEAN, "").replace(/[A-Za-z]+\.?$/, "").trim();
+    if (/^-?\d+,\d{1,2}$|^-?\d+,\d{4,}$|^-?\d{1,3}(\.\d{3})+,\d+$/.test(s)) comma++;
+    else if (/^-?\d+\.\d{1,2}$|^-?\d+\.\d{4,}$|^-?\d{1,3}(,\d{3})+\.\d+$/.test(s)) dot++;
+  }
+  if (comma === dot) return null;
+  return comma > dot ? "," : ".";
+}
+
+/** Put first the reading of an ambiguous number that matches the document's decimal mark. */
+export function withDecimalMark(p: ParsedNumber | null, mark: "," | "." | null): ParsedNumber | null {
+  if (!p || !p.ambiguous || !mark) return p;
+  const sep = p.text.includes(",") ? "," : ".";
+  const [a, b] = p.candidates;
+  // candidates[0] is "decimal" when sep is ",", "thousands" when sep is "."
+  const decimalFirst = sep === mark;
+  const decimal = sep === "," ? a : b;
+  const thousands = sep === "," ? b : a;
+  return decimalFirst
+    ? { ...p, candidates: [decimal, thousands], decimals: 3 }
+    : { ...p, candidates: [thousands, decimal], decimals: 0 };
 }
 
 /** Money in integer cents (rounded half away from zero), from a printed amount. */

@@ -33,6 +33,10 @@ export interface Albaran {
   total: ParsedNumber | null;
   filasContadas: number | null;
   ilegible: string[];
+  /** Printed numeric fields whose text could not be read as a number (e.g. "1O,5O"). */
+  noNumericos: string[];
+  /** Line VAT rates filled in by code (from the tax table), not printed on the line. */
+  ivaInferido?: boolean;
   cajas: { proveedor: Caja | null; nif: Caja | null; numero: Caja | null; fecha: Caja | null; total: Caja | null };
 }
 
