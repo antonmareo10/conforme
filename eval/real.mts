@@ -3,9 +3,13 @@
 // are written to eval/results/, and the writer refuses anything that is not a metric or a tag.
 //
 // Usage: npx tsx --env-file=.env.local eval/real.mts [--effort low] [--side 2048] [--tag name] [--set R|S|I] [--only 01,02] [--rescore]
+// Private mode (PRIVATE_MODEL_BASE_URL set): the same run on the private model. Its tag always carries
+// "-privado-<model>", so its readings and its aggregate never replace Muse Spark's (or real-R-latest.json).
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { readAlbaran, costUsd, prepareImage, type Effort } from "../src/lib/albaran/read";
+import { readerModel } from "../src/lib/meta/models";
+import { privateModeConfig } from "../src/lib/meta/privado";
 import { analizarDocumento } from "../src/lib/documento";
 import { normalize } from "../src/lib/albaran/normalize";
 import { aritmeticaLinea, comprobar, importeLinea, inferirIva, sello, claveProducto } from "../src/lib/checks/engine";
@@ -22,7 +26,9 @@ if (!DIR) throw new Error("Set REAL_EVAL_DIR to the private folder with gt/ and 
 const effort = arg("effort", "low") as Effort;
 const side = Number(arg("side", "2048"));
 const set = arg("set", "R");
-const tag = arg("tag", `${effort}-${side}`);
+const modelo = readerModel();
+const privado = privateModeConfig() != null;
+const tag = arg("tag", `${effort}-${side}`) + (privado ? `-privado-${modelo.replace(/[^a-z0-9.]+/gi, "-")}` : "");
 const resultTag = process.argv.includes("--investigar") ? `${tag}-investigar` : tag;
 const only = arg("only", "");
 const rescore = process.argv.includes("--rescore"); // recompute from saved readings, no API calls
@@ -221,7 +227,7 @@ function metrics(rs: Row[]) {
 
 const aggregate = {
   conjunto: set,
-  config: { modelo: "muse-spark-1.3", effort, lado_px: side, tag },
+  config: { modelo, ...(privado ? { privado: true } : {}), effort, lado_px: side, tag },
   fecha: new Date().toISOString().slice(0, 10),
   procesados: ratio(ok.length, rows.length),
   ...metrics(ok),
@@ -253,7 +259,7 @@ const aggregate = {
 };
 
 // Refuse to write anything but metric names, tags and numbers.
-const ALLOWED_STRING_VALUES = new Set([set, "muse-spark-1.3", effort, tag, aggregate.fecha]);
+const ALLOWED_STRING_VALUES = new Set([set, modelo, effort, tag, aggregate.fecha]);
 (function guard(v: unknown, path: string) {
   if (typeof v === "string" && !ALLOWED_STRING_VALUES.has(v)) throw new Error(`aggregate would leak text at ${path}`);
   if (v && typeof v === "object") for (const [k, x] of Object.entries(v)) guard(x, `${path}.${k}`);
