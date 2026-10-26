@@ -45,3 +45,6 @@ datos-reales/
 **/datos-reales/**
 eval/private/
 *.private.*
+
+# day-0 smoke outputs may contain real data
+.smoke/
