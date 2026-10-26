@@ -11,6 +11,7 @@ export default function Home() {
         <header className="flex items-center justify-between py-4">
           <span className="font-serif text-2xl font-semibold tracking-tight">Conforme</span>
           <nav className="flex items-center gap-2 text-sm">
+            <Link href="/como" className="hidden min-h-[40px] items-center rounded-full px-3 text-tinta-2 hover:text-tinta sm:inline-flex"><L es="Cómo funciona" en="How it works" /></Link>
             <Link href="/eval" className="hidden min-h-[40px] items-center rounded-full px-3 text-tinta-2 hover:text-tinta sm:inline-flex"><L es="Cómo lo medimos" en="How we measure" /></Link>
             <BotonIdioma />
           </nav>
