@@ -39,7 +39,7 @@ for (const n of notas) {
   const img = readFileSync(`public${n.imagen}`);
   const r = await readAlbaran(img, { effort });
   mkdirSync(".smoke/synthetic", { recursive: true });
-  writeFileSync(`.smoke/synthetic/${n.id}.${effort}.json`, JSON.stringify(r, null, 1));
+  writeFileSync(`.smoke/synthetic/${n.id}.${effort}.json`, JSON.stringify({ ...r, imagen: undefined }, null, 1));
   for (const { k, t, p } of pairs(n.verdad, r.leido)) {
     if (!t.caja) continue;
     const ok = (t.texto ?? "").replace(/\s/g, "").toLowerCase() === (p.texto ?? "").replace(/\s/g, "").toLowerCase();

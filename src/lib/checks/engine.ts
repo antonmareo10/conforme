@@ -153,7 +153,12 @@ export function comprobar(a: Albaran, ctx: Contexto): Aviso[] {
     // Line arithmetic.
     for (const l of a.lineas) {
       const r = aritmeticaLinea(l);
-      if (r && !r.ok)
+      const evidencia = a.confirmados?.[l.idx];
+      if (r && !r.ok && evidencia && r.difCents > 0)
+        avisos.push(aviso("ERROR_PROVEEDOR", a.docId, r.difCents, {
+          cantidad: r.cantidad ?? 0, precio: r.precio ?? 0, esperadoCents: r.esperadoCents ?? 0, impresoCents: r.importeCents ?? 0, difCents: r.difCents, evidencia,
+        }, l.idx));
+      else if (r && !r.ok)
         avisos.push(
           aviso("ARITMETICA_LINEA", a.docId, 0, {
             cantidad: r.cantidad ?? 0,

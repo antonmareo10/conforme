@@ -37,6 +37,11 @@ export interface Albaran {
   noNumericos: string[];
   /** Line VAT rates filled in by code (from the tax table), not printed on the line. */
   ivaInferido?: boolean;
+  /**
+   * Lines whose wrong arithmetic was confirmed on the paper by the investigator (line index →
+   * evidence id). Code turns them into supplier errors; the model's word alone never does.
+   */
+  confirmados?: Record<number, string>;
   cajas: { proveedor: Caja | null; nif: Caja | null; numero: Caja | null; fecha: Caja | null; total: Caja | null };
 }
 

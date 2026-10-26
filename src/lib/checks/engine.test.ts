@@ -48,6 +48,10 @@ describe("parsePrinted", () => {
     expect(parsePrinted("1.000")).toMatchObject({ candidates: [1000, 1], ambiguous: true });
     expect(parsePrinted("0,250")).toMatchObject({ candidates: [0.25], ambiguous: false });
   });
+  it("keeps the number when a label was copied with it, but not when there are several", () => {
+    expect(parsePrinted("TOTAL 163,63 €")?.candidates).toEqual([163.63]);
+    expect(parsePrinted("12,000 kg x 1,85")).toBeNull();
+  });
   it("rejects text that is not a number", () => {
     expect(parsePrinted("abc")).toBeNull();
     expect(parsePrinted("")).toBeNull();

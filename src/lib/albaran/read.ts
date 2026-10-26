@@ -18,6 +18,8 @@ export interface ReadResult {
   /** Size of the image actually sent; boxes refer to it. */
   width: number;
   height: number;
+  /** The exact JPEG sent to the model (needed to crop cells for re-reading). Not serialised. */
+  imagen?: Buffer;
 }
 
 let shared: OpenAI | null = null;
@@ -69,6 +71,7 @@ export async function readAlbaran(image: Buffer, opts: ReadOptions = {}): Promis
     },
     width,
     height,
+    imagen: jpeg,
   };
 }
 

@@ -6,7 +6,7 @@ import { chromium } from "playwright";
 import sharp from "sharp";
 import { ENCIMERA, importeLinea, impuestos, type NotaDemo } from "../../src/lib/demo/notas";
 import type { AlbaranLeido, Caja, Campo } from "../../src/lib/albaran/schema";
-import { html, es } from "./templates.mts";
+import { html, es } from "./templates.mjs";
 
 type Boxes = Record<string, { x: number; y: number; w: number; h: number }>;
 

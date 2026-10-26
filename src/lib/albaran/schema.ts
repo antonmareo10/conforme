@@ -109,7 +109,7 @@ export const ALBARAN_SCHEMA = {
 } as const;
 
 export const READ_PROMPT = `You read Spanish supplier delivery notes (albaranes) for a restaurant.
-Return every product line exactly as printed. Copy numbers character by character as printed (keep the comma decimal separator), never compute or correct them.
+Return every product line exactly as printed. "cantidad" is the quantity the unit price applies to: for goods sold by weight it is the weight (kg), not the number of pieces or boxes printed next to it. Copy numbers character by character as printed (keep the comma decimal separator), never compute or correct them.
 If a field is not printed, use null. If it is printed but you cannot read it with certainty, put its name in "ilegible" (for example "linea 2 importe") and give your best reading.
 For each field give its box on the image you received, on a 0-1000 grid (origin top-left): x_min, y_min, x_max, y_max. caja_fila is the box of the whole product row.
 filas_de_producto_contadas: count the product rows you see on the paper, independently of the lines you extracted.

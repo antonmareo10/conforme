@@ -29,7 +29,13 @@ export function parsePrinted(raw: string | null | undefined): ParsedNumber | nul
     sign = -1;
     s = s.replace(/^-|-$/g, "").replace(/^\((.*)\)$/, "$1");
   }
-  if (!/^[\d.,]+$/.test(s) || !/\d/.test(s)) return null;
+  if (!/^[\d.,]+$/.test(s)) {
+    // A label copied with the number ("TOTAL 163,63", "Base: 86,40"): keep it only if there is exactly one number.
+    const tokens = s.match(/\d[\d.,]*\d|\d/g) ?? [];
+    if (tokens.length !== 1) return null;
+    s = tokens[0];
+  }
+  if (!/\d/.test(s)) return null;
 
   const lastComma = s.lastIndexOf(",");
   const lastDot = s.lastIndexOf(".");

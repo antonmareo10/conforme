@@ -12,4 +12,5 @@ Measured from Spain with the event key, standard mode. Scripts in `scripts/smoke
 | Row count mode (`filas_de_producto_contadas`) | Matches on the first notes tried | Keep as independent check; measure on the full set |
 | SAM 3.1, several notes in one photo | "sheet of paper" 3/3 (conf 0.97), "document" 3/3 (0.95), "paper" 3/3, "receipt" 3/3, "invoice" 0/3. ~1.5 s | Prompt `sheet of paper`, fallback `document` |
 | SAM 3.1 counting crates/boxes on 21 public photos (P1 "count the goods") | Exact 5/23, within one 7/23 (the bar was 8/10) | Dropped. Stated as a limitation |
+| Tool calling (Responses API) | Works with strict function schemas over several turns; only `tool_choice: "auto"` is accepted | The investigator offers only `cerrar` once it reaches its call limit |
 | Voice Transcribe | `POST /v1/asr/transcribe`, multipart, WAV only. Spanish question transcribed correctly in 3.4 s for 3.6 s of audio | Browser records, converts to 16 kHz mono WAV before upload |

@@ -5,7 +5,8 @@
 // Usage: npx tsx --env-file=.env.local eval/real.mts [--effort low] [--side 2048] [--tag name] [--set R|S|I] [--only 01,02] [--rescore]
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { readAlbaran, costUsd, type Effort } from "../src/lib/albaran/read";
+import { readAlbaran, costUsd, prepareImage, type Effort } from "../src/lib/albaran/read";
+import { investigar } from "../src/lib/agente/investigar";
 import { normalize } from "../src/lib/albaran/normalize";
 import { aritmeticaLinea, comprobar, importeLinea, inferirIva, sello, claveProducto } from "../src/lib/checks/engine";
 import { normalizeNif } from "../src/lib/checks/nif";
@@ -21,8 +22,10 @@ const effort = arg("effort", "low") as Effort;
 const side = Number(arg("side", "2048"));
 const set = arg("set", "R");
 const tag = arg("tag", `${effort}-${side}`);
+const resultTag = process.argv.includes("--investigar") ? `${tag}-investigar` : tag;
 const only = arg("only", "");
 const rescore = process.argv.includes("--rescore"); // recompute from saved readings, no API calls
+const conInvestigacion = process.argv.includes("--investigar"); // run the investigator on notes with doubts
 const CONCURRENCY = 6;
 
 const SETS: Record<string, string[]> = {
@@ -172,17 +175,26 @@ const rows = await pool(ids, CONCURRENCY, async ({ id, base }) => {
   try {
     const saved = join(outDir, `${id}.json`);
     const r = rescore && existsSync(saved) ? JSON.parse(readFileSync(saved, "utf8")) : await readAlbaran(img, { effort, longSide: side });
-    const a = inferirIva(normalize(id, r.leido));
-    const avisos = comprobar(a, sinPedidos);
-    const st = sello(avisos);
+    let a = inferirIva(normalize(id, r.leido));
+    let avisos = comprobar(a, sinPedidos);
+    let st = sello(avisos);
+    let inv: { veredicto: string | null; valido: boolean; pasos: number; usd: number } | null = null;
+    if (conInvestigacion && st === "REVISAR") {
+      const imagen = r.imagen ?? (await prepareImage(img, side)).jpeg;
+      const x = await investigar(id, r.leido, imagen, sinPedidos, { effort });
+      a = x.albaran;
+      avisos = x.avisos;
+      st = x.sello;
+      inv = { veredicto: x.veredicto, valido: x.valido, pasos: x.pasos.length, usd: costUsd({ ...x.usage, reasoning_tokens: 0 }) };
+    }
     const s = scoreDoc(a, gt);
-    writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ leido: r.leido, avisos, sello: st, score: s, ms: r.ms, usage: r.usage }, null, 1));
-    const row = { id, ok: true, sello: st, codigos: avisos.map((x) => x.codigo), ms: r.ms, usd: costUsd(r.usage), ...s };
+    if (!rescore || !conInvestigacion) writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ leido: r.leido, avisos, sello: st, score: s, ms: r.ms, usage: r.usage }, null, 1));
+    const row = { id, ok: true as const, sello: st, codigos: avisos.map((x) => x.codigo), ms: r.ms, usd: costUsd(r.usage) + (inv?.usd ?? 0), inv, ...s };
     process.stdout.write(`${id} ${st.padEnd(12)} lines ${s.alCentimo}/${s.conImporte} at cent, total ${s.header.total}, ${r.ms} ms\n`);
     return row;
   } catch (e) {
     process.stdout.write(`${id} ERROR ${String((e as Error).message).slice(0, 160)}\n`);
-    return { id, ok: false, error: String((e as Error).message).slice(0, 200) };
+    return { id, ok: false as const, error: String((e as Error).message).slice(0, 200) };
   }
 });
 
@@ -221,6 +233,17 @@ const aggregate = {
   // Softer than a silent OK: stamped CONFORME, every euro right, but some quantity/price/rate misread.
   conforme_no_perfecto: ok.filter((r) => r.sello === "CONFORME" && !r.perfecto).length,
   por_dificultad: Object.fromEntries(Object.entries(TAGS).map(([t, list]) => [t, metrics(ok.filter((r) => list.includes(r.id)))])),
+  investigacion: conInvestigacion
+    ? {
+        investigados: ok.filter((r) => r.inv).length,
+        reparadas: ok.filter((r) => r.inv?.veredicto === "celda_mal_leida" && r.inv.valido).length,
+        confirmadas: ok.filter((r) => r.inv?.veredicto === "lectura_confirmada" && r.inv.valido).length,
+        errores_proveedor: ok.filter((r) => r.inv?.veredicto === "error_proveedor" && r.inv.valido).length,
+        siguen_en_revisar: ok.filter((r) => r.inv && r.sello === "REVISAR").length,
+        cierres_rechazados_por_el_codigo: ok.filter((r) => r.inv && !r.inv.valido).length,
+        pasos_medios: Math.round((sum((r) => r.inv?.pasos ?? 0) / Math.max(1, ok.filter((r) => r.inv).length)) * 10) / 10,
+      }
+    : null,
   tiempo_ms: { p50: pctl(ok.map((r) => r.ms), 0.5), p95: pctl(ok.map((r) => r.ms), 0.95) },
   coste_usd: { total: Math.round(sum((r) => r.usd) * 1000) / 1000, por_albaran: ok.length ? Math.round((sum((r) => r.usd) / ok.length) * 10000) / 10000 : null },
 };
@@ -234,7 +257,7 @@ const ALLOWED_STRING_VALUES = new Set([set, "muse-spark-1.3", effort, tag, aggre
 
 const resultsDir = new URL("./results/", import.meta.url);
 if (!existsSync(resultsDir)) mkdirSync(resultsDir, { recursive: true });
-const outFile = new URL(`./results/real-${set}-${aggregate.fecha}-${tag}.json`, import.meta.url);
+const outFile = new URL(`./results/real-${set}-${aggregate.fecha}-${resultTag}.json`, import.meta.url);
 writeFileSync(outFile, JSON.stringify(aggregate, null, 1));
 console.log(JSON.stringify({ ...aggregate, por_dificultad: undefined }, null, 1));
 console.log("wrote", outFile.pathname);
