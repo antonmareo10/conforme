@@ -143,9 +143,9 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
       <svg width="0" height="0" className="absolute" aria-hidden>
         <filter id="tinta"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" /><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.25" /><feComposite in="SourceGraphic" operator="in" /></filter>
       </svg>
-      <header className="flex items-center justify-between gap-3 py-2">
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2">
         <Link href="/" className="font-serif text-2xl font-semibold tracking-tight">Conforme</Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-end gap-2">
           {muestra ? (
             <>
               <span className="hidden rounded-full border border-linea bg-white/70 px-3 py-1 text-xs text-tinta-2 sm:inline">
@@ -173,7 +173,7 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
       {muestra && !instantaneo && velocidad !== 1 && <p className="mb-2 text-xs text-apagado">{lang === "es" ? `Reproduciendo a ×${velocidad} (tiempos reales ÷ ${velocidad})` : `Playing at ×${velocidad} (real timings ÷ ${velocidad})`}</p>}
       {error && <p className="rounded-lg bg-rojo/10 p-3 text-sm text-rojo">{error}</p>}
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-6">
           {foto && <Escena foto={foto} srcSet={foto.includes("/encimera/") ? HERO_SRCSET : undefined} sizes="(min-width: 1024px) 800px, calc(100vw - 32px)" sesion={sesion} lang={lang} prioridad />}
           <div className="grid gap-6 sm:grid-cols-2">

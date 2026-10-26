@@ -54,7 +54,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="grid items-start gap-8 border-t border-linea py-12 lg:grid-cols-[1fr_1.05fr] lg:gap-12" aria-labelledby="agente">
+        <section className="grid grid-cols-1 items-start gap-8 border-t border-linea py-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:gap-12" aria-labelledby="agente">
           <div className="lg:sticky lg:top-8">
             <p className="text-sm uppercase tracking-[0.14em] text-apagado"><L es="Lo que te deja el agente" en="What the agent hands you" /></p>
             <h2 id="agente" className="mt-3 font-serif text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold leading-[1.1] tracking-tight">
