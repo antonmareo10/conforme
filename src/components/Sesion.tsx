@@ -10,6 +10,7 @@ import { T } from "@/lib/sesion/textos";
 import { BotonIdioma, useIdioma } from "./Idioma";
 import { Papel, type Foco } from "./Papel";
 import { Escena } from "./Escena";
+import { HERO_SRCSET } from "@/lib/hero";
 import { OtrosAvisos, Panel } from "./Panel";
 import { Reclamaciones } from "./Reclamaciones";
 import { Cronologia } from "./Cronologia";
@@ -174,7 +175,7 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-6">
-          {foto && <Escena foto={foto} sesion={sesion} lang={lang} />}
+          {foto && <Escena foto={foto} srcSet={foto.includes("/encimera/") ? HERO_SRCSET : undefined} sizes="(min-width: 1024px) 800px, calc(100vw - 32px)" sesion={sesion} lang={lang} prioridad />}
           <div className="grid gap-6 sm:grid-cols-2">
             {docs.map((d) => (
               <Papel key={d.docId} ref={(el) => { papeles.current[d.docId] = el; }} doc={d} lang={lang} foco={foco}

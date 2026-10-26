@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Sesion } from "@/components/Sesion";
 
 const MUESTRAS: Record<string, { foto: string | null; instantaneo?: boolean }> = {
-  encimera: { foto: "/muestras/encimera/escena.jpg" },
+  encimera: { foto: "/muestras/encimera/escena-1200.webp" },
   mes: { foto: null, instantaneo: true },
 };
 
