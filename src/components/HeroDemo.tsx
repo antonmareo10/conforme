@@ -48,7 +48,7 @@ export function HeroDemo() {
       {foto && docs.map((d) => d.caja && d.sello && (
         <motion.div key={d.docId} className="pointer-events-none absolute" style={{ left: `${((d.caja.x + d.caja.w * 0.5) / foto.width) * 100}%`, top: `${((d.caja.y + d.caja.h * 0.62) / foto.height) * 100}%` }}
           initial={reduce ? false : { scale: 1.25, opacity: 0, rotate: -8 }} animate={{ scale: 1, opacity: d.provisional ? 0.45 : 0.95, rotate: -8 }} transition={{ type: "spring", stiffness: 520, damping: 22 }}>
-          <span className="block -translate-x-1/2 rounded-md border-[3px] bg-white/70 px-2 py-0.5 font-serif text-[clamp(0.6rem,1.6vw,1rem)] font-semibold tracking-[0.1em]"
+          <span className="block -translate-x-1/2 whitespace-nowrap rounded-md border-[2.5px] bg-white/75 px-1.5 py-0.5 font-serif text-[clamp(0.5rem,1.15vw,0.85rem)] font-semibold tracking-[0.08em]"
             style={{ color: d.sello === "CONFORME" ? "var(--sello-azul)" : d.sello === "CON_RESERVAS" ? "var(--rojo)" : "var(--apagado)", borderColor: "currentColor" }}>
             {SELLO[d.sello][lang]}
           </span>
