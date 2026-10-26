@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BotonIdioma, L } from "@/components/Idioma";
 import { HeroDemo } from "@/components/HeroDemo";
+import { CasoDeMuestra } from "@/components/CasoDeMuestra";
 import { pruebaReal } from "@/lib/prueba";
 
 export default function Home() {
@@ -24,8 +25,8 @@ export default function Home() {
               <L es="Antes de firmar el albarán, mira qué te están cobrando." en="Before you sign the delivery note, see what you're being charged." />
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-tinta-2">
-              <L es="Una foto de tus albaranes. Conforme lee cada línea, comprueba cada euro y te enseña en el papel dónde está el problema."
-                en="One photo of your delivery notes. Conforme reads every line, checks every euro and shows you on the paper where the problem is." />
+              <L es="Una foto de los albaranes de la mañana. Conforme lee cada línea y comprueba cada euro. Si algo no cuadra, un agente vuelve al papel a confirmarlo y te deja escrita la reclamación, con la prueba adjunta."
+                en="One photo of the morning's delivery notes. Conforme reads every line and checks every euro. When something is off, an agent goes back to the paper to confirm it, then writes the claim with the proof attached." />
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/sesion?muestra=encimera" className="group inline-flex min-h-[48px] items-center gap-2 rounded-full bg-tinta px-6 text-base font-medium text-papel transition active:scale-[0.97]">
@@ -52,9 +53,41 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="grid items-start gap-8 border-t border-linea py-12 lg:grid-cols-[1fr_1.05fr] lg:gap-12" aria-labelledby="agente">
+          <div className="lg:sticky lg:top-8">
+            <p className="text-sm uppercase tracking-[0.14em] text-apagado"><L es="Lo que te deja el agente" en="What the agent hands you" /></p>
+            <h2 id="agente" className="mt-3 font-serif text-[clamp(1.7rem,3.6vw,2.6rem)] font-semibold leading-[1.1] tracking-tight">
+              <L es="Antes de pedirle un céntimo a un proveedor, vuelve a mirar el papel." en="Before it asks a supplier for a cent, it checks the paper again." />
+            </h2>
+            <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-tinta-2">
+              <L es="El código encuentra lo que no cuadra. Después un agente decide qué mirar: amplía esa línea y la vuelve a leer, saca el historial de precios o el pedido, y cierra el caso citando lo que vio. El código comprueba cada prueba que cita. Si la segunda mirada no coincide con la primera, la reclamación se retiene y el albarán pasa a ti."
+                en="Code finds what doesn't add up. Then an agent decides what to look at: it zooms into that line and reads it again, pulls the price history or the order, and closes the case citing what it saw. Code checks every piece of evidence it cites. If the second look disagrees with the first, the claim is held back and the note goes to you." />
+            </p>
+            <ul className="mt-6 flex max-w-xl flex-col gap-3 text-[15px] leading-relaxed text-tinta">
+              {[
+                { es: "La prueba es su propio papel: la línea reclamada, cortada del albarán del proveedor, con la cuenta al lado.", en: "The proof is their own paper: the claimed line cut from the supplier's note, with the sum next to it." },
+                { es: "Una frase para escribir en el albarán antes de firmar, mientras espera el repartidor.", en: "One line to write on the note before you sign, while the driver waits." },
+                { es: "El mensaje queda listo para WhatsApp o correo. Tú decides si se envía.", en: "The message is ready for WhatsApp or email. You decide whether to send it." },
+              ].map((b, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-verde/10 text-verde" aria-hidden>
+                    <svg viewBox="0 0 12 12" className="h-3 w-3"><path d="M2.5 6.2 5 8.5 9.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </span>
+                  <L es={b.es} en={b.en} />
+                </li>
+              ))}
+            </ul>
+            <Link href="/sesion?muestra=encimera" className="group mt-7 inline-flex min-h-[44px] items-center gap-2 font-medium underline decoration-rotulador decoration-4 underline-offset-4">
+              <L es="Verlo trabajar con tres albaranes" en="Watch it work on three notes" />
+              <span aria-hidden className="transition group-hover:translate-x-1">→</span>
+            </Link>
+          </div>
+          <CasoDeMuestra />
+        </section>
+
         <section className="grid gap-4 border-t border-linea py-10 sm:grid-cols-2" aria-label="Muestras">
           {[
-            { href: "/sesion?muestra=encimera", img: "/muestras/encimera/escena.jpg", es: ["Tres albaranes en la encimera", "Una foto, tres proveedores: una subida, una falta y un error del proveedor que el agente confirma en el papel."], en: ["Three notes on the counter", "One photo, three suppliers: a price rise, a shortage and a supplier error the agent confirms on the paper."] },
+            { href: "/sesion?muestra=encimera", img: "/muestras/encimera/escena.jpg", es: ["Tres albaranes en la encimera", "Una foto, tres proveedores: una subida, una falta y un error del proveedor. El agente confirma las tres en el papel y prepara tres reclamaciones."], en: ["Three notes on the counter", "One photo, three suppliers: a price rise, a shortage and a supplier error. The agent confirms all three on the paper and prepares three claims."] },
             { href: "/sesion?muestra=mes", img: "/muestras/mes/m09-carnes.jpg", es: ["Un mes de Casa Nela", "Doce albaranes en cuatro semanas. Pregunta «¿cuánto he pagado de más este mes?» y mira qué líneas se encienden."], en: ["A month at Casa Nela", "Twelve notes over four weeks. Ask \"how much have I overpaid this month?\" and see which lines light up."] },
           ].map((m) => (
             <Link key={m.href} href={m.href} className="group flex gap-4 rounded-2xl border border-linea bg-white/60 p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
@@ -72,8 +105,8 @@ export default function Home() {
         <section className="grid gap-6 border-t border-linea py-12 sm:grid-cols-3">
           {[
             { n: "1", es: ["Haz una foto", "Uno o varios albaranes encima de la mesa. SAM 3.1 separa cada papel y lo endereza."], en: ["Take a photo", "One or several notes on the counter. SAM 3.1 cuts out each paper and straightens it."] },
-            { n: "2", es: ["Conforme lee y comprueba", "Muse Spark lee cada línea dos veces, por separado, y señala dónde está. El código comprueba cada euro, y un agente relee lo que no cuadra."], en: ["Conforme reads and checks", "Muse Spark reads every line twice, independently, and points to it. Code checks every euro, and an agent re-reads what doesn't add up."] },
-            { n: "3", es: ["Reclama", "Toca cualquier euro y el papel se ilumina. La reclamación al proveedor sale escrita con las cifras del código."], en: ["Claim", "Tap any euro and the paper lights up. The claim to the supplier comes written, with the code's numbers."] },
+            { n: "2", es: ["Conforme lee y comprueba", "Muse Spark lee cada línea dos veces, por separado, y señala dónde está. El código comprueba cada euro. Toca cualquier euro y el papel se ilumina."], en: ["Conforme reads and checks", "Muse Spark reads every line twice, independently, and points to it. Code checks every euro. Tap any euro and the paper lights up."] },
+            { n: "3", es: ["El agente prepara la reclamación", "Confirma cada problema en el papel y escribe la reclamación con la prueba adjunta. No se envía nada sin ti."], en: ["The agent builds the claim", "It confirms each problem on the paper, then writes the claim with the proof attached. Nothing is sent without you."] },
           ].map((p) => (
             <div key={p.n} className="rounded-2xl border border-linea bg-white/60 p-6">
               <div className="font-serif text-3xl text-sello">{p.n}</div>

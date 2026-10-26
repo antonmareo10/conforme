@@ -7,6 +7,7 @@ import { reducir, sesionVacia, type SesionEstado } from "@/lib/sesion/estado";
 import type { Evento } from "@/lib/pipeline";
 import { SELLO } from "@/lib/sesion/textos";
 import { Escena } from "./Escena";
+import { cargarReplay } from "@/lib/sesion/replay";
 import { Cifra } from "./Panel";
 import { useIdioma } from "./Idioma";
 
@@ -23,7 +24,7 @@ export function HeroDemo() {
   useEffect(() => {
     let vivo = true;
     (async () => {
-      const r = (await fetch("/replays/encimera.json").then((x) => x.json())) as { eventos: { t: number; ev: Evento }[] };
+      const r = await cargarReplay("encimera");
       if (!vivo) return;
       if (reduce) { dispatch({ tipo: "todo", evs: r.eventos.map((e) => e.ev) }); return; }
       const duracion = r.eventos[r.eventos.length - 1].t / VEL;

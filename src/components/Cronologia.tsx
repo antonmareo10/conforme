@@ -1,20 +1,9 @@
 "use client";
-// What really happened, step by step: SAM, reading, checks, and every tool call of the investigator
-// with the crop it looked at. Timings are the real ones.
-import { motion } from "motion/react";
-import { useState } from "react";
+// What really happened, step by step: SAM, reading, checks, and what each agent did (the full trace,
+// with every crop, is in the claim it prepared). Timings are the real ones.
 import type { DocEstado, SesionEstado } from "@/lib/sesion/estado";
 import { T, type Idioma } from "@/lib/sesion/textos";
 
-const HERRAMIENTA: Record<string, Record<Idioma, string>> = {
-  releer_celda: { es: "Releyó una celda ampliada", en: "Re-read one zoomed cell" },
-  releer_fila: { es: "Releyó la fila ampliada", en: "Re-read the zoomed row" },
-  releer_total: { es: "Releyó el total", en: "Re-read the total" },
-  historial_precio: { es: "Miró el historial de precios", en: "Checked the price history" },
-  pedido: { es: "Miró el pedido", en: "Checked the order" },
-  recontar_filas: { es: "Recontó las filas", en: "Recounted the rows" },
-  cerrar: { es: "Cerró la investigación", en: "Closed the investigation" },
-};
 const VEREDICTO: Record<string, Record<Idioma, string>> = {
   error_proveedor: { es: "Error del proveedor, confirmado en el papel", en: "Supplier error, confirmed on the paper" },
   celda_mal_leida: { es: "Celda mal leída, reparada", en: "Misread cell, repaired" },
@@ -57,53 +46,33 @@ export function Cronologia({ sesion, lang }: { sesion: SesionEstado; lang: Idiom
 
 function DocPasos({ d, n, lang }: { d: DocEstado; n: number; lang: Idioma }) {
   const t = T[lang];
+  const es = lang === "es";
   const inv = d.investigacion;
-  const [ampliada, setAmpliada] = useState<string | null>(null);
+  const exp = d.expediente;
+  const confirmadas = exp?.puntos.filter((p) => p.estado === "confirmada").length ?? 0;
+  const retenidas = exp?.puntos.filter((p) => p.estado === "retenida").length ?? 0;
+  const herramientas = (pasos: { herramienta: string }[]) => pasos.filter((p) => !p.herramienta.startsWith("cerrar")).length;
   return (
     <>
-      {ampliada && (
-        <li className="fixed inset-0 z-50 flex items-center justify-center bg-tinta/70 p-4" onClick={() => setAmpliada(null)}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ampliada} alt={lang === "es" ? "Recorte ampliado que releyó el agente" : "Zoomed crop the agent re-read"} className="max-h-[80vh] w-full max-w-2xl rounded-lg bg-white object-contain shadow-2xl" />
-        </li>
-      )}
       <Paso ok={!!d.leido} activo={d.leyendo}>
-        {n}. {d.proveedor ?? (lang === "es" ? "Albarán" : "Note")} · {t.etapas.leer.toLowerCase()} {d.leidoMs != null && <>· {d.leido?.lineas.length} {lang === "es" ? "líneas" : "lines"} · {s(d.leidoMs)}</>}
+        {n}. {d.proveedor ?? (es ? "Albarán" : "Note")} · {t.etapas.leer.toLowerCase()} {d.leidoMs != null && <>· {d.leido?.lineas.length} {es ? "líneas" : "lines"} · {s(d.leidoMs)}</>}
       </Paso>
       {(d.investigando || inv) && (
         <Paso ok={!!inv} activo={d.investigando}>
-          <span className="font-medium text-tinta">{t.investigacion}</span>
+          <span className="text-tinta">{t.etapas.investigar}</span>
           {inv && (
-            <ol className="mt-2 flex flex-col gap-2 border-l-2 border-linea pl-3">
-              {inv.pasos.map((p) => {
-                const ev = inv.evidencias.find((e) => e.id === p.evidenciaId);
-                return (
-                  <motion.li key={p.n} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: p.n * 0.08 }} className="flex items-center gap-3">
-                    {ev?.miniatura && (
-                      <button type="button" onClick={() => setAmpliada(ev.miniatura!)} className="shrink-0 rounded border border-linea transition hover:border-sello" aria-label={lang === "es" ? `Ver el recorte ${ev.id} ampliado` : `Show crop ${ev.id} enlarged`}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={ev.miniatura} alt="" className="h-14 w-36 rounded object-cover object-left" />
-                      </button>
-                    )}
-                    <span>
-                      {HERRAMIENTA[p.herramienta]?.[lang] ?? p.herramienta}
-                      {p.args.linea != null && <> · {lang === "es" ? "línea" : "line"} {String(p.args.linea)}</>}
-                      {ev?.texto != null && <> → <b className="cifras text-tinta">{ev.texto}</b></>}
-                      {p.evidenciaId && <span className="ml-1 rounded bg-papel-2 px-1 text-[10px] text-apagado">{p.evidenciaId}</span>}
-                    </span>
-                  </motion.li>
-                );
-              })}
-              {inv.veredicto && (
-                <li className="pt-1 text-tinta">
-                  <b>{VEREDICTO[inv.veredicto]?.[lang] ?? inv.veredicto}</b>
-                  <span className={`ml-2 rounded px-1.5 py-0.5 text-[11px] ${inv.valido ? "bg-verde/10 text-verde" : "bg-rojo/10 text-rojo"}`}>
-                    {inv.valido ? (lang === "es" ? "validado por el código" : "validated by code") : (lang === "es" ? "rechazado por el código" : "rejected by code")}
-                  </span>
-                  <span className="cifras ml-2 text-xs text-apagado">{s(inv.ms)}</span>
-                </li>
-              )}
-            </ol>
+            <> · {herramientas(inv.pasos)} {es ? "herramientas" : "tools"} · {inv.veredicto ? <b className="font-medium text-tinta">{VEREDICTO[inv.veredicto]?.[lang] ?? inv.veredicto}</b> : null}
+              {" "}<span className={`rounded px-1.5 py-0.5 text-[11px] ${inv.valido ? "bg-verde/10 text-verde" : "bg-rojo/10 text-rojo"}`}>{inv.valido ? (es ? "validado por el código" : "validated by code") : es ? "rechazado por el código" : "rejected by code"}</span>
+              <span className="cifras ml-1 text-xs text-apagado">{s(inv.ms)}</span></>
+          )}
+        </Paso>
+      )}
+      {(d.reclamando || exp) && (
+        <Paso ok={!!exp} activo={d.reclamando}>
+          <span className="text-tinta">{es ? "Confirmando la reclamación en el papel" : "Confirming the claim on the paper"}</span>
+          {exp && (
+            <> · {herramientas(exp.pasos)} {es ? "herramientas" : "tools"} · <b className="font-medium text-tinta">{confirmadas} {es ? "confirmada" : "confirmed"}{confirmadas === 1 || !es ? "" : "s"}{retenidas ? `, ${retenidas} ${es ? "retenida" : "held back"}${retenidas === 1 || !es ? "" : "s"}` : ""}</b>
+              <span className="cifras ml-1 text-xs text-apagado">{s(exp.ms)}</span></>
           )}
         </Paso>
       )}
