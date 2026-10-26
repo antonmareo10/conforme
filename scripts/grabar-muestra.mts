@@ -7,6 +7,7 @@ import { ENCIMERA_CONTEXTO } from "../src/lib/demo/notas";
 const id = process.argv[2] ?? "encimera";
 const MUESTRAS: Record<string, { fotos: string[]; ctx: typeof ENCIMERA_CONTEXTO }> = {
   encimera: { fotos: ["public/muestras/encimera/escena.jpg"], ctx: ENCIMERA_CONTEXTO },
+  girado: { fotos: ["public/muestras/girado/carnes-girado.jpg"], ctx: { historial: [], registrados: [], pedidos: [] } },
 };
 const m = MUESTRAS[id];
 const t0 = Date.now();

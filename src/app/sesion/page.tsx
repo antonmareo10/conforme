@@ -4,6 +4,7 @@ import { Sesion } from "@/components/Sesion";
 const MUESTRAS: Record<string, { foto: string | null; instantaneo?: boolean }> = {
   encimera: { foto: "/muestras/encimera/escena-1200.webp" },
   mes: { foto: null, instantaneo: true },
+  girado: { foto: "/muestras/girado/carnes-girado.jpg" },
 };
 
 // searchParams are request data: with Cache Components they must be read inside a Suspense boundary.

@@ -244,3 +244,23 @@ describe("the tax summary and the total, read twice", () => {
     expect(b.sello).toBe("REVISAR");
   });
 });
+
+describe("turning the page upright", () => {
+  it("adds 180° when the reported turn leaves the header below the lines and the total above", async () => {
+    const { bocaAbajo, enderezarLectura } = await import("../albaran/rotar");
+    // An upright note: header at the top, lines in the middle, total at the bottom.
+    const derecho = nota("Carnes", "C-1", [linea(400, "Ternera", "6,40", "kg", "14,20", "90,88"), linea(450, "Pollo", "8,20", "kg", "4,10", "33,62")], [iva("10", "124,50", "12,45")], "136,95");
+    derecho.total = { texto: "136,95", caja: { x_min: 600, x_max: 950, y_min: 850, y_max: 880 } };
+    expect(bocaAbajo(derecho)).toBe(false);
+    // The same page upside down: what a wrong 90° (instead of 270°) produces.
+    const { rotarLectura } = await import("../albaran/rotar");
+    const alReves = rotarLectura(derecho, 180);
+    expect(bocaAbajo(alReves)).toBe(true);
+    const img = await sharp({ create: { width: 300, height: 500, channels: 3, background: "#ffffff" } }).jpeg().toBuffer();
+    const r = await enderezarLectura(img, { ...alReves, rotacion_para_leer: 0 });
+    expect(r.leido.lineas[0].caja_fila).toEqual(derecho.lineas[0].caja_fila);
+    expect(bocaAbajo(r.leido)).toBe(false);
+    const r2 = await enderezarLectura(img, { ...derecho, rotacion_para_leer: 0 });
+    expect(r2.leido.lineas[0].caja_fila).toEqual(derecho.lineas[0].caja_fila);
+  });
+});

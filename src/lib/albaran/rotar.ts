@@ -38,8 +38,27 @@ export function rotarLectura(leido: AlbaranLeido, deg: number): AlbaranLeido {
   };
 }
 
+const centroY = (c: Caja | null) => (c ? (c.y_min + c.y_max) / 2 : null);
+const media = (xs: (number | null)[]) => { const v = xs.filter((x): x is number => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+
+/**
+ * Is the page upside down after turning it? On an upright note the header (supplier, number, date) sits
+ * above the lines and the total below them. Measured on the real set: in 2-4 of 20 sideways scans per run
+ * the reader said 90° where 270° was needed, which leaves the page upside down; every one showed the header
+ * well below the lines and the total well above. Then code adds 180°. Boxes decide; no extra model call.
+ */
+export function bocaAbajo(leido: AlbaranLeido): boolean {
+  const cab = media([centroY(leido.proveedor.caja), centroY(leido.numero.caja), centroY(leido.fecha.caja)]);
+  const filas = media(leido.lineas.map((l) => centroY(l.caja_fila)));
+  const total = centroY(leido.total.caja);
+  return cab != null && filas != null && total != null && cab > filas + 50 && total < filas - 50;
+}
+
 export async function enderezarLectura(imagen: Buffer, leido: AlbaranLeido) {
-  const deg = leido.rotacion_para_leer;
+  const dicho = leido.rotacion_para_leer;
+  const corregir = bocaAbajo(rotarLectura(leido, [90, 180, 270].includes(dicho) ? dicho : 0));
+  const deg = ((([90, 180, 270].includes(dicho) ? dicho : 0) + (corregir ? 180 : 0)) % 360) as AlbaranLeido["rotacion_para_leer"];
+  leido = { ...leido, rotacion_para_leer: deg };
   if (![90, 180, 270].includes(deg)) {
     const { width = 0, height = 0 } = await sharp(imagen).metadata();
     return { imagen, leido, width, height };

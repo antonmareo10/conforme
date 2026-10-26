@@ -1,0 +1,352 @@
+[
+ {
+  "id": "carnes-girado",
+  "imagen": "/muestras/girado/carnes-girado.jpg",
+  "width": 1110,
+  "height": 1720,
+  "verdad": {
+   "rotacion_para_leer": 270,
+   "proveedor": {
+    "texto": "CÁRNICAS DEL NALÓN",
+    "caja": {
+     "x_min": 885,
+     "x_max": 924,
+     "y_min": 56,
+     "y_max": 240
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001040",
+    "caja": {
+     "x_min": 786,
+     "x_max": 825,
+     "y_min": 127,
+     "y_max": 220
+    }
+   },
+   "numero": {
+    "texto": "C-2231",
+    "caja": {
+     "x_min": 885,
+     "x_max": 924,
+     "y_min": 883,
+     "y_max": 944
+    }
+   },
+   "fecha": {
+    "texto": "06/10/2026",
+    "caja": {
+     "x_min": 835,
+     "x_max": 875,
+     "y_min": 842,
+     "y_max": 944
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "TERNERA PARA GUISAR",
+      "caja": {
+       "x_min": 626,
+       "x_max": 666,
+       "y_min": 185,
+       "y_max": 379
+      }
+     },
+     "cantidad": {
+      "texto": "6,40",
+      "caja": {
+       "x_min": 626,
+       "x_max": 666,
+       "y_min": 549,
+       "y_max": 590
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "14,20",
+      "caja": {
+       "x_min": 626,
+       "x_max": 666,
+       "y_min": 659,
+       "y_max": 710
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "90,88",
+      "caja": {
+       "x_min": 626,
+       "x_max": 666,
+       "y_min": 794,
+       "y_max": 846
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 626,
+       "x_max": 666,
+       "y_min": 914,
+       "y_max": 935
+      }
+     },
+     "caja_fila": {
+      "x_min": 616,
+      "x_max": 673,
+      "y_min": 56,
+      "y_max": 944
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "POLLO DE CORRAL",
+      "caja": {
+       "x_min": 569,
+       "x_max": 609,
+       "y_min": 185,
+       "y_max": 339
+      }
+     },
+     "cantidad": {
+      "texto": "8,20",
+      "caja": {
+       "x_min": 569,
+       "x_max": 609,
+       "y_min": 549,
+       "y_max": 590
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "4,10",
+      "caja": {
+       "x_min": 569,
+       "x_max": 609,
+       "y_min": 669,
+       "y_max": 710
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "33,62",
+      "caja": {
+       "x_min": 569,
+       "x_max": 609,
+       "y_min": 794,
+       "y_max": 846
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 569,
+       "x_max": 609,
+       "y_min": 914,
+       "y_max": 935
+      }
+     },
+     "caja_fila": {
+      "x_min": 559,
+      "x_max": 616,
+      "y_min": 56,
+      "y_max": 944
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "CHORIZO CRIOLLO",
+      "caja": {
+       "x_min": 513,
+       "x_max": 552,
+       "y_min": 185,
+       "y_max": 339
+      }
+     },
+     "cantidad": {
+      "texto": "3,00",
+      "caja": {
+       "x_min": 513,
+       "x_max": 552,
+       "y_min": 549,
+       "y_max": 590
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "9,80",
+      "caja": {
+       "x_min": 513,
+       "x_max": 552,
+       "y_min": 669,
+       "y_max": 710
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "32,40",
+      "caja": {
+       "x_min": 513,
+       "x_max": 552,
+       "y_min": 794,
+       "y_max": 846
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 513,
+       "x_max": 552,
+       "y_min": 914,
+       "y_max": 935
+      }
+     },
+     "caja_fila": {
+      "x_min": 503,
+      "x_max": 559,
+      "y_min": 56,
+      "y_max": 944
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "HUEVOS CAMPEROS",
+      "caja": {
+       "x_min": 456,
+       "x_max": 495,
+       "y_min": 185,
+       "y_max": 339
+      }
+     },
+     "cantidad": {
+      "texto": "6",
+      "caja": {
+       "x_min": 456,
+       "x_max": 495,
+       "y_min": 580,
+       "y_max": 590
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "2,60",
+      "caja": {
+       "x_min": 456,
+       "x_max": 495,
+       "y_min": 669,
+       "y_max": 710
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "15,60",
+      "caja": {
+       "x_min": 456,
+       "x_max": 495,
+       "y_min": 794,
+       "y_max": 846
+      }
+     },
+     "iva_pct": {
+      "texto": "4",
+      "caja": {
+       "x_min": 456,
+       "x_max": 495,
+       "y_min": 925,
+       "y_max": 935
+      }
+     },
+     "caja_fila": {
+      "x_min": 446,
+      "x_max": 503,
+      "y_min": 56,
+      "y_max": 944
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "4,00",
+      "caja": {
+       "x_min": 293,
+       "x_max": 332,
+       "y_min": 161,
+       "y_max": 202
+      }
+     },
+     "base": {
+      "texto": "15,60",
+      "caja": {
+       "x_min": 293,
+       "x_max": 332,
+       "y_min": 329,
+       "y_max": 380
+      }
+     },
+     "cuota": {
+      "texto": "0,62",
+      "caja": {
+       "x_min": 293,
+       "x_max": 332,
+       "y_min": 494,
+       "y_max": 535
+      }
+     }
+    },
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 236,
+       "x_max": 276,
+       "y_min": 151,
+       "y_max": 202
+      }
+     },
+     "base": {
+      "texto": "156,90",
+      "caja": {
+       "x_min": 236,
+       "x_max": 276,
+       "y_min": 318,
+       "y_max": 380
+      }
+     },
+     "cuota": {
+      "texto": "15,69",
+      "caja": {
+       "x_min": 236,
+       "x_max": 276,
+       "y_min": 484,
+       "y_max": 535
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "188,81",
+    "caja": {
+     "x_min": 149,
+     "x_max": 199,
+     "y_min": 866,
+     "y_max": 944
+    }
+   },
+   "filas_de_producto_contadas": 4,
+   "ilegible": []
+  }
+ }
+]

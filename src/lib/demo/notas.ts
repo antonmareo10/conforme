@@ -143,3 +143,20 @@ export const MES: NotaDemo[] = [
   { id: "m11-bebidas", plantilla: "matricial", proveedor: PROVEEDORES.bebidas, numero: "76901", fecha: "2026-09-28", lineas: [L("Agua mineral 50 cl", 24, "ud", 0.35, 10, { codigo: "AG05", decPrecio: 3 }), L("Refresco cola 33 cl", 24, "ud", 0.95, 10, { codigo: "RF33", decPrecio: 3 })] },
   { id: "m12-carnes", plantilla: "a4", proveedor: PROVEEDORES.carnes, numero: "C-2209", fecha: "2026-09-23", lineas: [L("Ternera para guisar", 6, "kg", 15.4, 10, { codigo: "T10" }), L("Pollo de corral", 8, "kg", 4.1, 10, { codigo: "P02" })] },
 ];
+
+/**
+ * "Rotated and faint": one fictional dot-matrix note scanned sideways and faded, like many of the real
+ * ones. Two VAT rates, and a supplier error on line 3: 3 kg × 9,80 € printed as 32,40 € (3,00 € extra).
+ */
+export const GIRADO: NotaDemo[] = [
+  {
+    id: "carnes-girado", plantilla: "matricial", proveedor: PROVEEDORES.carnes, numero: "C-2231", fecha: "2026-10-06",
+    efectos: { girar: 90, tenue: true, borroso: 0.7 },
+    lineas: [
+      L("Ternera para guisar", 6.4, "kg", 14.2, 10, { codigo: "T10" }),
+      L("Pollo de corral", 8.2, "kg", 4.1, 10, { codigo: "P02" }),
+      L("Chorizo criollo", 3, "kg", 9.8, 10, { codigo: "CH4", importeImpreso: 32.4 }),
+      L("Huevos camperos", 6, "ud", 2.6, 4, { codigo: "H12" }),
+    ],
+  },
+];

@@ -31,7 +31,7 @@ export function Cronologia({ sesion, lang }: { sesion: SesionEstado; lang: Idiom
     <ol className="flex flex-col gap-3" aria-label={lang === "es" ? "Pasos del análisis" : "Analysis steps"}>
       {buscar && (
         <Paso ok={buscar.estado === "fin"} activo={buscar.estado === "inicio"}>
-          {t.etapas.buscar}{buscar.estado === "fin" && <> · <b className="text-tinta">{buscar.detalle}</b> {lang === "es" ? "albaranes" : "notes"} · {s(buscar.ms)}</>}
+          {t.etapas.buscar}{buscar.estado === "fin" && <> · <b className="text-tinta">{buscar.detalle}</b> {buscar.detalle === "1" ? (lang === "es" ? "albarán" : "note") : lang === "es" ? "albaranes" : "notes"} · {s(buscar.ms)}</>}
         </Paso>
       )}
       {docs.map((d, i) => <DocPasos key={d.docId} d={d} n={i + 1} lang={lang} />)}

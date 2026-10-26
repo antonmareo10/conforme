@@ -86,9 +86,10 @@ export default function Home() {
           <CasoDeMuestraPerezoso />
         </section>
 
-        <section className="grid gap-4 border-t border-linea py-10 sm:grid-cols-2" aria-label="Muestras">
+        <section className="grid grid-cols-1 gap-4 border-t border-linea py-10 sm:grid-cols-2 lg:grid-cols-3" aria-label="Muestras">
           {[
             { href: "/sesion?muestra=encimera", img: "/muestras/encimera/escena-320.webp", es: ["Tres albaranes en la encimera", "Una foto, tres proveedores: una subida, una falta y un error del proveedor. El agente confirma las tres en el papel y prepara tres reclamaciones."], en: ["Three notes on the counter", "One photo, three suppliers: a price rise, a shortage and a supplier error. The agent confirms all three on the paper and prepares three claims."] },
+            { href: "/sesion?muestra=girado", img: "/muestras/girado/carnes-girado-320.webp", es: ["Girado y tenue", "Un albarán de matricial escaneado de lado y descolorido. Muse Spark lo pone derecho y lo lee dos veces, y el agente confirma en el papel un error de 3,00 €."], en: ["Rotated and faint", "A dot-matrix note scanned sideways and faded. Muse Spark turns it upright and reads it twice, and the agent confirms a €3.00 mistake on the paper."] },
             { href: "/sesion?muestra=mes", img: "/muestras/mes/m09-carnes-320.webp", es: ["Un mes de Casa Nela", "Doce albaranes en cuatro semanas. Pregunta «¿cuánto he pagado de más este mes?» y mira qué líneas se encienden."], en: ["A month at Casa Nela", "Twelve notes over four weeks. Ask \"how much have I overpaid this month?\" and see which lines light up."] },
           ].map((m) => (
             <Link key={m.href} href={m.href} className="group flex gap-4 rounded-2xl border border-linea bg-white/60 p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
