@@ -58,8 +58,9 @@ export function rango(periodo: Periodo, docs: { fecha: string | null }[]): { des
 export function responder(c: Consulta, docs: DocSesion[]): Respuesta {
   const albaranes = docs.map((d) => ({ d, a: inferirIva(normalize(d.docId, d.leido)) }));
   const r = rango(c.periodo, albaranes.map((x) => x.a));
-  const enPeriodo = albaranes.filter(({ a }) => !r || (a.fecha != null && a.fecha >= r.desde && a.fecha <= r.hasta));
   const delProveedor = (p: string | null) => (x: (typeof albaranes)[number]) => !p || claveProducto(x.a.proveedor) === claveProducto(p);
+  // Every intent respects the period and, when the question names one, the supplier.
+  const enPeriodo = albaranes.filter(({ a }) => !r || (a.fecha != null && a.fecha >= r.desde && a.fecha <= r.hasta)).filter(delProveedor(c.proveedor));
   const base: Respuesta = { consulta: c, cifraCentimos: null, referencias: [], hechos: { albaranes: enPeriodo.length } };
 
   switch (c.intencion) {
@@ -106,7 +107,7 @@ export function responder(c: Consulta, docs: DocSesion[]): Respuesta {
         ...base,
         cifraCentimos: ultima.precio != null ? toCents(ultima.precio) : null,
         referencias: [{ docId: ultima.docId, lineaIdx: ultima.lineaIdx, centimos: ultima.centimos }],
-        hechos: { ...base.hechos, producto: c.producto ?? "", fecha: ultima.fecha, evolucion: refs.map((x) => x.precio).filter((p) => p != null).join(" → ") },
+        hechos: { ...base.hechos, producto: c.producto ?? "", fecha: ultima.fecha, evolucion: refs.map((x) => x.precio).filter((p): p is number => p != null).map((p) => toCents(p)).join(",") },
       };
     }
     case "AVISOS": {

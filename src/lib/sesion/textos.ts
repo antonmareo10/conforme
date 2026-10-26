@@ -106,6 +106,9 @@ const PERIODO: Record<string, Record<Idioma, string>> = {
   todo: { es: "en total", en: "in total" },
 };
 
+const fechaCorta = (iso: string, lang: Idioma) => { const [y, m, d] = iso.split("-"); return lang === "es" ? `${d}/${m}/${y}` : `${d}/${m}/${y}`; };
+const evol = (v: string | number, lang: Idioma) => String(v).split(",").filter(Boolean).map((c) => eur(Number(c), lang)).join(" → ");
+
 /** The answer sentence. Every number in it comes from the computed answer. */
 export function fraseRespuesta(r: { consulta: { intencion: string; periodo: string; proveedor: string | null; producto: string | null }; cifraCentimos: number | null; referencias: unknown[]; hechos: Record<string, string | number> }, lang: Idioma): string {
   const es = lang === "es";
@@ -123,7 +126,7 @@ export function fraseRespuesta(r: { consulta: { intencion: string; periodo: stri
       return es ? `Llevas ${e} en ${String(h.producto).toLowerCase()} ${p} (${h.lineas} ${Number(h.lineas) === 1 ? "línea" : "líneas"}).` : `You've spent ${e} on ${String(h.producto).toLowerCase()} ${p} (${h.lineas} ${Number(h.lineas) === 1 ? "line" : "lines"}).`;
     case "ULTIMO_PRECIO":
       return r.cifraCentimos != null
-        ? (es ? `La última vez (${h.fecha}) te cobraron ${String(h.producto).toLowerCase()} a ${e}. Antes: ${h.evolucion}.` : `Last time (${h.fecha}) ${String(h.producto).toLowerCase()} cost ${e}. Before: ${h.evolucion}.`)
+        ? (es ? `La última vez (${fechaCorta(String(h.fecha), lang)}) te cobraron ${String(h.producto).toLowerCase()} a ${e}. Evolución: ${evol(h.evolucion, lang)}.` : `Last time (${fechaCorta(String(h.fecha), lang)}) ${String(h.producto).toLowerCase()} cost ${e}. History: ${evol(h.evolucion, lang)}.`)
         : es ? "No encuentro ese producto en tus albaranes." : "I can't find that product in your notes.";
     case "AVISOS":
       return es ? `${h.conProblemas} ${Number(h.conProblemas) === 1 ? "albarán tiene" : "albaranes tienen"} algo que mirar.` : `${h.conProblemas} ${Number(h.conProblemas) === 1 ? "note has" : "notes have"} something to look at.`;
