@@ -14,13 +14,13 @@ On 33 real delivery notes from that restaurant (20 of them scanned sideways, fad
 
 | | |
 |---|---|
-| Lines read to the cent | **97.4%** (150 of 154; 96.1% and 98.7%) |
-| Complete lines (quantity, price, amount, VAT) | 94.9% (150 of 158) |
-| Perfect notes | 30 and 31 of 33 |
-| Note total exact | 31 of 31 in both runs |
+| Lines read to the cent | **98.7%** in both runs (152 of 154) |
+| Complete lines (quantity, price, amount, VAT) | 95.6% (151 of 158) |
+| Perfect notes | 31 and 30 of 33 |
+| Note total exact | 31 and 30 of 31 |
 | Silent OKs (ALL GOOD stamp on a note with an error) | **0 and 0** |
-| Sent to review, rightly / needlessly | 3 and 2 / 1 and 0 |
-| Time per note (median, latest run) · cost per note | 23.0 s · $0.037 |
+| Sent to review, rightly / needlessly | 2 and 3 / 0 and 0 |
+| Time per note (median, latest run) · cost per note | 17.6 s · $0.036 |
 
 Every version is published on `/eval`, including the one that had a silent OK (see below). The real notes never leave my laptop; only aggregate numbers are in `eval/results/`.
 
@@ -62,6 +62,7 @@ The same reading can run on an open-weight Meta model, so supplier prices never 
 - **A silent OK, by one cent.** In one run a blurry ticket was stamped ALL GOOD with its VAT read as 25.59 and its total as 147.42; the paper says 25.58 and 147.41. The two agreed with each other and the VAT was within rounding. The table was read twice; the tax summary was not. Now it is, and in the next two runs the total was exact on 31 of 31.
 - **It nearly accused a supplier wrongly.** A note prints pieces (3 U) and weight (11.081 kg); the agent took the pieces and saw a €111.52 overcharge. Code now forbids that verdict when another printed number makes the line add up.
 - **A box with no height hid a whole row.** The first reading put one row's box above row 1 with zero height; the table crop cut that row out. Code now re-places impossible boxes from their neighbours, and a tool that cannot find its line looks again at the whole table.
+- **Some pages ended upside down.** On 2 to 4 of the 20 sideways scans per run, the reader said 90° where 270° was needed. The numbers were still read right, but the paper showed upside down. Code now checks the boxes (header below the lines and total above means upside down) and adds 180°.
 - **Slow API, no verdict.** With the API slow, three sequential zoomed re-reads ran past the time budget and the agent never closed. Tools of one turn now run in parallel, and at the deadline the agent gets a closing turn.
 - **Counting crates with SAM wasn't reliable** (exact on 5 of 23 counts on public photos), so it is not in the product.
 

@@ -9,6 +9,8 @@ import v3 from "../../../eval/results/real-R-2026-10-26-v3-low-2048-investigar.j
 import v4 from "../../../eval/results/real-R-2026-10-26-v4-low-2048-investigar.json";
 import v4b from "../../../eval/results/real-R-2026-10-26-v4b-low-2048-investigar.json";
 import v5 from "../../../eval/results/real-R-2026-10-26-v5-low-2048-investigar.json";
+import v5b from "../../../eval/results/real-R-2026-10-26-v5b-low-2048-investigar.json";
+import v6 from "../../../eval/results/real-R-2026-10-26-v6-low-2048-investigar.json";
 
 type R = { n: number; de: number; pct: number | null };
 type Agg = {
@@ -60,7 +62,8 @@ export default function Page() {
     { es: "+ papel enderezado antes de la segunda lectura", en: "+ page turned upright before the second reading", rs: [v2 as unknown as Agg] },
     { es: "+ expediente de reclamación, cajas imposibles recolocadas", en: "+ claim file, impossible boxes re-placed", rs: [v3 as unknown as Agg] },
     { es: "+ herramientas en paralelo, cierre al acabar el tiempo", en: "+ tools in parallel, a closing turn when time runs out", rs: [v4 as unknown as Agg, v4b as unknown as Agg] },
-    { es: "+ IVA y total leídos dos veces (actual)", en: "+ VAT and total read twice (current)", rs: [v5 as unknown as Agg, a] },
+    { es: "+ IVA y total leídos dos veces", en: "+ VAT and total read twice", rs: [v5 as unknown as Agg, v5b as unknown as Agg] },
+    { es: "+ páginas boca abajo enderezadas (actual)", en: "+ upside-down pages turned back (current)", rs: [v6 as unknown as Agg, a] },
   ];
   const cada = (rs: Agg[], f: (r: Agg) => React.ReactNode) => rs.map((r, i) => <span key={i}>{i > 0 && <span className="text-apagado"> · </span>}{f(r)}</span>);
   return (
