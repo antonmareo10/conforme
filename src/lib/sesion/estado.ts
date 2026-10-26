@@ -3,6 +3,7 @@ import type { Evento, Etapa } from "../pipeline";
 import type { AlbaranLeido } from "../albaran/schema";
 import type { Aviso, Sello } from "../checks/types";
 import type { Evidencia, Paso, Veredicto } from "../agente/investigar";
+import type { PuntoReclamacion } from "../agente/expediente";
 
 export interface DocEstado {
   docId: string;
@@ -20,6 +21,9 @@ export interface DocEstado {
   provisional?: boolean;
   investigacion?: { pasos: Paso[]; evidencias: Evidencia[]; veredicto: Veredicto | null; valido: boolean; motivo?: string; explicacion?: string; ms: number };
   investigando?: boolean;
+  /** The claim file: what the agent re-read before any money is asked of the supplier. */
+  expediente?: { pasos: Paso[]; evidencias: Evidencia[]; puntos: PuntoReclamacion[]; valido: boolean; motivo?: string; explicacion?: string; ms: number };
+  reclamando?: boolean;
   leyendo?: boolean;
   proveedor?: string | null;
   numero?: string | null;
@@ -54,6 +58,7 @@ export function reducir(s: SesionEstado, ev: Evento): SesionEstado {
         const [s2, d] = doc(s, ev.docId);
         if (ev.etapa === "leer") return con(s2, { ...d, leyendo: ev.estado === "inicio" });
         if (ev.etapa === "investigar") return con(s2, { ...d, investigando: ev.estado === "inicio" });
+        if (ev.etapa === "reclamar") return con(s2, { ...d, reclamando: ev.estado === "inicio" });
         return s2;
       }
       return { ...s, etapas: { ...s.etapas, [ev.etapa]: { estado: ev.estado, ms: ev.ms, detalle: ev.detalle } } };
@@ -84,9 +89,14 @@ export function reducir(s: SesionEstado, ev: Evento): SesionEstado {
       const { pasos, evidencias, veredicto, valido, motivo, explicacion, ms } = ev;
       return con(s2, { ...d, leido: ev.leido, investigacion: { pasos, evidencias, veredicto, valido, motivo, explicacion, ms } });
     }
+    case "expediente": {
+      const [s2, d] = doc(s, ev.docId);
+      const { pasos, evidencias, puntos, valido, motivo, explicacion, ms } = ev;
+      return con(s2, { ...d, leido: ev.leido, expediente: { pasos, evidencias, puntos, valido, motivo, explicacion, ms } });
+    }
     case "albaran": {
       const [s2, d] = doc(s, ev.docId);
-      return con(s2, { ...d, sello: ev.sello, provisional: false, proveedor: ev.proveedor, numero: ev.numero, fecha: ev.fecha, totalTexto: ev.totalTexto, leyendo: false, investigando: false });
+      return con(s2, { ...d, sello: ev.sello, provisional: false, proveedor: ev.proveedor, numero: ev.numero, fecha: ev.fecha, totalTexto: ev.totalTexto, leyendo: false, investigando: false, reclamando: false });
     }
     case "resumen":
       return { ...s, resumen: ev };
@@ -94,7 +104,7 @@ export function reducir(s: SesionEstado, ev: Evento): SesionEstado {
       const errores = [...s.errores, { codigo: ev.codigo, mensaje: ev.mensaje, docId: ev.docId }];
       if (ev.docId) {
         const [s2, d] = doc({ ...s, errores }, ev.docId);
-        return con(s2, { ...d, error: ev.mensaje, leyendo: false, investigando: false });
+        return con(s2, { ...d, error: ev.mensaje, leyendo: false, investigando: false, reclamando: false });
       }
       return { ...s, errores };
     }

@@ -2,43 +2,19 @@
 // keeps every result as numbered evidence and validates the closing verdict. The model never sets a number.
 import type OpenAI from "openai";
 import sharp from "sharp";
-import type { FunctionTool, ResponseInputItem, ResponseFunctionToolCall } from "openai/resources/responses/responses";
+import type { ResponseInputItem } from "openai/resources/responses/responses";
 import { assertAllowedModel, MODELS } from "../meta/models";
 import { metaClient, type Effort } from "../albaran/read";
-import type { AlbaranLeido, Caja } from "../albaran/schema";
+import type { AlbaranLeido } from "../albaran/schema";
 import { normalize } from "../albaran/normalize";
-import { aritmeticaLinea, claveProducto, comprobar, inferirIva, precioReferencia, sello } from "../checks/engine";
+import { aritmeticaLinea, comprobar, inferirIva, sello } from "../checks/engine";
 import type { Albaran, Aviso, Contexto, Sello } from "../checks/types";
-import { parsePrinted } from "../numbers";
 import { mismoNumero } from "../albaran/localizar";
+import { bucleAgente, CAMPOS, HERRAMIENTAS, mesaDeTrabajo, norm, tool, type CampoLinea, type Evidencia, type Paso } from "./herramientas";
 
-export type CampoLinea = "cantidad" | "precio_unitario" | "importe" | "descuento_pct";
-const CAMPOS: CampoLinea[] = ["cantidad", "precio_unitario", "importe", "descuento_pct"];
-
-export interface Evidencia {
-  id: string;
-  herramienta: string;
-  linea?: number; // 1-based, as shown to the model and the user
-  campo?: string;
-  texto?: string | null;
-  /** Crop of the paper this evidence was read from, in pixels of the image the reader saw. */
-  recorte?: { x: number; y: number; w: number; h: number };
-  /** Small JPEG of the crop for the trace (data URL). */
-  miniatura?: string;
-  datos?: Record<string, unknown>;
-}
-
-export interface Paso {
-  n: number;
-  herramienta: string;
-  args: Record<string, unknown>;
-  resumen: string;
-  evidenciaId?: string;
-  ms: number;
-}
+export type { CampoLinea, CampoCabecera, Evidencia, Paso } from "./herramientas";
 
 export type Veredicto = "error_proveedor" | "celda_mal_leida" | "lectura_confirmada" | "revisar";
-export type CampoCabecera = "total" | "base" | "cuota";
 
 export interface Investigacion {
   investigado: boolean;
@@ -63,25 +39,7 @@ export interface InvestigarOpts {
   maxMs?: number;
 }
 
-const tool = (name: string, description: string, properties: Record<string, unknown>, required: string[]): FunctionTool => ({
-  type: "function",
-  name,
-  description,
-  strict: true,
-  parameters: { type: "object", additionalProperties: false, properties, required },
-});
-
-const TOOLS: FunctionTool[] = [
-  tool("releer_celda", "Crop one cell of a product line on the paper, zoom it 2x and read it again, independently of the first reading.",
-    { linea: { type: "integer", description: "1-based line number" }, campo: { type: "string", enum: CAMPOS } }, ["linea", "campo"]),
-  tool("releer_fila", "Crop a whole product line on the paper, zoom it 2x and read quantity, unit price, discount and amount again.",
-    { linea: { type: "integer" } }, ["linea"]),
-  tool("historial_precio", "Last purchases of this product from this supplier (code lookup).", { linea: { type: "integer" } }, ["linea"]),
-  tool("pedido", "Quantity the restaurant ordered for this product, if there is an order (code lookup).", { linea: { type: "integer" } }, ["linea"]),
-  tool("releer_total", "Crop the note's total, or the VAT base or VAT amount of one tax row, zoom it 2x and read it again.",
-    { campo: { type: "string", enum: ["total", "base", "cuota"] }, fila_iva: { type: "integer", description: "1-based tax row; use 1 for the total" } }, ["campo", "fila_iva"]),
-  tool("recontar_filas", "Count the product rows printed on the paper again, independently.", {}, []),
-  tool("cerrar", "Close the investigation. Cite the evidence ids that support the verdict. Code will verify everything.", {
+const CERRAR = tool("cerrar", "Close the investigation. Cite the evidence ids that support the verdict. Code will verify everything.", {
     veredicto: { type: "string", enum: ["error_proveedor", "celda_mal_leida", "lectura_confirmada", "revisar"] },
     evidencias: { type: "array", items: { type: "string" } },
     correcciones: {
@@ -90,8 +48,9 @@ const TOOLS: FunctionTool[] = [
       items: { type: "object", additionalProperties: false, required: ["linea", "campo", "texto"], properties: { linea: { type: "integer" }, campo: { type: "string", enum: CAMPOS }, texto: { type: "string" } } },
     },
     explicacion: { type: "string", description: "One short sentence for the restaurant owner, in Spanish, without numbers you did not see in the evidence." },
-  }, ["veredicto", "evidencias", "correcciones", "explicacion"]),
-];
+  }, ["veredicto", "evidencias", "correcciones", "explicacion"]);
+
+const CAMPO_DE_DINERO_RE = /cantidad|precio|importe|base|cuota|total|iva|descuento|dto|unidades|peso/i;
 
 const INSTRUCCIONES = `You are the investigator of Conforme, an app that checks supplier delivery notes for a restaurant before anyone signs them.
 Code already read the note and found warnings it cannot resolve alone. Decide what to look at on the paper, using at most {MAX} tool calls, then call "cerrar".
@@ -105,37 +64,6 @@ Rules:
 - "lectura_confirmada": when the warnings are only doubts about a reading (unreadable fields, row count) and independent re-reads of those exact fields agree with the first reading.
 - "revisar": when the evidence is unclear or contradictory.
 - Prefer the cheapest decisive step. Answer only with tool calls.`;
-
-/** Crop around a 0-1000 box with margins, zoom 2x. Returns JPEG bytes and the pixel rectangle. */
-async function recortar(imagen: Buffer, W: number, H: number, caja: Caja, filaCompleta = false) {
-  const x0 = (caja.x_min / 1000) * W, x1 = (caja.x_max / 1000) * W;
-  const y0 = (caja.y_min / 1000) * H, y1 = (caja.y_max / 1000) * H;
-  const bw = Math.max(1, x1 - x0), bh = Math.max(1, y1 - y0);
-  // Boxes can be off by up to a full text line (measured on day 0 and in replays): pad about two
-  // lines above and below; the prompt then names the line by its description.
-  const padX = filaCompleta ? Math.max(0.02 * W, 0.05 * bw) : Math.max(0.6 * bw, 0.04 * W);
-  const padY = Math.max(2.2 * bh, 0.035 * H);
-  const x = Math.max(0, Math.floor(x0 - padX)), y = Math.max(0, Math.floor(y0 - padY));
-  const w = Math.min(W - x, Math.ceil(bw + 2 * padX)), h = Math.min(H - y, Math.ceil(bh + 2 * padY));
-  const crop = sharp(imagen).extract({ left: x, top: y, width: Math.max(1, w), height: Math.max(1, h) });
-  const zoom = await crop.resize({ width: Math.max(2 * w, 480), kernel: "lanczos3" }).jpeg({ quality: 90 }).toBuffer();
-  const mini = await sharp(zoom).resize({ width: 360, withoutEnlargement: true }).jpeg({ quality: 70 }).toBuffer();
-  return { zoom, rect: { x, y, w, h }, miniatura: `data:image/jpeg;base64,${mini.toString("base64")}` };
-}
-
-async function preguntarImagen<T>(client: OpenAI, jpeg: Buffer, prompt: string, schema: Record<string, unknown>, effort: Effort) {
-  const r = await client.responses.create({
-    model: MODELS.read,
-    reasoning: { effort },
-    input: [{ role: "user", content: [{ type: "input_text", text: prompt }, { type: "input_image", image_url: `data:image/jpeg;base64,${jpeg.toString("base64")}`, detail: "auto" }] }],
-    text: { format: { type: "json_schema", name: "lectura", schema, strict: true } },
-  });
-  return { out: JSON.parse(r.output_text) as T, usage: r.usage };
-}
-
-const CAMPO_DE_DINERO_RE = /cantidad|precio|importe|base|cuota|total|iva|descuento|dto|unidades|peso/i;
-const ETIQUETA: Record<CampoLinea, string> = { cantidad: "quantity", precio_unitario: "unit price", importe: "line amount", descuento_pct: "discount %" };
-const norm = (t: string | null | undefined) => (t ?? "").replace(/\s|€/g, "").toLowerCase();
 
 export async function investigar(
   docId: string,
@@ -152,10 +80,6 @@ export async function investigar(
   const maxMs = opts.maxMs ?? 45_000;
   const { width: W = 0, height: H = 0 } = await sharp(imagen).metadata();
   const usage = { input_tokens: 0, output_tokens: 0 };
-  const sumar = (u?: { input_tokens?: number; output_tokens?: number } | null) => {
-    usage.input_tokens += u?.input_tokens ?? 0;
-    usage.output_tokens += u?.output_tokens ?? 0;
-  };
 
   let leido: AlbaranLeido = structuredClone(leidoOriginal);
   let albaran = inferirIva(normalize(docId, leido));
@@ -164,106 +88,8 @@ export async function investigar(
   const base = { leido, albaran, avisos, sello: sello(avisos), pasos: [] as Paso[], evidencias: [] as Evidencia[], ms: 0, usage };
   if (!dudas.length) return { ...base, investigado: false, veredicto: null, valido: true, ms: Date.now() - t0 };
 
-  const evidencias: Evidencia[] = [];
-  const pasos: Paso[] = [];
-  const nuevaEvidencia = (e: Omit<Evidencia, "id">) => {
-    const ev = { id: `ev${evidencias.length + 1}`, ...e };
-    evidencias.push(ev);
-    return ev;
-  };
-
-  // ---- tools, run by code ----
-  const lineaLeida = (n: number) => leido.lineas[n - 1];
-  async function releerCelda(linea: number, campo: CampoLinea) {
-    const l = lineaLeida(linea);
-    if (!l) return { error: `no hay línea ${linea}` };
-    const celda = l[campo].caja;
-    const fila = l.caja_fila;
-    if (!celda && !fila) return { error: "esa celda no tiene caja en el papel" };
-    // From the start of the row to the cell, so the line's description is in the crop too.
-    const caja = celda && fila ? { x_min: Math.min(fila.x_min, celda.x_min), x_max: Math.max(celda.x_max, Math.min(fila.x_max, celda.x_max + 40)), y_min: Math.min(fila.y_min, celda.y_min), y_max: Math.max(fila.y_max, celda.y_max) } : (celda ?? fila)!;
-    const { zoom, rect, miniatura } = await recortar(imagen, W, H, caja, !!fila);
-    const desc = l.descripcion.texto ? `the product line whose description is "${l.descripcion.texto}"` : `product line ${linea}`;
-    const { out, usage: u } = await preguntarImagen<{ linea_visible: boolean; texto: string | null; legible: boolean }>(client, zoom,
-      `This is a zoomed crop of a Spanish supplier delivery note. It may show neighbouring lines too. Find ${desc} and copy exactly the ${ETIQUETA[campo]} printed on that line, character by character (keep the comma). ` +
-        "Do not compute anything. If that line is not in the crop, linea_visible=false. If you cannot read the value with certainty, legible=false.",
-      { type: "object", additionalProperties: false, required: ["linea_visible", "texto", "legible"], properties: { linea_visible: { type: "boolean" }, texto: { type: ["string", "null"] }, legible: { type: "boolean" } } }, effort);
-    sumar(u);
-    const ok = out.linea_visible && out.legible;
-    const ev = nuevaEvidencia({ herramienta: "releer_celda", linea, campo, texto: ok ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: l[campo].texto, legible: out.legible, lineaVisible: out.linea_visible } });
-    return { evidenciaId: ev.id, primera_lectura: l[campo].texto, relectura: ev.texto, legible: out.legible, linea_visible: out.linea_visible };
-  }
-  async function releerFila(linea: number) {
-    const l = lineaLeida(linea);
-    if (!l?.caja_fila) return { error: "esa línea no tiene caja en el papel" };
-    const { zoom, rect, miniatura } = await recortar(imagen, W, H, l.caja_fila, true);
-    const props: Record<string, unknown> = Object.fromEntries(CAMPOS.map((c) => [c, { type: ["string", "null"] }]));
-    props.numeros_en_la_fila = { type: "array", items: { type: "string" } };
-    props.linea_visible = { type: "boolean" };
-    const desc = l.descripcion.texto ? `the product line whose description is "${l.descripcion.texto}"` : `product line ${linea}`;
-    const { out, usage: u } = await preguntarImagen<Record<CampoLinea, string | null> & { numeros_en_la_fila: string[]; linea_visible: boolean }>(client, zoom,
-      `This is a zoomed crop of a Spanish supplier delivery note. It may show neighbouring lines too. Find ${desc}. ` +
-        "For that line only, copy exactly as printed the quantity the unit price applies to (for goods sold by weight, the weight, not the number of pieces or boxes), the unit price, discount % and line amount (null if not printed), " +
-        "and list every number printed on that line, as printed. Do not compute anything. If that line is not in the crop, linea_visible=false and everything null.",
-      { type: "object", additionalProperties: false, required: [...CAMPOS, "numeros_en_la_fila", "linea_visible"], properties: props }, effort);
-    sumar(u);
-    const { numeros_en_la_fila: numerosLeidos, linea_visible, ...relecturaLeida } = out;
-    const numeros = linea_visible ? numerosLeidos : [];
-    const relectura = linea_visible ? relecturaLeida : Object.fromEntries(CAMPOS.map((c) => [c, null]));
-    const ev = nuevaEvidencia({ herramienta: "releer_fila", linea, recorte: rect, miniatura, datos: { relectura, numeros, primeraLectura: Object.fromEntries(CAMPOS.map((c) => [c, l[c].texto])) } });
-    const otra = otraCantidadQueCuadra(linea, numeros);
-    return {
-      evidenciaId: ev.id, primera_lectura: ev.datos!.primeraLectura, relectura, numeros_en_la_fila: numeros,
-      ...(otra ? { nota_del_codigo: `En esta fila también aparece ${otra}; con esa cantidad la línea cuadra. Probablemente la cantidad se leyó de otra columna (piezas en vez de peso).` } : {}),
-    };
-  }
-  async function releerTotal(campo: CampoCabecera, fila: number) {
-    const f = campo === "total" ? leido.total : leido.impuestos[fila - 1]?.[campo];
-    if (!f) return { error: `no hay ${campo} en la fila de IVA ${fila}` };
-    if (!f.caja) return { error: "ese campo no tiene caja en el papel" };
-    const { zoom, rect, miniatura } = await recortar(imagen, W, H, f.caja);
-    const que = campo === "total" ? "the total amount of the note" : campo === "base" ? `the VAT base (taxable amount) of tax row ${fila}` : `the VAT amount of tax row ${fila}`;
-    const { out, usage: u } = await preguntarImagen<{ texto: string | null; legible: boolean }>(client, zoom,
-      `This is a zoomed crop of a Spanish supplier delivery note, around ${que}. Copy that number exactly as printed (keep the comma). Do not compute anything. If you cannot read it with certainty, legible=false.`,
-      { type: "object", additionalProperties: false, required: ["texto", "legible"], properties: { texto: { type: ["string", "null"] }, legible: { type: "boolean" } } }, effort);
-    sumar(u);
-    const ev = nuevaEvidencia({ herramienta: "releer_total", campo: campo === "total" ? "total" : `${campo} ${fila}`, texto: out.legible ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: f.texto, legible: out.legible } });
-    return { evidenciaId: ev.id, primera_lectura: f.texto, relectura: ev.texto, legible: out.legible };
-  }
-  function otraCantidadQueCuadra(linea: number, numeros: string[]): string | null {
-    const l = albaran.lineas[linea - 1];
-    if (!l?.precio || !l.importe) return null;
-    for (const t of numeros) {
-      if (norm(t) === norm(leido.lineas[linea - 1]?.cantidad.texto)) continue;
-      const q = parsePrinted(t);
-      if (!q) continue;
-      const prueba = { ...l, cantidad: q };
-      if (aritmeticaLinea(prueba)?.ok) return t;
-    }
-    return null;
-  }
-  function historial(linea: number) {
-    const l = albaran.lineas[linea - 1];
-    if (!l) return { error: `no hay línea ${linea}` };
-    const ref = precioReferencia(ctx, albaran.proveedor, claveProducto(l.descripcion), albaran.fecha);
-    const compras = ctx.historial.filter((c) => claveProducto(c.producto) === claveProducto(l.descripcion)).slice(-6);
-    const ev = nuevaEvidencia({ herramienta: "historial_precio", linea, datos: { referencia: ref, compras } });
-    return { evidenciaId: ev.id, compras: compras.map((c) => ({ fecha: c.fecha, precio: c.precioUnit, unidad: c.unidad })), mediana_6_semanas: ref?.mediana ?? null };
-  }
-  function pedido(linea: number) {
-    const l = albaran.lineas[linea - 1];
-    const p = ctx.pedidos.find((x) => claveProducto(x.producto) === claveProducto(l?.descripcion ?? null));
-    const ev = nuevaEvidencia({ herramienta: "pedido", linea, datos: { pedido: p ?? null } });
-    return { evidenciaId: ev.id, pedido: p ? { cantidad: p.cantidad, unidad: p.unidad } : null };
-  }
-  async function recontarFilas() {
-    const { out, usage: u } = await preguntarImagen<{ filas: number }>(client, imagen,
-      "Count the product rows printed in the line table of this delivery note. Do not count headers, subtotals, tax rows or totals.",
-      { type: "object", additionalProperties: false, required: ["filas"], properties: { filas: { type: "integer" } } }, effort);
-    sumar(u);
-    const ev = nuevaEvidencia({ herramienta: "recontar_filas", datos: { filas: out.filas, primeraCuenta: leido.filas_de_producto_contadas, lineasLeidas: leido.lineas.length } });
-    return { evidenciaId: ev.id, filas: out.filas, lineas_leidas: leido.lineas.length };
-  }
+  const mesa = mesaDeTrabajo({ docId, leido, albaran, imagen, W, H, ctx, client, effort, usage });
+  const { evidencias, otraCantidadQueCuadra, relecturaDe } = mesa;
 
   // ---- what the model sees: printed text and code-computed warnings ----
   const resumen = {
@@ -281,62 +107,14 @@ export async function investigar(
   ];
 
   type Cierre = { veredicto: Veredicto; evidencias: string[]; correcciones: { linea: number; campo: CampoLinea; texto: string }[]; explicacion: string };
-  let cierre = null as Cierre | null;
-  let llamadas = 0;
-  for (let ronda = 0; ronda < maxLlamadas + 2 && !cierre && Date.now() - t0 < maxMs; ronda++) {
-    // The Meta API only supports tool_choice "auto": at the limit, only "cerrar" is offered.
-    const soloCerrar = llamadas >= maxLlamadas;
-    const r = await client.responses.create({ model: MODELS.read, reasoning: { effort }, tools: soloCerrar ? TOOLS.filter((t) => t.name === "cerrar") : TOOLS, input });
-    sumar(r.usage);
-    const calls = r.output.filter((o): o is ResponseFunctionToolCall => o.type === "function_call");
-    input.push(...(r.output as ResponseInputItem[]));
-    if (!calls.length) {
-      input.push({ role: "user", content: soloCerrar ? "Call cerrar now." : "Use a tool or call cerrar. Answer only with tool calls." });
-      continue;
-    }
-    for (const call of calls) {
-      const t1 = Date.now();
-      let args: Record<string, unknown> = {};
-      try { args = JSON.parse(call.arguments || "{}"); } catch { /* invalid args → error result */ }
-      let out: unknown;
-      if (call.name === "cerrar") {
-        cierre = args as unknown as Cierre;
-        out = { ok: true };
-      } else if (llamadas >= maxLlamadas) {
-        out = { error: "límite de llamadas alcanzado: cierra ya" };
-      } else {
-        llamadas++;
-        const n = Number(args.linea);
-        out =
-          call.name === "releer_celda" ? await releerCelda(n, args.campo as CampoLinea) :
-          call.name === "releer_fila" ? await releerFila(n) :
-          call.name === "releer_total" ? await releerTotal(args.campo as CampoCabecera, Number(args.fila_iva) || 1) :
-          call.name === "historial_precio" ? historial(n) :
-          call.name === "pedido" ? pedido(n) :
-          call.name === "recontar_filas" ? await recontarFilas() :
-          { error: `herramienta desconocida ${call.name}` };
-      }
-      const o = out as { evidenciaId?: string; error?: string };
-      pasos.push({ n: pasos.length + 1, herramienta: call.name, args, resumen: o.error ?? JSON.stringify(out).slice(0, 240), evidenciaId: o.evidenciaId, ms: Date.now() - t1 });
-      input.push({ type: "function_call_output", call_id: call.call_id, output: JSON.stringify(out) });
-      if (cierre) break;
-    }
-  }
+  const herramientas = ["releer_celda", "releer_fila", "historial_precio", "pedido", "releer_total", "recontar_filas"].map((n) => HERRAMIENTAS[n]);
+  const { cierre, pasos } = await bucleAgente<Cierre>({ client, effort, input, herramientas, cierre: CERRAR, mesa, maxLlamadas, maxMs, t0 });
 
   // ---- code validates the verdict ----
   const invalido = (motivo: string): Investigacion => ({ ...base, leido: leidoOriginal, pasos, evidencias, investigado: true, veredicto: cierre?.veredicto ?? null, valido: false, motivo, explicacion: cierre?.explicacion, ms: Date.now() - t0, usage });
   if (!cierre) return invalido("sin_cierre");
   const citadas = cierre.evidencias.map((id) => evidencias.find((e) => e.id === id));
   if (citadas.some((e) => !e)) return invalido("cita_evidencias_inexistentes");
-  const relecturaDe = (linea: number, campo: CampoLinea): string | null | undefined => {
-    for (const e of [...evidencias].reverse()) {
-      if (e.linea !== linea) continue;
-      if (e.herramienta === "releer_celda" && e.campo === campo) return e.texto;
-      if (e.herramienta === "releer_fila") return (e.datos?.relectura as Record<string, string | null>)?.[campo];
-    }
-    return undefined;
-  };
-
   if (cierre.veredicto === "revisar") {
     return { ...base, pasos, evidencias, investigado: true, veredicto: "revisar", valido: true, explicacion: cierre.explicacion, ms: Date.now() - t0, usage };
   }
