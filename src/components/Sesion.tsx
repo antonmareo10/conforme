@@ -149,7 +149,7 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
           {muestra ? (
             <>
               <span className="hidden rounded-full border border-linea bg-white/70 px-3 py-1 text-xs text-tinta-2 sm:inline">
-                {t.muestraGrabada}{grabado ? ` · ${new Date(grabado).toLocaleDateString(lang === "es" ? "es-ES" : "en-GB")}` : ""}
+                {t.muestraGrabada}{muestra === "encimera" ? t.fondoMuseImage : ""}{grabado ? ` · ${new Date(grabado).toLocaleDateString(lang === "es" ? "es-ES" : "en-GB")}` : ""}
               </span>
               {!instantaneo && (
                 <div role="group" aria-label={lang === "es" ? "Velocidad de la repetición" : "Replay speed"} className="flex rounded-full border border-linea bg-white p-0.5">
@@ -169,7 +169,7 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
           <BotonIdioma />
         </div>
       </header>
-      {muestra && <p className="mb-4 text-xs text-apagado sm:hidden">{t.muestraGrabada}</p>}
+      {muestra && <p className="mb-4 text-xs text-apagado sm:hidden">{t.muestraGrabada}{muestra === "encimera" ? t.fondoMuseImage : ""}</p>}
       {muestra && !instantaneo && velocidad !== 1 && <p className="mb-2 text-xs text-apagado">{lang === "es" ? `Reproduciendo a ×${velocidad} (tiempos reales ÷ ${velocidad})` : `Playing at ×${velocidad} (real timings ÷ ${velocidad})`}</p>}
       {error && <p className="rounded-lg bg-rojo/10 p-3 text-sm text-rojo">{error}</p>}
 
