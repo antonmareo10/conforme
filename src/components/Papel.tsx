@@ -54,9 +54,9 @@ function sitioSello(leido: DocEstado["leido"], texto: string, aspecto: number): 
  * density (from its pixels, not from the model's boxes, which can be a line off) and the stamp goes in
  * the emptiest window, as close as possible to the total's row. Runs once per page, in the browser.
  */
-function usePapelLibre(imagen: string | undefined, texto: string | null, aspecto: number, yObjetivo: number | null) {
-  const [sitio, setSitio] = useState<{ x: number; y: number; clave: string } | null>(null);
-  const clave = `${imagen?.length ?? 0}-${texto}-${yObjetivo ?? ""}`;
+function usePapelLibre(imagen: string | undefined, texto: string | null, aspecto: number, yObjetivo: number | null, leidas: Caja[]) {
+  const [sitio, setSitio] = useState<{ x: number; y: number; escala: number; clave: string } | null>(null);
+  const clave = `${imagen?.length ?? 0}-${texto}-${yObjetivo ?? ""}-${leidas.length}`;
   useEffect(() => {
     if (!imagen || !texto) return;
     let vivo = true;
@@ -76,23 +76,30 @@ function usePapelLibre(imagen: string | undefined, texto: string | null, aspecto
         for (let x = 0; x < G; x++) {
           const k = (y * G + x) * 4;
           const lum = (0.2126 * px[k] + 0.7152 * px[k + 1] + 0.0722 * px[k + 2]) / 255;
-          const tinta = Math.max(0, 0.93 - lum);
+          // Ink on the paper, plus the areas that were read (the table rows, the VAT rows, the total):
+          // even where they look blank, the stamp should not sit inside the data.
+          const gx = ((x + 0.5) / G) * 1000, gy = ((y + 0.5) / GH) * 1000;
+          const leida = leidas.some((c) => gx >= c.x_min && gx <= c.x_max && gy >= c.y_min - 8 && gy <= c.y_max + 8);
+          const tinta = Math.max(0, 0.93 - lum) + (leida ? 0.35 : 0);
           I[(y + 1) * (G + 1) + x + 1] = tinta + I[y * (G + 1) + x + 1] + I[(y + 1) * (G + 1) + x] - I[y * (G + 1) + x];
         }
       const suma = (x0: number, y0: number, x1: number, y1: number) => I[y1 * (G + 1) + x1] - I[y0 * (G + 1) + x1] - I[y1 * (G + 1) + x0] + I[y0 * (G + 1) + x0];
-      const w = Math.min(G - 2, Math.ceil((texto.length * 0.84 + 1.6) * SELLO_EM * G * 1.06));
-      const h = Math.max(2, Math.ceil(2.3 * SELLO_EM * G));
-      let mejor = { x: G - w / 2 - 2, y: GH - h / 2 - 2, coste: Infinity };
       const yo = yObjetivo != null ? (yObjetivo / 1000) * GH : GH * 0.85;
-      for (let y0 = 1; y0 + h <= GH - 1; y0++)
-        for (let x0 = 1; x0 + w <= G - 1; x0++) {
-          const tinta = suma(x0, y0, x0 + w, y0 + h);
-          const coste = tinta + Math.abs(y0 + h / 2 - yo) * 0.02 + (G - (x0 + w)) * 0.004;
-          if (coste < mejor.coste) mejor = { x: x0 + w / 2, y: y0 + h / 2, coste };
-        }
-      setSitio({ x: (mejor.x / G) * 1000, y: (mejor.y / GH) * 1000, clave });
+      let mejor = { x: G * 0.7, y: GH * 0.9, escala: 1, coste: Infinity };
+      // Full size if it fits next to the total; a slightly smaller stamp is fine to stay out of the data.
+      for (const escala of [1, 0.85, 0.72]) {
+        const w = Math.min(G - 2, Math.ceil((texto.length * 0.84 + 1.6) * SELLO_EM * G * 1.06 * escala));
+        const h = Math.max(2, Math.ceil(2.3 * SELLO_EM * G * escala));
+        for (let y0 = 1; y0 + h <= GH - 1; y0++)
+          for (let x0 = 1; x0 + w <= G - 1; x0++) {
+            const tinta = suma(x0, y0, x0 + w, y0 + h);
+            const coste = tinta + Math.abs(y0 + h / 2 - yo) * 0.05 + (G - (x0 + w)) * 0.004 + (1 - escala) * 1.5;
+            if (coste < mejor.coste) mejor = { x: x0 + w / 2, y: y0 + h / 2, escala, coste };
+          }
+      }
+      setSitio({ x: (mejor.x / G) * 1000, y: (mejor.y / GH) * 1000, escala: mejor.escala, clave });
     };
-    img.onerror = () => { if (vivo) setSitio({ x: 760, y: 900, clave }); };
+    img.onerror = () => { if (vivo) setSitio({ x: 760, y: 900, escala: 1, clave }); };
     img.src = imagen;
     return () => { vivo = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,7 +133,8 @@ export const Papel = forwardRef<HTMLElement, { doc: DocEstado; lang: Idioma; foc
   const miradas = [...(doc.investigacion?.evidencias ?? []), ...(doc.expediente?.evidencias ?? [])].filter((e) => e.recorte);
   const textoSello = doc.sello ? SELLO[doc.sello][lang] : null;
   const totalCaja = doc.leido?.total.caja;
-  const libre = usePapelLibre(doc.imagen, textoSello, w / h, totalCaja && totalCaja.y_max > totalCaja.y_min ? (totalCaja.y_min + totalCaja.y_max) / 2 : null);
+  const leidas = [...lineas.map((l) => l.caja_fila), totalCaja, ...(doc.leido?.impuestos ?? []).flatMap((t) => [t.base.caja, t.cuota.caja])].filter((c): c is Caja => !!c && c.y_max > c.y_min);
+  const libre = usePapelLibre(doc.imagen, textoSello, w / h, totalCaja && totalCaja.y_max > totalCaja.y_min ? (totalCaja.y_min + totalCaja.y_max) / 2 : null, leidas);
   // Wait for the ink map (a few ms after the page loads) so the stamp lands once, in its place.
   const sitio = !textoSello ? null : doc.imagen ? libre : sitioSello(doc.leido, textoSello, w / h);
   const pines = doc.avisos
@@ -202,7 +210,7 @@ export const Papel = forwardRef<HTMLElement, { doc: DocEstado; lang: Idioma; foc
         </motion.span>
       ))}
       {doc.sello && sitio && (
-        <div className="absolute z-10 -translate-x-1/2 -translate-y-1/2" style={{ left: `${sitio.x / 10}%`, top: `${sitio.y / 10}%` }}>
+        <div className="absolute z-10" style={{ left: `${sitio.x / 10}%`, top: `${sitio.y / 10}%`, transform: `translate(-50%, -50%) scale(${"escala" in sitio ? sitio.escala : 1})` }}>
           <Sello sello={doc.sello} lang={lang} provisional={doc.provisional} />
         </div>
       )}
