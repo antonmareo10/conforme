@@ -2,6 +2,8 @@
 
 **Check it before you sign.** Take one photo of the morning's supplier delivery notes. Conforme separates each note, reads every line, checks every euro in plain code, investigates what doesn't add up, and drafts the claim to the supplier. Every number on screen points to the exact place on the paper it came from.
 
+**Live:** https://conforme-mu.vercel.app · try the recorded samples (no wait), or take a photo of your own notes.
+
 Built for Meta's Global AI Developer Hackathon (Oct 26 to Nov 4, 2026), problem statement *Build for Your World*. All code in this repository was written during the event; the first commit is from Oct 26, 2026, after the kickoff.
 
 ## Why
