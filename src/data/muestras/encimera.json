@@ -1,0 +1,858 @@
+[
+ {
+  "id": "musel-1406",
+  "imagen": "/muestras/encimera/musel-1406.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Pescados del Musel S.L.",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 408,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001016",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "A-1406",
+    "caja": {
+     "x_min": 860,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "06/10/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Merluza volanta",
+      "caja": {
+       "x_min": 157,
+       "y_min": 273,
+       "x_max": 272,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "6,20",
+      "caja": {
+       "x_min": 447,
+       "y_min": 273,
+       "x_max": 479,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "11,90",
+      "caja": {
+       "x_min": 603,
+       "y_min": 273,
+       "x_max": 643,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "73,78",
+      "caja": {
+       "x_min": 822,
+       "y_min": 273,
+       "x_max": 863,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Bonito del norte",
+      "caja": {
+       "x_min": 157,
+       "y_min": 307,
+       "x_max": 272,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "4,80",
+      "caja": {
+       "x_min": 447,
+       "y_min": 307,
+       "x_max": 479,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "8,40",
+      "caja": {
+       "x_min": 611,
+       "y_min": 307,
+       "x_max": 643,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "40,32",
+      "caja": {
+       "x_min": 822,
+       "y_min": 307,
+       "x_max": 863,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Rape",
+      "caja": {
+       "x_min": 157,
+       "y_min": 341,
+       "x_max": 196,
+       "y_max": 356
+      }
+     },
+     "cantidad": {
+      "texto": "2,10",
+      "caja": {
+       "x_min": 447,
+       "y_min": 341,
+       "x_max": 479,
+       "y_max": 356
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "16,50",
+      "caja": {
+       "x_min": 602,
+       "y_min": 341,
+       "x_max": 643,
+       "y_max": 356
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "34,65",
+      "caja": {
+       "x_min": 822,
+       "y_min": 341,
+       "x_max": 863,
+       "y_max": 356
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 341,
+       "x_max": 922,
+       "y_max": 356
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 332,
+      "x_max": 929,
+      "y_max": 366
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 325,
+       "y_min": 421,
+       "x_max": 366,
+       "y_max": 436
+      }
+     },
+     "base": {
+      "texto": "148,75",
+      "caja": {
+       "x_min": 209,
+       "y_min": 421,
+       "x_max": 259,
+       "y_max": 436
+      }
+     },
+     "cuota": {
+      "texto": "14,88",
+      "caja": {
+       "x_min": 438,
+       "y_min": 421,
+       "x_max": 479,
+       "y_max": 436
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "163,63",
+    "caja": {
+     "x_min": 821,
+     "y_min": 411,
+     "x_max": 890,
+     "y_max": 431
+    }
+   },
+   "filas_de_producto_contadas": 3,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "huerta-0388",
+  "imagen": "/muestras/encimera/huerta-0388.jpg",
+  "width": 800,
+  "height": 1088,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "HUERTA LA VEGA",
+    "caja": {
+     "x_min": 356,
+     "y_min": 59,
+     "x_max": 644,
+     "y_max": 92
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001024",
+    "caja": {
+     "x_min": 448,
+     "y_min": 142,
+     "x_max": 634,
+     "y_max": 175
+    }
+   },
+   "numero": {
+    "texto": "0388",
+    "caja": {
+     "x_min": 230,
+     "y_min": 222,
+     "x_max": 312,
+     "y_max": 255
+    }
+   },
+   "fecha": {
+    "texto": "06/10/26",
+    "caja": {
+     "x_min": 189,
+     "y_min": 263,
+     "x_max": 354,
+     "y_max": 296
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "TOMATE",
+      "caja": {
+       "x_min": 65,
+       "y_min": 381,
+       "x_max": 807,
+       "y_max": 422
+      }
+     },
+     "cantidad": {
+      "texto": "12,000",
+      "caja": {
+       "x_min": 65,
+       "y_min": 426,
+       "x_max": 172,
+       "y_max": 454
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "1,85",
+      "caja": {
+       "x_min": 279,
+       "y_min": 426,
+       "x_max": 351,
+       "y_max": 454
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "22,20",
+      "caja": {
+       "x_min": 832,
+       "y_min": 417,
+       "x_max": 935,
+       "y_max": 458
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 381,
+      "x_max": 935,
+      "y_max": 458
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "LECHUGA",
+      "caja": {
+       "x_min": 65,
+       "y_min": 458,
+       "x_max": 828,
+       "y_max": 500
+      }
+     },
+     "cantidad": {
+      "texto": "10",
+      "caja": {
+       "x_min": 65,
+       "y_min": 503,
+       "x_max": 101,
+       "y_max": 531
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "0,65",
+      "caja": {
+       "x_min": 208,
+       "y_min": 503,
+       "x_max": 279,
+       "y_max": 531
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "6,50",
+      "caja": {
+       "x_min": 853,
+       "y_min": 494,
+       "x_max": 935,
+       "y_max": 535
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 458,
+      "x_max": 935,
+      "y_max": 535
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "CEBOLLA",
+      "caja": {
+       "x_min": 65,
+       "y_min": 535,
+       "x_max": 828,
+       "y_max": 577
+      }
+     },
+     "cantidad": {
+      "texto": "10,000",
+      "caja": {
+       "x_min": 65,
+       "y_min": 580,
+       "x_max": 172,
+       "y_max": 608
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "0,95",
+      "caja": {
+       "x_min": 279,
+       "y_min": 580,
+       "x_max": 351,
+       "y_max": 608
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "9,50",
+      "caja": {
+       "x_min": 853,
+       "y_min": 571,
+       "x_max": 935,
+       "y_max": 613
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 535,
+      "x_max": 935,
+      "y_max": 613
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "PIMIENTO",
+      "caja": {
+       "x_min": 65,
+       "y_min": 613,
+       "x_max": 807,
+       "y_max": 654
+      }
+     },
+     "cantidad": {
+      "texto": "5,000",
+      "caja": {
+       "x_min": 65,
+       "y_min": 658,
+       "x_max": 154,
+       "y_max": 685
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "2,40",
+      "caja": {
+       "x_min": 262,
+       "y_min": 658,
+       "x_max": 333,
+       "y_max": 685
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "12,00",
+      "caja": {
+       "x_min": 832,
+       "y_min": 649,
+       "x_max": 935,
+       "y_max": 690
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 613,
+      "x_max": 935,
+      "y_max": 690
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "4,00",
+      "caja": {
+       "x_min": 65,
+       "y_min": 774,
+       "x_max": 148,
+       "y_max": 807
+      }
+     },
+     "base": {
+      "texto": "50,20",
+      "caja": {
+       "x_min": 230,
+       "y_min": 774,
+       "x_max": 333,
+       "y_max": 807
+      }
+     },
+     "cuota": {
+      "texto": "2,01",
+      "caja": {
+       "x_min": 395,
+       "y_min": 774,
+       "x_max": 478,
+       "y_max": 807
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "52,21",
+    "caja": {
+     "x_min": 700,
+     "y_min": 832,
+     "x_max": 831,
+     "y_max": 872
+    }
+   },
+   "filas_de_producto_contadas": 4,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "bebidas-77120",
+  "imagen": "/muestras/encimera/bebidas-77120.jpg",
+  "width": 1720,
+  "height": 1048,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "BEBIDAS CANTÁBRICO S.L.",
+    "caja": {
+     "x_min": 56,
+     "y_min": 80,
+     "x_max": 291,
+     "y_max": 122
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001032",
+    "caja": {
+     "x_min": 127,
+     "y_min": 185,
+     "x_max": 220,
+     "y_max": 227
+    }
+   },
+   "numero": {
+    "texto": "77120",
+    "caja": {
+     "x_min": 893,
+     "y_min": 80,
+     "x_max": 944,
+     "y_max": 122
+    }
+   },
+   "fecha": {
+    "texto": "06/10/2026",
+    "caja": {
+     "x_min": 842,
+     "y_min": 133,
+     "x_max": 944,
+     "y_max": 175
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "AGUA MINERAL 50 CL",
+      "caja": {
+       "x_min": 185,
+       "y_min": 354,
+       "x_max": 369,
+       "y_max": 396
+      }
+     },
+     "cantidad": {
+      "texto": "24",
+      "caja": {
+       "x_min": 570,
+       "y_min": 354,
+       "x_max": 590,
+       "y_max": 396
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "0,350",
+      "caja": {
+       "x_min": 659,
+       "y_min": 354,
+       "x_max": 710,
+       "y_max": 396
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "8,40",
+      "caja": {
+       "x_min": 805,
+       "y_min": 354,
+       "x_max": 846,
+       "y_max": 396
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 914,
+       "y_min": 354,
+       "x_max": 935,
+       "y_max": 396
+      }
+     },
+     "caja_fila": {
+      "x_min": 56,
+      "y_min": 347,
+      "x_max": 944,
+      "y_max": 407
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "REFRESCO COLA 33 CL",
+      "caja": {
+       "x_min": 185,
+       "y_min": 415,
+       "x_max": 379,
+       "y_max": 457
+      }
+     },
+     "cantidad": {
+      "texto": "24",
+      "caja": {
+       "x_min": 570,
+       "y_min": 415,
+       "x_max": 590,
+       "y_max": 457
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "0,950",
+      "caja": {
+       "x_min": 659,
+       "y_min": 415,
+       "x_max": 710,
+       "y_max": 457
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "28,20",
+      "caja": {
+       "x_min": 794,
+       "y_min": 415,
+       "x_max": 846,
+       "y_max": 457
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 914,
+       "y_min": 415,
+       "x_max": 935,
+       "y_max": 457
+      }
+     },
+     "caja_fila": {
+      "x_min": 56,
+      "y_min": 407,
+      "x_max": 944,
+      "y_max": 467
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "CERVEZA BARRIL 30 L",
+      "caja": {
+       "x_min": 185,
+       "y_min": 475,
+       "x_max": 379,
+       "y_max": 517
+      }
+     },
+     "cantidad": {
+      "texto": "30",
+      "caja": {
+       "x_min": 570,
+       "y_min": 475,
+       "x_max": 590,
+       "y_max": 517
+      }
+     },
+     "unidad": "l",
+     "precio_unitario": {
+      "texto": "2,100",
+      "caja": {
+       "x_min": 659,
+       "y_min": 475,
+       "x_max": 710,
+       "y_max": 517
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "63,00",
+      "caja": {
+       "x_min": 794,
+       "y_min": 475,
+       "x_max": 846,
+       "y_max": 517
+      }
+     },
+     "iva_pct": {
+      "texto": "21",
+      "caja": {
+       "x_min": 914,
+       "y_min": 475,
+       "x_max": 935,
+       "y_max": 517
+      }
+     },
+     "caja_fila": {
+      "x_min": 56,
+      "y_min": 467,
+      "x_max": 944,
+      "y_max": 527
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 158,
+       "y_min": 648,
+       "x_max": 209,
+       "y_max": 690
+      }
+     },
+     "base": {
+      "texto": "36,60",
+      "caja": {
+       "x_min": 321,
+       "y_min": 648,
+       "x_max": 372,
+       "y_max": 690
+      }
+     },
+     "cuota": {
+      "texto": "3,66",
+      "caja": {
+       "x_min": 494,
+       "y_min": 648,
+       "x_max": 535,
+       "y_max": 690
+      }
+     }
+    },
+    {
+     "iva_pct": {
+      "texto": "21,00",
+      "caja": {
+       "x_min": 158,
+       "y_min": 708,
+       "x_max": 209,
+       "y_max": 750
+      }
+     },
+     "base": {
+      "texto": "63,00",
+      "caja": {
+       "x_min": 321,
+       "y_min": 708,
+       "x_max": 372,
+       "y_max": 750
+      }
+     },
+     "cuota": {
+      "texto": "13,23",
+      "caja": {
+       "x_min": 484,
+       "y_min": 708,
+       "x_max": 535,
+       "y_max": 750
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "116,49",
+    "caja": {
+     "x_min": 866,
+     "y_min": 789,
+     "x_max": 944,
+     "y_max": 842
+    }
+   },
+   "filas_de_producto_contadas": 3,
+   "ilegible": []
+  }
+ }
+]
