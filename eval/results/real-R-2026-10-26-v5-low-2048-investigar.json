@@ -1,0 +1,165 @@
+{
+ "conjunto": "R",
+ "config": {
+  "modelo": "muse-spark-1.3",
+  "effort": "low",
+  "lado_px": 2048,
+  "tag": "v5-low-2048"
+ },
+ "fecha": "2026-10-26",
+ "procesados": {
+  "n": 33,
+  "de": 33,
+  "pct": 100
+ },
+ "albaranes": 33,
+ "lineas_al_centimo": {
+  "n": 74,
+  "de": 77,
+  "pct": 96.1
+ },
+ "lineas_completas": {
+  "n": 74,
+  "de": 79,
+  "pct": 93.7
+ },
+ "albaranes_perfectos": {
+  "n": 30,
+  "de": 33,
+  "pct": 90.9
+ },
+ "ok_silencioso": 0,
+ "descripcion": {
+  "n": 56,
+  "de": 79,
+  "pct": 70.9
+ },
+ "lineas_perdidas": 0,
+ "lineas_sobrantes": 0,
+ "cabecera": {
+  "proveedor": {
+   "n": 31,
+   "de": 33,
+   "pct": 93.9
+  },
+  "numero": {
+   "n": 21,
+   "de": 32,
+   "pct": 65.6
+  },
+  "fecha": {
+   "n": 29,
+   "de": 31,
+   "pct": 93.5
+  },
+  "total": {
+   "n": 31,
+   "de": 31,
+   "pct": 100
+  }
+ },
+ "sellos": {
+  "CONFORME": 29,
+  "CON_RESERVAS": 0,
+  "REVISAR": 4
+ },
+ "revision_justificada": 3,
+ "revision_innecesaria": 1,
+ "conforme_no_perfecto": 0,
+ "por_dificultad": {
+  "girado": {
+   "albaranes": 20,
+   "lineas_al_centimo": {
+    "n": 55,
+    "de": 57,
+    "pct": 96.5
+   },
+   "lineas_completas": {
+    "n": 54,
+    "de": 57,
+    "pct": 94.7
+   },
+   "albaranes_perfectos": {
+    "n": 18,
+    "de": 20,
+    "pct": 90
+   },
+   "ok_silencioso": 0
+  },
+  "matricial_tenue": {
+   "albaranes": 5,
+   "lineas_al_centimo": {
+    "n": 5,
+    "de": 6,
+    "pct": 83.3
+   },
+   "lineas_completas": {
+    "n": 4,
+    "de": 6,
+    "pct": 66.7
+   },
+   "albaranes_perfectos": {
+    "n": 4,
+    "de": 5,
+    "pct": 80
+   },
+   "ok_silencioso": 0
+  },
+  "borroso": {
+   "albaranes": 2,
+   "lineas_al_centimo": {
+    "n": 4,
+    "de": 6,
+    "pct": 66.7
+   },
+   "lineas_completas": {
+    "n": 4,
+    "de": 6,
+    "pct": 66.7
+   },
+   "albaranes_perfectos": {
+    "n": 1,
+    "de": 2,
+    "pct": 50
+   },
+   "ok_silencioso": 0
+  },
+  "dos_tipos_iva": {
+   "albaranes": 3,
+   "lineas_al_centimo": {
+    "n": 6,
+    "de": 7,
+    "pct": 85.7
+   },
+   "lineas_completas": {
+    "n": 5,
+    "de": 7,
+    "pct": 71.4
+   },
+   "albaranes_perfectos": {
+    "n": 2,
+    "de": 3,
+    "pct": 66.7
+   },
+   "ok_silencioso": 0
+  }
+ },
+ "investigacion": {
+  "investigados": 5,
+  "con_discrepancias": 3,
+  "reparadas": 1,
+  "confirmadas": 1,
+  "errores_proveedor": 0,
+  "siguen_en_revisar": 4,
+  "cierres_rechazados_por_el_codigo": 2,
+  "pasos_medios": 4.6
+ },
+ "tiempo_ms": {
+  "p50": 21168,
+  "p95": 35170
+ },
+ "coste_usd": {
+  "total": 1.223,
+  "por_albaran": 0.037
+ }
+}

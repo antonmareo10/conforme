@@ -22,6 +22,7 @@ const repeticiones = {
   lineas_al_centimo: rango("lineas_al_centimo"),
   lineas_completas: rango("lineas_completas"),
   albaranes_perfectos: rango("albaranes_perfectos"),
+  perfectos: runs.map((r) => r.albaranes_perfectos.n),
   ok_silencioso: runs.map((r) => r.ok_silencioso),
   revision_justificada: runs.map((r) => r.revision_justificada),
   revision_innecesaria: runs.map((r) => r.revision_innecesaria),
