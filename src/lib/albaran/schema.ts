@@ -51,6 +51,16 @@ export interface AlbaranLeido {
   ilegible: string[];
   /** Added by code after the second, independent reading of the line table. */
   discrepancias?: Discrepancia[];
+  /** Added by code after the independent re-read of the tax summary and the total. */
+  discrepancias_cabecera?: DiscrepanciaCabecera[];
+}
+
+/** Two independent readings of the total, or of one VAT row's base or VAT amount, that do not agree. */
+export interface DiscrepanciaCabecera {
+  campo: "total" | "base" | "cuota";
+  fila: number; // 1-based VAT row; 1 for the total
+  primera: string | null;
+  segunda: string | null;
 }
 
 const caja = {

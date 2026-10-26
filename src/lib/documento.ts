@@ -6,7 +6,7 @@
 import type { ResponsesClient } from "./meta/privado";
 import { readAlbaran, costUsd, type Effort, type ReadResult } from "./albaran/read";
 import { normalize } from "./albaran/normalize";
-import { afinarCajas, compararLecturas, localizarFilas, repararCajas } from "./albaran/localizar";
+import { afinarCajas, compararLecturas, compararTotales, localizarFilas, releerTotales, repararCajas } from "./albaran/localizar";
 import { enderezarLectura } from "./albaran/rotar";
 import type { AlbaranLeido } from "./albaran/schema";
 import { comprobar, inferirIva, sello } from "./checks/engine";
@@ -48,13 +48,21 @@ export async function analizarDocumento(
   let leido: AlbaranLeido = repararCajas(derecho.leido);
   let msSegunda = 0;
   if (opts.segundaLectura !== false && leido.lineas.length) {
-    try {
-      const loc = await localizarFilas(imagen, leido, { client: opts.client, effort });
-      coste += costUsd({ input_tokens: loc.usage?.input_tokens ?? 0, output_tokens: loc.usage?.output_tokens ?? 0, reasoning_tokens: 0 });
-      leido = { ...afinarCajas(leido, loc), discrepancias: compararLecturas(leido, loc) };
-      msSegunda = loc.ms;
-    } catch {
-      /* keep the first reading and its own boxes */
+    // Every money number is read twice: the line table and, at the same time, the VAT rows and the total.
+    const [loc, tot] = await Promise.allSettled([
+      localizarFilas(imagen, leido, { client: opts.client, effort }),
+      releerTotales(imagen, leido, { client: opts.client, effort }),
+    ]);
+    const base = leido;
+    if (loc.status === "fulfilled") {
+      coste += costUsd({ input_tokens: loc.value.usage?.input_tokens ?? 0, output_tokens: loc.value.usage?.output_tokens ?? 0, reasoning_tokens: 0 });
+      leido = { ...afinarCajas(leido, loc.value), discrepancias: compararLecturas(base, loc.value) };
+      msSegunda = loc.value.ms;
+    } // else: keep the first reading and its own boxes
+    if (tot.status === "fulfilled") {
+      coste += costUsd({ input_tokens: tot.value.usage?.input_tokens ?? 0, output_tokens: tot.value.usage?.output_tokens ?? 0, reasoning_tokens: 0 });
+      leido = { ...leido, discrepancias_cabecera: compararTotales(base, tot.value) };
+      msSegunda = Math.max(msSegunda, tot.value.ms);
     }
   }
   emit({ tipo: "doc", docId, imagen: `data:image/jpeg;base64,${imagen.toString("base64")}`, width: derecho.width, height: derecho.height });

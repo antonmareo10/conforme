@@ -80,6 +80,7 @@ export function normalize(docId: string, leido: AlbaranLeido): Albaran {
     ilegible: leido.ilegible,
     noNumericos,
     discrepancias: leido.discrepancias ?? [],
+    discrepanciasCabecera: leido.discrepancias_cabecera ?? [],
     cajas: {
       proveedor: leido.proveedor.caja,
       nif: leido.nif_proveedor.caja,

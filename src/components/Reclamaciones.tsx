@@ -100,7 +100,7 @@ function Traza({ d, lang, onCrop }: { d: DocEstado; lang: Idioma; onCrop: (src: 
                   <span className="min-w-0 flex-1 leading-snug text-tinta-2">
                     <span className={cierre ? "font-medium text-tinta" : ""}>{que}</span>
                     {vio && <> → <b className="cifras font-semibold text-tinta">{vio}</b></>}
-                    {ev && <span className="ml-1.5 rounded bg-papel-2 px-1 text-[10px] text-apagado">{ev.id}</span>}
+                    {ev && <span className="ml-1.5 rounded bg-papel-2 px-1 text-[10px] text-tinta-2">{ev.id}</span>}
                     {cierre && <span className={`mt-1 block w-fit rounded px-1.5 py-0.5 text-[11px] ${f.valido ? "bg-verde/10 text-verde" : "bg-rojo/10 text-rojo"}`}>{f.valido ? (es ? "validado por el código" : "validated by code") : es ? "rechazado por el código" : "rejected by code"}</span>}
                   </span>
                 </motion.li>
@@ -146,6 +146,14 @@ export function Caso({ d, lang, onFoco, abierto: abiertoInicial }: { d: DocEstad
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [firma, d.imagen]);
 
+  const modal = (verPrueba && !!png) || !!crop;
+  useEffect(() => {
+    if (!modal) return;
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") { setVerPrueba(false); setCrop(null); } };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [modal]);
+
   const nombre = `${es ? "reclamacion" : "claim"}-${(d.numero ?? d.docId).replace(/[^\w-]/g, "")}.png`;
   const avisar = (e: Envio) => { setEnvio(e); setTimeout(() => setEnvio("listo"), 2600); };
   const copiar = async (t: string) => { try { await navigator.clipboard.writeText(t); return true; } catch { return false; } };
@@ -158,7 +166,9 @@ export function Caso({ d, lang, onFoco, abierto: abiertoInicial }: { d: DocEstad
     const file = png ? new File([png.blob], nombre, { type: "image/png" }) : null;
     const datos: ShareData = { title: es ? `Reclamación · albarán ${d.numero ?? ""}` : `Claim · delivery note ${d.numero ?? ""}`, text: mensaje, ...(file ? { files: [file] } : {}) };
     try {
-      if (file && navigator.canShare?.(datos)) { await navigator.share(datos); avisar("compartido"); return; }
+      // The share sheet (WhatsApp, Mail…) on phones; on a desktop, saving the image and copying the text is clearer.
+      const tactil = window.matchMedia?.("(pointer: coarse)").matches;
+      if (tactil && file && navigator.canShare?.(datos)) { await navigator.share(datos); avisar("compartido"); return; }
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
     }
@@ -272,7 +282,7 @@ export function Caso({ d, lang, onFoco, abierto: abiertoInicial }: { d: DocEstad
             role="dialog" aria-modal="true" aria-label={crop ? (es ? `Recorte ${crop.id}` : `Crop ${crop.id}`) : es ? "Prueba que se adjunta" : "Proof attached"}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={crop ? crop.src : png!.url} alt={crop ? (es ? "Recorte ampliado que releyó el agente" : "Zoomed crop the agent re-read") : es ? "Prueba de la reclamación" : "Claim evidence"} className="max-h-[88vh] w-auto max-w-full rounded-lg bg-white object-contain shadow-2xl" />
-            <button type="button" className="absolute right-4 top-4 min-h-[44px] min-w-[44px] rounded-full bg-white text-lg font-semibold" aria-label={es ? "Cerrar" : "Close"}>×</button>
+            <button type="button" autoFocus className="absolute right-4 top-4 min-h-[44px] min-w-[44px] rounded-full bg-white text-lg font-semibold" aria-label={es ? "Cerrar" : "Close"}>×</button>
           </motion.div>
         ) : null}
       </AnimatePresence>

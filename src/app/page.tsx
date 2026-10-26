@@ -87,8 +87,8 @@ export default function Home() {
 
         <section className="grid gap-4 border-t border-linea py-10 sm:grid-cols-2" aria-label="Muestras">
           {[
-            { href: "/sesion?muestra=encimera", img: "/muestras/encimera/escena.jpg", es: ["Tres albaranes en la encimera", "Una foto, tres proveedores: una subida, una falta y un error del proveedor. El agente confirma las tres en el papel y prepara tres reclamaciones."], en: ["Three notes on the counter", "One photo, three suppliers: a price rise, a shortage and a supplier error. The agent confirms all three on the paper and prepares three claims."] },
-            { href: "/sesion?muestra=mes", img: "/muestras/mes/m09-carnes.jpg", es: ["Un mes de Casa Nela", "Doce albaranes en cuatro semanas. Pregunta «¿cuánto he pagado de más este mes?» y mira qué líneas se encienden."], en: ["A month at Casa Nela", "Twelve notes over four weeks. Ask \"how much have I overpaid this month?\" and see which lines light up."] },
+            { href: "/sesion?muestra=encimera", img: "/muestras/encimera/escena-320.webp", es: ["Tres albaranes en la encimera", "Una foto, tres proveedores: una subida, una falta y un error del proveedor. El agente confirma las tres en el papel y prepara tres reclamaciones."], en: ["Three notes on the counter", "One photo, three suppliers: a price rise, a shortage and a supplier error. The agent confirms all three on the paper and prepares three claims."] },
+            { href: "/sesion?muestra=mes", img: "/muestras/mes/m09-carnes-320.webp", es: ["Un mes de Casa Nela", "Doce albaranes en cuatro semanas. Pregunta «¿cuánto he pagado de más este mes?» y mira qué líneas se encienden."], en: ["A month at Casa Nela", "Twelve notes over four weeks. Ask \"how much have I overpaid this month?\" and see which lines light up."] },
           ].map((m) => (
             <Link key={m.href} href={m.href} className="group flex gap-4 rounded-2xl border border-linea bg-white/60 p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
               {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -6,7 +6,7 @@ import sharp from "sharp";
 import { readerModel } from "../meta/models";
 import type { ResponsesClient } from "../meta/privado";
 import { readerClient, type Effort } from "./read";
-import type { AlbaranLeido, Caja, Discrepancia } from "./schema";
+import type { AlbaranLeido, Caja, Discrepancia, DiscrepanciaCabecera } from "./schema";
 import { parsePrinted } from "../numbers";
 
 const caja = {
@@ -86,6 +86,77 @@ export async function localizarFilas(imagen: Buffer, leido: AlbaranLeido, opts: 
     ms: Date.now() - t0,
     usage: r.usage,
   };
+}
+
+export interface LecturaTotales {
+  impuestos: { iva_pct: string | null; base: string | null; cuota: string | null }[];
+  total: string | null;
+  ms: number;
+  usage?: { input_tokens?: number; output_tokens?: number } | null;
+}
+
+/**
+ * Independent re-read of the money below the table (VAT rows and the total), WITHOUT seeing the first
+ * reading. Measured on the real set: a blurry ticket read its VAT as 25,59 and its total as 147,42; both
+ * add up with each other (and the VAT is within rounding), but the paper says 25,58 and 147,41.
+ */
+export async function releerTotales(imagen: Buffer, leido: AlbaranLeido, opts: { client?: ResponsesClient; effort?: Effort } = {}): Promise<LecturaTotales> {
+  const client = opts.client ?? readerClient();
+  const model = readerModel();
+  const t0 = Date.now();
+  const { width: W = 1, height: H = 1 } = await sharp(imagen).metadata();
+  const ok = (c: Caja | null | undefined): c is Caja => !!c && c.y_max > c.y_min;
+  const filas = leido.lineas.map((l) => l.caja_fila).filter(ok);
+  const pie = [leido.total.caja, ...leido.impuestos.flatMap((t) => [t.base.caja, t.cuota.caja])].filter(ok);
+  // From a little above the first box of the summary (or the last row) to the bottom of the page.
+  const desde = Math.min(...pie.map((c) => c.y_min), filas.length ? Math.max(...filas.map((c) => c.y_max)) : 450);
+  const y0 = Math.max(0, Math.min(desde, 900) - 60);
+  const top = Math.floor((y0 / 1000) * H);
+  const recorte = await sharp(imagen).extract({ left: 0, top, width: W, height: Math.max(1, H - top) }).resize({ width: Math.min(2048, W * 2) }).jpeg({ quality: 90 }).toBuffer();
+  const texto = { type: ["string", "null"] };
+  const r = await client.responses.create({
+    model,
+    reasoning: { effort: opts.effort ?? "low" },
+    input: [{
+      role: "user",
+      content: [
+        {
+          type: "input_text",
+          text: "This is the lower part of a Spanish supplier delivery note: the tax summary (VAT rows with rate %, taxable base and VAT amount) and the total of the note (the final amount to pay). " +
+            "Copy, character by character exactly as printed, each VAT row's rate, base and VAT amount, and the total. Keep the comma. " +
+            "Never compute or correct a number: if they do not add up, copy them anyway. Use null for anything not printed or not in the image.",
+        },
+        { type: "input_image", image_url: `data:image/jpeg;base64,${recorte.toString("base64")}`, detail: "auto" },
+      ],
+    }],
+    text: {
+      format: {
+        type: "json_schema", name: "totales", strict: true,
+        schema: {
+          type: "object", additionalProperties: false, required: ["impuestos", "total"],
+          properties: {
+            impuestos: { type: "array", items: { type: "object", additionalProperties: false, required: ["iva_pct", "base", "cuota"], properties: { iva_pct: texto, base: texto, cuota: texto } } },
+            total: texto,
+          },
+        },
+      },
+    },
+  });
+  const out = JSON.parse(r.output_text) as { impuestos: LecturaTotales["impuestos"]; total: string | null };
+  return { ...out, ms: Date.now() - t0, usage: r.usage };
+}
+
+/** The total and every VAT base and amount where the two independent readings disagree. Missing = no opinion. */
+export function compararTotales(leido: AlbaranLeido, otra: Pick<LecturaTotales, "impuestos" | "total">): DiscrepanciaCabecera[] {
+  const out: DiscrepanciaCabecera[] = [];
+  const distinto = (a: string | null, b: string | null) => a != null && b != null && !mismoNumero(a, b);
+  if (distinto(leido.total.texto, otra.total)) out.push({ campo: "total", fila: 1, primera: leido.total.texto, segunda: otra.total });
+  leido.impuestos.forEach((t, i) => {
+    const par = otra.impuestos.find((o) => t.iva_pct.texto != null && o.iva_pct != null && mismoNumero(t.iva_pct.texto, o.iva_pct)) ?? (otra.impuestos.length === leido.impuestos.length ? otra.impuestos[i] : undefined);
+    if (!par) return;
+    for (const campo of ["base", "cuota"] as const) if (distinto(t[campo].texto, par[campo])) out.push({ campo, fila: i + 1, primera: t[campo].texto, segunda: par[campo] });
+  });
+  return out;
 }
 
 /** Same printed number? Compares values (both readings of ambiguous numbers), not characters. */

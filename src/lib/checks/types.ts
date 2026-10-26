@@ -37,6 +37,8 @@ export interface Albaran {
   noNumericos: string[];
   /** Cells where two independent readings disagree; a doubt until a zoomed re-read settles it. */
   discrepancias: { linea: number; campo: string; primera: string | null; segunda: string | null }[];
+  /** The total or a VAT row read differently by two independent readings; a doubt until a zoomed re-read settles it. */
+  discrepanciasCabecera?: { campo: "total" | "base" | "cuota"; fila: number; primera: string | null; segunda: string | null }[];
   /** Line VAT rates filled in by code (from the tax table), not printed on the line. */
   ivaInferido?: boolean;
   /**

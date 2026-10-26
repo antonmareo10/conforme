@@ -49,6 +49,8 @@ export function textoAviso(a: Aviso, lang: Idioma, producto?: string | null): st
     case "ILEGIBLE":
       if (d.motivo === "relectura_distinta")
         return es ? `Reclamación retenida en la línea ${linea}: la primera lectura dice ${d.primera} y la relectura ampliada ${d.segunda}. Míralo antes de reclamar` : `Claim held back on line ${linea}: the first reading says ${d.primera}, the zoomed re-read ${d.segunda}. Take a look before claiming`;
+      if (d.motivo === "dos_lecturas" && a.lineaIdx == null)
+        return es ? `Dos lecturas no coinciden en ${String(d.campo).replace("cuota", "la cuota del IVA").replace("base", "la base")}: ${d.primera || "nada"} / ${d.segunda || "nada"}` : `Two readings disagree on the ${String(d.campo).replace("cuota", "VAT amount").replace("base", "VAT base")}: ${d.primera || "nothing"} / ${d.segunda || "nothing"}`;
       if (d.motivo === "dos_lecturas")
         return es ? `Dos lecturas no coinciden en la línea ${linea}: ${d.primera || "nada"} / ${d.segunda || "nada"}` : `Two readings disagree on line ${linea}: ${d.primera || "nothing"} / ${d.segunda || "nothing"}`;
       return es ? `No se lee con seguridad: ${d.campo}` : `Not clearly readable: ${d.campo}`;

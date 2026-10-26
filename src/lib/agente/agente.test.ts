@@ -199,3 +199,48 @@ describe("agent loop", () => {
     expect(inv).toMatchObject({ veredicto: "revisar", valido: true });
   });
 });
+
+describe("the tax summary and the total, read twice", () => {
+  // The case measured on the real set (numbers changed): lines add up to the base; VAT and total were
+  // misread by one cent in a way that adds up with each other and stays within VAT rounding.
+  const ticket = () => nota("Ticket", "1", [linea(300, "Producto A", "1", "ud", "100,00", "100,00", "21")], [iva("21", "100,00", "21,01")], "121,01");
+  const vacio = { historial: [], registrados: [], pedidos: [] };
+
+  it("flags the total and the VAT amount when the independent re-read disagrees, and nothing else", async () => {
+    const { compararTotales } = await import("../albaran/localizar");
+    const d = compararTotales(ticket(), { impuestos: [{ iva_pct: "21,00 %", base: "100,00", cuota: "21,00" }], total: "121,00 €" });
+    expect(d).toEqual([{ campo: "total", fila: 1, primera: "121,01", segunda: "121,00 €" }, { campo: "cuota", fila: 1, primera: "21,01", segunda: "21,00" }]);
+    expect(compararTotales(ticket(), { impuestos: [{ iva_pct: "21", base: "100,00", cuota: "21,01" }], total: null })).toEqual([]);
+  });
+
+  it("without the second look this note would pass: the misread VAT is within rounding", () => {
+    expect(comprobar(inferirIva(normalize("t", ticket())), vacio).filter((a) => a.clase === "lectura")).toEqual([]);
+  });
+
+  it("is a doubt until the agent re-reads it; two readings against the first make code take their value", async () => {
+    const t = { ...ticket(), discrepancias_cabecera: [{ campo: "total" as const, fila: 1, primera: "121,01", segunda: "121,00" }, { campo: "cuota" as const, fila: 1, primera: "21,01", segunda: "21,00" }] };
+    const avisos = comprobar(inferirIva(normalize("t", t)), vacio);
+    expect(avisos.filter((a) => a.codigo === "ILEGIBLE").map((a) => a.datos.campo)).toEqual(["total", "cuota 1"]);
+    const { client } = modelo(
+      [[{ name: "releer_total", args: { campo: "total", fila_iva: 1 } }, { name: "releer_total", args: { campo: "cuota", fila_iva: 1 } }], [{ name: "cerrar", args: { veredicto: "celda_mal_leida", evidencias: ["ev1", "ev2"], correcciones: [], explicacion: "" } }]],
+      (prompt) => ({ texto: prompt.includes("total amount") ? "121,00" : "21,00", legible: true }),
+    );
+    const inv = await investigar("t", t, imagen, vacio, { client });
+    expect(inv.valido).toBe(true);
+    expect(inv.sello).toBe("CONFORME");
+    expect(inv.leido.total.texto).toBe("121,00");
+    expect(inv.leido.impuestos[0].cuota.texto).toBe("21,00");
+    expect(inv.avisos.filter((a) => a.codigo === "CELDA_REPARADA").map((a) => a.datos.campo)).toEqual(["total", "cuota 1"]);
+  });
+
+  it("a re-read that agrees with the first reading settles it; one that agrees with neither keeps the note for a person", async () => {
+    const t = { ...ticket(), discrepancias_cabecera: [{ campo: "total" as const, fila: 1, primera: "121,01", segunda: "121,00" }] };
+    const confirma = modelo([[{ name: "releer_total", args: { campo: "total", fila_iva: 1 } }], [{ name: "cerrar", args: { veredicto: "lectura_confirmada", evidencias: ["ev1"], correcciones: [], explicacion: "" } }]], () => ({ texto: "121,01", legible: true }));
+    const a = await investigar("t", t, imagen, vacio, { client: confirma.client });
+    expect(a).toMatchObject({ valido: true, sello: "CONFORME" });
+    const ninguna = modelo([[{ name: "releer_total", args: { campo: "total", fila_iva: 1 } }], [{ name: "cerrar", args: { veredicto: "lectura_confirmada", evidencias: ["ev1"], correcciones: [], explicacion: "" } }]], () => ({ texto: "127,01", legible: true }));
+    const b = await investigar("t", t, imagen, vacio, { client: ninguna.client });
+    expect(b.valido).toBe(false);
+    expect(b.sello).toBe("REVISAR");
+  });
+});

@@ -60,6 +60,7 @@ Rules:
 - "celda_mal_leida": give the corrected text exactly as the re-read evidence shows it (a value from the row's list of printed numbers is fine), and cite that evidence.
 - If a tool result carries "nota_del_codigo", take it into account: code found a printed number that makes the line add up.
 - Warnings with motivo "dos_lecturas": two independent readings of that cell disagree (primera / segunda). Re-read that exact cell zoomed. If the zoomed re-read differs from the first reading, put it in "correcciones". If after correcting the line no longer adds up, re-read the line amount too: a confirmed printed amount that does not match quantity x price is a supplier error.
+- Warnings with motivo "dos_lecturas" on the total or on a VAT base or amount: re-read that number zoomed with releer_total. Code settles it with the re-read.
 - "error_proveedor": only after a re-read confirms the printed amount. Cite that evidence.
 - "lectura_confirmada": when the warnings are only doubts about a reading (unreadable fields, row count) and independent re-reads of those exact fields agree with the first reading.
 - "revisar": when the evidence is unclear or contradictory.
@@ -158,6 +159,25 @@ export async function investigar(
     return !CAMPO_DE_DINERO_RE.test(campoIlegible); // non-money doubts do not change the stamp anyway
   };
   corregido.ilegible = corregido.ilegible.filter((c) => !confirmado(c));
+
+  // 3b. The total or a VAT row read differently twice: a zoomed re-read that agrees with the first reading
+  //     settles it; one that agrees with the second means two independent readings against the first, and
+  //     code takes their value. Anything else stays a doubt.
+  const reparadasCabecera: { campo: string; antes: string | null; despues: string; evidencia: string }[] = [];
+  corregido.discrepancias_cabecera = (corregido.discrepancias_cabecera ?? []).filter((d) => {
+    const etiqueta = d.campo === "total" ? "total" : `${d.campo} ${d.fila}`;
+    const ev = [...evidencias].reverse().find((e) => e.herramienta === "releer_total" && e.campo === etiqueta && e.texto != null);
+    if (!ev) return true;
+    if (mismoNumero(ev.texto!, d.primera)) return false;
+    if (d.segunda != null && mismoNumero(ev.texto!, d.segunda)) {
+      const f = d.campo === "total" ? corregido.total : corregido.impuestos[d.fila - 1]?.[d.campo];
+      if (!f) return true;
+      reparadasCabecera.push({ campo: etiqueta, antes: f.texto, despues: ev.texto!, evidencia: ev.id });
+      f.texto = ev.texto!;
+      return false;
+    }
+    return true;
+  });
   const recuento = [...evidencias].reverse().find((e) => e.herramienta === "recontar_filas");
   if (recuento && recuento.datos?.filas === corregido.lineas.length) corregido.filas_de_producto_contadas = corregido.lineas.length;
 
@@ -182,7 +202,7 @@ export async function investigar(
 
   // 5. What each verdict must show.
   if (cierre.veredicto === "celda_mal_leida") {
-    if (!reparadas.length) return invalido("sin_correcciones");
+    if (!reparadas.length && !reparadasCabecera.length) return invalido("sin_correcciones");
     if (reparadas.some((r) => !aritmeticaLinea(a2.lineas[r.linea - 1])?.ok)) return invalido("la_correccion_no_cuadra");
   }
   if (cierre.veredicto === "error_proveedor" && !Object.keys(confirmados).length) return invalido("error_no_confirmado_en_el_papel");
@@ -192,6 +212,7 @@ export async function investigar(
   avisos = [
     ...comprobar(albaran, ctx),
     ...reparadas.map((r): Aviso => ({ codigo: "CELDA_REPARADA", clase: "info", docId, lineaIdx: r.linea - 1, centimos: 0, datos: { campo: r.campo, antes: r.antes ?? "", despues: r.despues, evidencia: r.evidencia } })),
+    ...reparadasCabecera.map((r): Aviso => ({ codigo: "CELDA_REPARADA", clase: "info", docId, centimos: 0, datos: { campo: r.campo, antes: r.antes ?? "", despues: r.despues, evidencia: r.evidencia } })),
   ];
   if (cierre.veredicto === "lectura_confirmada" && avisos.some((a) => a.clase === "lectura")) return invalido("quedan_dudas");
   return { leido, albaran, avisos, sello: sello(avisos), pasos, evidencias, investigado: true, veredicto: cierre.veredicto, valido: true, explicacion: cierre.explicacion, ms: Date.now() - t0, usage };
