@@ -2,7 +2,7 @@
 // numbers we publish come from exactly what the product does.
 //   read → second independent reading of the table (boxes snapped to rows, disagreements flagged)
 //   → code checks → investigator on notes with doubts → final stamp.
-import type OpenAI from "openai";
+import type { ResponsesClient } from "./meta/privado";
 import { readAlbaran, costUsd, type Effort, type ReadResult } from "./albaran/read";
 import { normalize } from "./albaran/normalize";
 import { afinarCajas, compararLecturas, localizarFilas } from "./albaran/localizar";
@@ -31,7 +31,7 @@ export async function analizarDocumento(
   docId: string,
   foto: Buffer,
   ctx: Contexto,
-  opts: { client?: OpenAI; effort?: Effort; investigar?: boolean; segundaLectura?: boolean; previa?: ReadResult; emitir?: (ev: Evento) => void } = {},
+  opts: { client?: ResponsesClient; effort?: Effort; investigar?: boolean; segundaLectura?: boolean; previa?: ReadResult; emitir?: (ev: Evento) => void } = {},
 ): Promise<ResultadoDocumento> {
   const emit = opts.emitir ?? (() => {});
   const effort = opts.effort ?? "low";

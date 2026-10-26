@@ -1,8 +1,8 @@
 // Speech → text (Muse Voice Transcribe) and text → intent (Muse Spark, strict schema). Suppliers and
 // products are enums built from the session's own notes, so the model cannot invent an entity.
-import type OpenAI from "openai";
-import { assertAllowedModel, MODELS } from "./meta/models";
-import { metaClient } from "./albaran/read";
+import { assertAllowedModel, MODELS, readerModel } from "./meta/models";
+import type { ResponsesClient } from "./meta/privado";
+import { readerClient } from "./albaran/read";
 import { INTENCIONES, PERIODOS, type Consulta } from "./preguntas";
 
 export async function transcribir(wav: Blob): Promise<{ texto: string; ms: number }> {
@@ -32,13 +32,13 @@ Intents:
 Periods: hoy (today), esta_semana, este_mes (this month), mes_pasado (last month), todo (all / unspecified).
 Use null for proveedor/producto when the question does not name one. Pick them only from the allowed lists.`;
 
-export async function interpretar(texto: string, proveedores: string[], productos: string[], client?: OpenAI): Promise<Consulta & { ms: number }> {
-  assertAllowedModel(MODELS.read);
-  const c = client ?? metaClient();
+export async function interpretar(texto: string, proveedores: string[], productos: string[], client?: ResponsesClient): Promise<Consulta & { ms: number }> {
+  const model = readerModel();
+  const c = client ?? readerClient();
   const t0 = Date.now();
   const enumOrNull = (vals: string[]) => (vals.length ? { anyOf: [{ type: "string", enum: vals }, { type: "null" }] } : { type: "null" });
   const r = await c.responses.create({
-    model: MODELS.read,
+    model,
     reasoning: { effort: "minimal" },
     input: [{ role: "developer", content: PROMPT }, { role: "user", content: texto.slice(0, 500) }],
     text: {

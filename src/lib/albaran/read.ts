@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import sharp from "sharp";
-import { assertAllowedModel, MODELS } from "../meta/models";
+import { readerModel } from "../meta/models";
+import { privateModeConfig, privateResponses, type ResponsesClient } from "../meta/privado";
 import { ALBARAN_SCHEMA, READ_PROMPT, type AlbaranLeido } from "./schema";
 
 export type Effort = "minimal" | "low" | "medium" | "high";
@@ -8,7 +9,7 @@ export type Effort = "minimal" | "low" | "medium" | "high";
 export interface ReadOptions {
   longSide?: number;
   effort?: Effort;
-  client?: OpenAI;
+  client?: ResponsesClient;
 }
 
 export interface ReadResult {
@@ -30,6 +31,19 @@ export function metaClient(): OpenAI {
   return shared;
 }
 
+let privado: ResponsesClient | null = null;
+/**
+ * Client for the text/vision calls (reading, second reading, investigator, question intent): the Meta API,
+ * or the private endpoint when PRIVATE_MODEL_BASE_URL is set. SAM and voice always use metaClient().
+ */
+export function readerClient(): ResponsesClient {
+  const cfg = privateModeConfig();
+  if (!cfg) return metaClient();
+  // One retry at most: a local model can take minutes per call, retrying three times would hide a dead server.
+  privado ??= privateResponses(new OpenAI({ baseURL: cfg.baseURL, apiKey: cfg.apiKey, maxRetries: 1, timeout: cfg.timeoutMs }), { reasoningEffort: cfg.reasoningEffort });
+  return privado;
+}
+
 /** Orient by EXIF, cap the long side, re-encode as JPEG. Returns the bytes sent to the model. */
 export async function prepareImage(input: Buffer, longSide = 2048) {
   const jpeg = await sharp(input).rotate().resize({ width: longSide, height: longSide, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
@@ -40,9 +54,8 @@ export async function prepareImage(input: Buffer, longSide = 2048) {
 /** One call to Muse Spark: copy every printed field with its box. No arithmetic happens here. */
 export async function readAlbaran(image: Buffer, opts: ReadOptions = {}): Promise<ReadResult> {
   const { longSide = 2048, effort = "low" } = opts;
-  const client = opts.client ?? metaClient();
-  const model = MODELS.read;
-  assertAllowedModel(model);
+  const client = opts.client ?? readerClient();
+  const model = readerModel();
   const { jpeg, width, height } = await prepareImage(image, longSide);
   const t0 = Date.now();
   const r = await client.responses.create({
@@ -77,4 +90,8 @@ export async function readAlbaran(image: Buffer, opts: ReadOptions = {}): Promis
 
 /** List price of Muse Spark 1.3 in USD per token (Oct 2026). */
 export const PRICE = { input: 1.25e-6, output: 4.25e-6 };
-export const costUsd = (u: ReadResult["usage"]) => u.input_tokens * PRICE.input + u.output_tokens * PRICE.output;
+/** API cost of a call: Spark's list price, or the private endpoint's (PRIVATE_MODEL_USD_PER_MTOK, 0 on own hardware). */
+export const costUsd = (u: ReadResult["usage"]) => {
+  const p = privateModeConfig()?.price ?? PRICE;
+  return u.input_tokens * p.input + u.output_tokens * p.output;
+};

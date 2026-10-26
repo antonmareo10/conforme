@@ -1,10 +1,10 @@
 // The investigator: Muse Spark decides what to look at on the paper, with tools; code runs every tool,
 // keeps every result as numbered evidence and validates the closing verdict. The model never sets a number.
-import type OpenAI from "openai";
 import sharp from "sharp";
 import type { FunctionTool, ResponseInputItem, ResponseFunctionToolCall } from "openai/resources/responses/responses";
-import { assertAllowedModel, MODELS } from "../meta/models";
-import { metaClient, type Effort } from "../albaran/read";
+import { readerModel } from "../meta/models";
+import type { ResponsesClient } from "../meta/privado";
+import { readerClient, type Effort } from "../albaran/read";
 import type { AlbaranLeido, Caja } from "../albaran/schema";
 import { normalize } from "../albaran/normalize";
 import { aritmeticaLinea, claveProducto, comprobar, inferirIva, precioReferencia, sello } from "../checks/engine";
@@ -57,7 +57,7 @@ export interface Investigacion {
 }
 
 export interface InvestigarOpts {
-  client?: OpenAI;
+  client?: ResponsesClient;
   effort?: Effort;
   maxLlamadas?: number;
   maxMs?: number;
@@ -123,9 +123,9 @@ async function recortar(imagen: Buffer, W: number, H: number, caja: Caja, filaCo
   return { zoom, rect: { x, y, w, h }, miniatura: `data:image/jpeg;base64,${mini.toString("base64")}` };
 }
 
-async function preguntarImagen<T>(client: OpenAI, jpeg: Buffer, prompt: string, schema: Record<string, unknown>, effort: Effort) {
+async function preguntarImagen<T>(client: ResponsesClient, jpeg: Buffer, prompt: string, schema: Record<string, unknown>, effort: Effort) {
   const r = await client.responses.create({
-    model: MODELS.read,
+    model: readerModel(),
     reasoning: { effort },
     input: [{ role: "user", content: [{ type: "input_text", text: prompt }, { type: "input_image", image_url: `data:image/jpeg;base64,${jpeg.toString("base64")}`, detail: "auto" }] }],
     text: { format: { type: "json_schema", name: "lectura", schema, strict: true } },
@@ -145,8 +145,8 @@ export async function investigar(
   opts: InvestigarOpts = {},
 ): Promise<Investigacion> {
   const t0 = Date.now();
-  const client = opts.client ?? metaClient();
-  assertAllowedModel(MODELS.read);
+  const client = opts.client ?? readerClient();
+  const model = readerModel();
   const effort = opts.effort ?? "low";
   const maxLlamadas = opts.maxLlamadas ?? 4;
   const maxMs = opts.maxMs ?? 45_000;
@@ -286,7 +286,7 @@ export async function investigar(
   for (let ronda = 0; ronda < maxLlamadas + 2 && !cierre && Date.now() - t0 < maxMs; ronda++) {
     // The Meta API only supports tool_choice "auto": at the limit, only "cerrar" is offered.
     const soloCerrar = llamadas >= maxLlamadas;
-    const r = await client.responses.create({ model: MODELS.read, reasoning: { effort }, tools: soloCerrar ? TOOLS.filter((t) => t.name === "cerrar") : TOOLS, input });
+    const r = await client.responses.create({ model, reasoning: { effort }, tools: soloCerrar ? TOOLS.filter((t) => t.name === "cerrar") : TOOLS, input });
     sumar(r.usage);
     const calls = r.output.filter((o): o is ResponseFunctionToolCall => o.type === "function_call");
     input.push(...(r.output as ResponseInputItem[]));

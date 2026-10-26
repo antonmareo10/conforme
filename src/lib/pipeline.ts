@@ -2,7 +2,8 @@
 // Emits real progress events as they happen (the screen draws exactly these; no fake progress).
 import type OpenAI from "openai";
 import { segmentar } from "./segmentar";
-import { metaClient, type Effort } from "./albaran/read";
+import { metaClient, readerClient, type Effort } from "./albaran/read";
+import type { ResponsesClient } from "./meta/privado";
 import { normalize } from "./albaran/normalize";
 import type { AlbaranLeido } from "./albaran/schema";
 import { enJuego } from "./checks/engine";
@@ -52,7 +53,10 @@ class Cola<T> implements AsyncIterable<T> {
 }
 
 export interface AnalizarOpts {
+  /** Meta API client: SAM always, and the reading too unless `reader` is given. */
   client?: OpenAI;
+  /** Client for the reading and the investigator (private endpoint in private mode). */
+  reader?: ResponsesClient;
   effort?: Effort;
   investigar?: boolean;
 }
@@ -60,6 +64,7 @@ export interface AnalizarOpts {
 export function analizar(fotos: Buffer[], ctx: Contexto, opts: AnalizarOpts = {}): AsyncIterable<Evento> {
   const cola = new Cola<Evento>();
   const client = opts.client ?? metaClient();
+  const reader = opts.reader ?? opts.client ?? readerClient();
   const effort = opts.effort ?? "low";
   const t0 = Date.now();
   let coste = 0;
@@ -91,7 +96,7 @@ export function analizar(fotos: Buffer[], ctx: Contexto, opts: AnalizarOpts = {}
         docs.map(async ({ docId, jpeg }) => {
           try {
             cola.push({ tipo: "etapa", etapa: "leer", estado: "inicio", docId });
-            const res = await analizarDocumento(docId, jpeg, ctx, { client, effort, investigar: opts.investigar, emitir: (ev) => cola.push(ev) });
+            const res = await analizarDocumento(docId, jpeg, ctx, { client: reader, effort, investigar: opts.investigar, emitir: (ev) => cola.push(ev) });
             coste += res.costeUsd;
             const { leido, sello: st, avisos } = res;
             const a = normalize(docId, leido);

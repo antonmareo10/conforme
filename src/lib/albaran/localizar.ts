@@ -2,10 +2,10 @@
 // and copies its quantity, unit price and amount again WITHOUT seeing the first reading's numbers.
 // Code then (1) snaps the boxes to the right rows and (2) flags every number where the two readings
 // disagree. Measured on fictional notes: rows located correctly 20/20 (reading alone: 12-17/20).
-import type OpenAI from "openai";
 import sharp from "sharp";
-import { assertAllowedModel, MODELS } from "../meta/models";
-import { metaClient, type Effort } from "./read";
+import { readerModel } from "../meta/models";
+import type { ResponsesClient } from "../meta/privado";
+import { readerClient, type Effort } from "./read";
 import type { AlbaranLeido, Caja, Discrepancia } from "./schema";
 import { parsePrinted } from "../numbers";
 
@@ -25,9 +25,9 @@ export interface SegundaLectura {
   usage?: { input_tokens?: number; output_tokens?: number } | null;
 }
 
-export async function localizarFilas(imagen: Buffer, leido: AlbaranLeido, opts: { client?: OpenAI; effort?: Effort } = {}): Promise<SegundaLectura> {
-  const client = opts.client ?? metaClient();
-  assertAllowedModel(MODELS.read);
+export async function localizarFilas(imagen: Buffer, leido: AlbaranLeido, opts: { client?: ResponsesClient; effort?: Effort } = {}): Promise<SegundaLectura> {
+  const client = opts.client ?? readerClient();
+  const model = readerModel();
   const t0 = Date.now();
   // Crop the table band (all rows read, with a margin) and enlarge it: more pixels per row.
   const { width: W = 1, height: H = 1 } = await sharp(imagen).metadata();
@@ -41,7 +41,7 @@ export async function localizarFilas(imagen: Buffer, leido: AlbaranLeido, opts: 
   // Only descriptions identify the rows: the numbers must be read again, independently.
   const lista = leido.lineas.map((l, i) => `${i + 1}. "${l.descripcion.texto ?? ""}"`).join("\n");
   const r = await client.responses.create({
-    model: MODELS.read,
+    model,
     reasoning: { effort: opts.effort ?? "low" },
     input: [{
       role: "user",
