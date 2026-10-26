@@ -7,6 +7,7 @@ export default function Home() {
   const prueba = pruebaReal();
   return (
     <main className="flex-1">
+      <link rel="preload" as="image" href="/muestras/encimera/escena-1200.webp" type="image/webp" fetchPriority="high" />
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
         <header className="flex items-center justify-between py-4">
           <span className="font-serif text-2xl font-semibold tracking-tight">Conforme</span>

@@ -45,7 +45,7 @@ export function BotonIdioma({ className = "" }: { className?: string }) {
   return (
     <button type="button" onClick={() => fijarIdioma(lang === "es" ? "en" : "es")}
       className={`min-h-[40px] min-w-[44px] rounded-full bg-tinta px-3 text-sm font-semibold text-papel ${className}`}
-      aria-label={lang === "es" ? "Switch to English" : "Cambiar a español"}>
+      aria-label={lang === "es" ? "EN: switch to English" : "ES: cambiar a español"}>
       {lang === "es" ? "EN" : "ES"}
     </button>
   );
