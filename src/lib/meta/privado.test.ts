@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import type { ChatCompletion, ChatCompletionCreateParamsNonStreaming } from "openai/resources/chat/completions";
+import type { ChatCompletion } from "openai/resources/chat/completions";
 import type { FunctionTool, ResponseFunctionToolCall, ResponseInputItem } from "openai/resources/responses/responses";
-import { extractJson, privateModeConfig, privateResponses, PrivateModeError, type ChatClient } from "./privado";
+import { extractJson, privateModeConfig, privateResponses, PrivateModeError, type ChatClient, type ChatRequest } from "./privado";
 
 type Reply = Pick<ChatCompletion, "id" | "model" | "choices" | "usage">;
 
 /** A chat completions endpoint that records every request and answers from a script. */
 function fakeChat(replies: Reply[]) {
-  const requests: ChatCompletionCreateParamsNonStreaming[] = [];
+  const requests: ChatRequest[] = [];
   const chat: ChatClient = {
     chat: {
       completions: {
@@ -155,6 +155,19 @@ describe("private mode adapter (Responses API over chat completions)", () => {
     expect(requests[1].reasoning_effort).toBe("high");
   });
 
+  it("sends the effort as Muse Glimmer's template reasoning_strength in template mode", async () => {
+    const { chat, requests } = fakeChat([reply({ content: "a" }), reply({ content: "b" }), reply({ content: "c" })]);
+    const client = privateResponses(chat, { reasoningEffort: "template" });
+    await client.responses.create({ model: "muse-glimmer-30b", reasoning: { effort: "minimal" }, input: "x" });
+    await client.responses.create({ model: "muse-glimmer-30b", reasoning: { effort: "high" }, input: "x" });
+    await client.responses.create({ model: "muse-glimmer-30b", input: "x" });
+    expect(requests.map((r) => [r.chat_template_kwargs, r.reasoning_effort])).toEqual([
+      [{ reasoning_strength: "low" }, undefined],
+      [{ reasoning_strength: "high" }, undefined],
+      [undefined, undefined],
+    ]);
+  });
+
   it("strips think blocks and code fences around requested JSON only", async () => {
     expect(extractJson('<think>let me see</think>\n```json\n{"a":1}\n```')).toBe('{"a":1}');
     expect(extractJson('  {"a":1}\n')).toBe('{"a":1}');
@@ -184,7 +197,7 @@ describe("private mode config", () => {
       baseURL: "http://127.0.0.1:8080/v1",
       apiKey: "not-needed",
       model: "muse-glimmer-30b",
-      reasoningEffort: "pass",
+      reasoningEffort: "template",
       timeoutMs: 600_000,
       price: { input: 0, output: 0 },
     });

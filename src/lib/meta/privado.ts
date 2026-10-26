@@ -23,7 +23,7 @@ import type {
   Tool,
 } from "openai/resources/responses/responses";
 import type { ReasoningEffort } from "openai/resources/shared";
-import { readerModel, type Env } from "./models";
+import { OPEN_MODELS, readerModel, type Env } from "./models";
 
 /** What Conforme reads from a Responses API result. */
 export type ResponsesResult = Pick<Response, "id" | "model" | "status" | "incomplete_details" | "output" | "output_text" | "usage">;
@@ -33,13 +33,26 @@ export interface ResponsesClient {
   responses: { create(body: ResponseCreateParamsNonStreaming): Promise<ResponsesResult> };
 }
 
+/** A chat completions request, plus llama-server's chat template variables. */
+export type ChatRequest = ChatCompletionCreateParamsNonStreaming & { chat_template_kwargs?: Record<string, unknown> };
+
 /** The subset of an OpenAI-compatible chat client the adapter needs. */
 export interface ChatClient {
-  chat: { completions: { create(body: ChatCompletionCreateParamsNonStreaming): Promise<Pick<ChatCompletion, "id" | "model" | "choices" | "usage">> } };
+  chat: { completions: { create(body: ChatRequest): Promise<Pick<ChatCompletion, "id" | "model" | "choices" | "usage">> } };
 }
 
-/** "pass" forwards the caller's effort as `reasoning_effort`; "omit" never sends it (some servers reject it); a value overrides it. */
-export type ReasoningEffortMode = "pass" | "omit" | Exclude<ReasoningEffort, null>;
+/**
+ * How the caller's reasoning effort reaches the server:
+ * - "pass": as `reasoning_effort` (Meta API, most OpenAI-compatible servers);
+ * - "template": as the chat template's `reasoning_strength` (llama.cpp + Muse Glimmer, which ignores
+ *   reasoning_effort and cannot switch reasoning off: minimal/low → low, high, xhigh/max → xhigh);
+ * - "omit": not at all (servers that reject the field); a fixed effort overrides every call.
+ */
+export type ReasoningEffortMode = "pass" | "template" | "omit" | Exclude<ReasoningEffort, null>;
+
+const STRENGTH: Record<Exclude<ReasoningEffort, null>, "low" | "medium" | "high" | "xhigh"> = {
+  none: "low", minimal: "low", low: "low", medium: "medium", high: "high", xhigh: "xhigh", max: "xhigh",
+};
 
 export interface PrivateAdapterOptions {
   reasoningEffort?: ReasoningEffortMode;
@@ -153,14 +166,15 @@ function toChatToolChoice(c: NonNullable<ResponseCreateParamsNonStreaming["tool_
 const UNSUPPORTED = ["previous_response_id", "conversation", "background", "prompt", "stream"] as const;
 
 /** Responses request → chat completions request. */
-export function toChatRequest(body: ResponseCreateParamsNonStreaming, opts: PrivateAdapterOptions = {}): ChatCompletionCreateParamsNonStreaming {
+export function toChatRequest(body: ResponseCreateParamsNonStreaming, opts: PrivateAdapterOptions = {}): ChatRequest {
   for (const k of UNSUPPORTED) if (body[k]) throw new PrivateModeError(`"${k}" is not supported`);
   if (!body.model) throw new PrivateModeError("model is required");
-  const req: ChatCompletionCreateParamsNonStreaming = { model: body.model, messages: toChatMessages(body) };
+  const req: ChatRequest = { model: body.model, messages: toChatMessages(body) };
 
   const mode = opts.reasoningEffort ?? "pass";
-  const effort = mode === "pass" ? body.reasoning?.effort : mode === "omit" ? null : mode;
-  if (effort) req.reasoning_effort = effort;
+  const effort = mode === "pass" || mode === "template" ? body.reasoning?.effort : mode === "omit" ? null : mode;
+  if (effort && mode === "template") req.chat_template_kwargs = { reasoning_strength: STRENGTH[effort] };
+  else if (effort) req.reasoning_effort = effort;
 
   const format = body.text?.format;
   if (format?.type === "json_schema") {
@@ -253,18 +267,20 @@ export interface PrivateModeConfig {
   price: { input: number; output: number };
 }
 
-const EFFORT_MODES: ReadonlySet<string> = new Set(["pass", "omit", "none", "minimal", "low", "medium", "high", "xhigh", "max"]);
+const EFFORT_MODES: ReadonlySet<string> = new Set(["pass", "template", "omit", ...Object.keys(STRENGTH)]);
 
 /**
  * Private mode is on when PRIVATE_MODEL_BASE_URL is set. Optional: PRIVATE_MODEL_API_KEY, PRIVATE_MODEL
- * (default muse-glimmer-30b), PRIVATE_MODEL_REASONING_EFFORT (pass | omit | a fixed effort),
+ * (default muse-glimmer-30b), PRIVATE_MODEL_REASONING_EFFORT (pass | template | omit | a fixed effort;
+ * default "template" for Muse Glimmer, "pass" otherwise),
  * PRIVATE_MODEL_TIMEOUT_MS (default 600000: local models are slow), PRIVATE_MODEL_USD_PER_MTOK ("input,output").
  * The Meta API key is never sent to a private endpoint.
  */
 export function privateModeConfig(env: Env = process.env): PrivateModeConfig | null {
   const baseURL = env.PRIVATE_MODEL_BASE_URL?.trim();
   if (!baseURL) return null;
-  const effort = env.PRIVATE_MODEL_REASONING_EFFORT?.trim() || "pass";
+  const model = readerModel(env);
+  const effort = env.PRIVATE_MODEL_REASONING_EFFORT?.trim() || (model === OPEN_MODELS.glimmer ? "template" : "pass");
   if (!EFFORT_MODES.has(effort)) throw new PrivateModeError(`PRIVATE_MODEL_REASONING_EFFORT must be one of ${[...EFFORT_MODES].join(", ")}`);
   const timeoutMs = Number(env.PRIVATE_MODEL_TIMEOUT_MS || 600_000);
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw new PrivateModeError("PRIVATE_MODEL_TIMEOUT_MS must be a positive number");
@@ -273,7 +289,7 @@ export function privateModeConfig(env: Env = process.env): PrivateModeConfig | n
     baseURL,
     // llama-server needs no key, but the OpenAI SDK refuses an empty one.
     apiKey: env.PRIVATE_MODEL_API_KEY?.trim() || "not-needed",
-    model: readerModel(env),
+    model,
     reasoningEffort: effort as ReasoningEffortMode,
     timeoutMs,
     price: { input: pin / 1e6, output: pout / 1e6 },
