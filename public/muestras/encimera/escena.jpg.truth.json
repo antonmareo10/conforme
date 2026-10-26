@@ -1,29 +1,29 @@
 {
  "width": 2400,
- "height": 1700,
+ "height": 1600,
  "docs": [
   {
    "file": "musel-1406.jpg",
-   "left": 80,
-   "top": 140,
-   "right": 882,
-   "bottom": 1101,
+   "left": 150,
+   "top": 420,
+   "right": 952,
+   "bottom": 1381,
    "angle": -7
   },
   {
    "file": "huerta-0388.jpg",
-   "left": 860,
-   "top": 90,
-   "right": 1625,
-   "bottom": 1089,
+   "left": 900,
+   "top": 380,
+   "right": 1665,
+   "bottom": 1379,
    "angle": 4
   },
   {
    "file": "bebidas-77120.jpg",
-   "left": 1640,
-   "top": 180,
-   "right": 2361,
-   "bottom": 643,
+   "left": 1620,
+   "top": 430,
+   "right": 2341,
+   "bottom": 893,
    "angle": -3
   }
  ]

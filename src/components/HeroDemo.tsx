@@ -59,7 +59,7 @@ export function HeroDemo() {
         <div className="font-serif text-2xl font-semibold text-rojo sm:text-4xl"><Cifra cents={enJuego} lang={lang} /></div>
       </div>
       <div className="absolute right-3 top-3 rounded-full bg-tinta/80 px-3 py-1 text-[11px] text-papel sm:right-5 sm:top-5">
-        {lang === "es" ? "Muestra grabada · datos ficticios · ×3" : "Recorded sample · fictional data · ×3"}
+        {lang === "es" ? "Muestra grabada · datos ficticios · fondo de Muse Image · ×3" : "Recorded sample · fictional data · background by Muse Image · ×3"}
       </div>
     </div>
   );

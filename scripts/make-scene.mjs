@@ -1,17 +1,25 @@
 // Compose several document images on a counter-like background, slightly rotated, to test SAM separation.
-// Usage: node scripts/make-scene.mjs <out.jpg> <img1> <img2> [img3...]
+// Usage: node scripts/make-scene.mjs <out.jpg> <img1> <img2> [img3...] [--fondo background.jpg]
 // Writes <out.jpg> and <out.jpg>.truth.json with each document's placed box (pixels).
 import { writeFileSync } from "node:fs";
 import sharp from "sharp";
 
-const [out, ...imgs] = process.argv.slice(2);
-const W = 2400, H = 1700;
-// Steel-grey counter with a little noise so it is not a flat colour.
-const noise = Buffer.alloc(W * H * 3);
-for (let i = 0; i < noise.length; i += 3) { const v = 120 + Math.floor(Math.random() * 18); noise[i] = v; noise[i + 1] = v + 4; noise[i + 2] = v + 8; }
-const bg = sharp(noise, { raw: { width: W, height: H, channels: 3 } }).blur(1.2);
+const args = process.argv.slice(2);
+const fi = args.indexOf("--fondo");
+const fondo = fi >= 0 ? args.splice(fi, 2)[1] : null;
+const [out, ...imgs] = args;
+const W = 2400, H = fondo ? 1600 : 1700;
+let bg;
+if (fondo) {
+  bg = sharp(await sharp(fondo).resize({ width: W, height: H, fit: "cover" }).toBuffer());
+} else {
+  // Steel-grey counter with a little noise so it is not a flat colour.
+  const noise = Buffer.alloc(W * H * 3);
+  for (let i = 0; i < noise.length; i += 3) { const v = 120 + Math.floor(Math.random() * 18); noise[i] = v; noise[i + 1] = v + 4; noise[i + 2] = v + 8; }
+  bg = sharp(noise, { raw: { width: W, height: H, channels: 3 } }).blur(1.2);
+}
 
-const slots = [[80, 140], [860, 90], [1640, 180], [400, 900], [1300, 950]];
+const slots = fondo ? [[150, 420], [900, 380], [1620, 430], [400, 900], [1300, 950]] : [[80, 140], [860, 90], [1640, 180], [400, 900], [1300, 950]];
 const angles = [-7, 4, -3, 6, -5];
 const layers = [];
 const truth = [];

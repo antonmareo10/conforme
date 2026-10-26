@@ -73,7 +73,7 @@ export default function Home() {
         </section>
 
         <footer className="flex flex-col gap-2 border-t border-linea py-8 text-sm text-apagado sm:flex-row sm:items-center sm:justify-between">
-          <span><L es="Hecho con Muse Spark 1.3, SAM 3.1 y Muse Voice Transcribe" en="Built with Muse Spark 1.3, SAM 3.1 and Muse Voice Transcribe" /></span>
+          <span><L es="Hecho con Muse Spark 1.3, SAM 3.1, Muse Voice Transcribe y Muse Image" en="Built with Muse Spark 1.3, SAM 3.1, Muse Voice Transcribe and Muse Image" /></span>
           <span><L es="Nada de lo que subes se usa para entrenar modelos (modo estándar de la API)" en="Nothing you upload is used to train models (standard API mode)" /></span>
         </footer>
       </div>
