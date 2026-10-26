@@ -141,6 +141,8 @@ export function comprobar(a: Albaran, ctx: Contexto): Aviso[] {
     avisos.push(CAMPO_DE_DINERO.test(campo) ? av : { ...av, clase: "info" });
   }
   for (const campo of a.noNumericos ?? []) avisos.push(aviso("ILEGIBLE", a.docId, 0, { campo, motivo: "no_numerico" }));
+  for (const d of a.discrepancias ?? [])
+    avisos.push(aviso("ILEGIBLE", a.docId, 0, { campo: `linea ${d.linea} ${d.campo}`, motivo: "dos_lecturas", primera: d.primera ?? "", segunda: d.segunda ?? "" }, d.linea - 1));
 
   if (a.filasContadas != null && a.filasContadas !== a.lineas.length)
     avisos.push(aviso("RECUENTO_FILAS", a.docId, 0, { contadas: a.filasContadas, leidas: a.lineas.length }));

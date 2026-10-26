@@ -35,6 +35,8 @@ export interface Albaran {
   ilegible: string[];
   /** Printed numeric fields whose text could not be read as a number (e.g. "1O,5O"). */
   noNumericos: string[];
+  /** Cells where two independent readings disagree; a doubt until a zoomed re-read settles it. */
+  discrepancias: { linea: number; campo: string; primera: string | null; segunda: string | null }[];
   /** Line VAT rates filled in by code (from the tax table), not printed on the line. */
   ivaInferido?: boolean;
   /**

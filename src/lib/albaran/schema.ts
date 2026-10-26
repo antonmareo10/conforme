@@ -30,6 +30,14 @@ export interface ImpuestoLeido {
   cuota: Campo;
 }
 
+/** Two independent readings of one printed number that do not agree (set by code, not by the model). */
+export interface Discrepancia {
+  linea: number; // 1-based
+  campo: "cantidad" | "precio_unitario" | "importe";
+  primera: string | null;
+  segunda: string | null;
+}
+
 export interface AlbaranLeido {
   rotacion_para_leer: 0 | 90 | 180 | 270;
   proveedor: Campo;
@@ -41,6 +49,8 @@ export interface AlbaranLeido {
   total: Campo;
   filas_de_producto_contadas: number;
   ilegible: string[];
+  /** Added by code after the second, independent reading of the line table. */
+  discrepancias?: Discrepancia[];
 }
 
 const caja = {

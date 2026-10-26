@@ -29,6 +29,7 @@ const A = (docId: string, proveedor: string, fecha: string, lineas: Linea[], imp
   filasContadas: lineas.length,
   ilegible: [],
   noNumericos: [],
+  discrepancias: [],
   cajas: { proveedor: null, nif: null, numero: null, fecha: null, total: null },
   ...extra,
 });

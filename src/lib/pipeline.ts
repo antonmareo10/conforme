@@ -2,12 +2,13 @@
 // Emits real progress events as they happen (the screen draws exactly these; no fake progress).
 import type OpenAI from "openai";
 import { segmentar } from "./segmentar";
-import { readAlbaran, costUsd, metaClient, type Effort } from "./albaran/read";
+import { metaClient, type Effort } from "./albaran/read";
 import { normalize } from "./albaran/normalize";
 import type { AlbaranLeido } from "./albaran/schema";
-import { comprobar, enJuego, inferirIva, sello } from "./checks/engine";
+import { enJuego } from "./checks/engine";
 import type { Aviso, Contexto, Sello } from "./checks/types";
-import { investigar, type Evidencia, type Paso, type Veredicto } from "./agente/investigar";
+import type { Evidencia, Paso, Veredicto } from "./agente/investigar";
+import { analizarDocumento } from "./documento";
 
 export type Etapa = "buscar" | "enderezar" | "leer" | "comprobar" | "investigar";
 
@@ -90,28 +91,9 @@ export function analizar(fotos: Buffer[], ctx: Contexto, opts: AnalizarOpts = {}
         docs.map(async ({ docId, jpeg }) => {
           try {
             cola.push({ tipo: "etapa", etapa: "leer", estado: "inicio", docId });
-            const r = await readAlbaran(jpeg, { client, effort });
-            coste += costUsd(r.usage);
-            cola.push({ tipo: "doc", docId, imagen: `data:image/jpeg;base64,${r.imagen!.toString("base64")}`, width: r.width, height: r.height });
-            cola.push({ tipo: "lectura", docId, leido: r.leido, ms: r.ms });
-            cola.push({ tipo: "etapa", etapa: "leer", estado: "fin", docId, ms: r.ms });
-
-            let leido = r.leido;
-            let avisos = comprobar(inferirIva(normalize(docId, leido)), ctx);
-            let st = sello(avisos);
-            cola.push({ tipo: "avisos", docId, avisos, sello: st, provisional: st === "REVISAR" });
-
-            if (st === "REVISAR" && opts.investigar !== false) {
-              cola.push({ tipo: "etapa", etapa: "investigar", estado: "inicio", docId });
-              const inv = await investigar(docId, leido, r.imagen!, ctx, { client, effort });
-              coste += costUsd({ ...inv.usage, reasoning_tokens: 0 });
-              leido = inv.leido;
-              avisos = inv.avisos;
-              st = inv.sello;
-              cola.push({ tipo: "investigacion", docId, pasos: inv.pasos, evidencias: inv.evidencias, veredicto: inv.veredicto, valido: inv.valido, motivo: inv.motivo, explicacion: inv.explicacion, leido, ms: inv.ms });
-              cola.push({ tipo: "avisos", docId, avisos, sello: st, provisional: false });
-              cola.push({ tipo: "etapa", etapa: "investigar", estado: "fin", docId, ms: inv.ms });
-            }
+            const res = await analizarDocumento(docId, jpeg, ctx, { client, effort, investigar: opts.investigar, emitir: (ev) => cola.push(ev) });
+            coste += res.costeUsd;
+            const { leido, sello: st, avisos } = res;
             const a = normalize(docId, leido);
             cola.push({ tipo: "albaran", docId, sello: st, proveedor: a.proveedor, numero: a.numero, fecha: a.fecha, totalTexto: leido.total.texto });
             finales.push({ sello: st, avisos });

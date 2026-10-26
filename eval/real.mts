@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { readAlbaran, costUsd, prepareImage, type Effort } from "../src/lib/albaran/read";
-import { investigar } from "../src/lib/agente/investigar";
+import { analizarDocumento } from "../src/lib/documento";
 import { normalize } from "../src/lib/albaran/normalize";
 import { aritmeticaLinea, comprobar, importeLinea, inferirIva, sello, claveProducto } from "../src/lib/checks/engine";
 import { normalizeNif } from "../src/lib/checks/nif";
@@ -178,14 +178,16 @@ const rows = await pool(ids, CONCURRENCY, async ({ id, base }) => {
     let a = inferirIva(normalize(id, r.leido));
     let avisos = comprobar(a, sinPedidos);
     let st = sello(avisos);
-    let inv: { veredicto: string | null; valido: boolean; pasos: number; usd: number } | null = null;
-    if (conInvestigacion && st === "REVISAR") {
+    let inv: { veredicto: string | null; valido: boolean; pasos: number; usd: number; discrepancias: number; investigado: boolean } | null = null;
+    if (conInvestigacion) {
+      // Exactly what the product does: second reading, checks, investigator on doubts.
       const imagen = r.imagen ?? (await prepareImage(img, side)).jpeg;
-      const x = await investigar(id, r.leido, imagen, sinPedidos, { effort });
-      a = x.albaran;
-      avisos = x.avisos;
-      st = x.sello;
-      inv = { veredicto: x.veredicto, valido: x.valido, pasos: x.pasos.length, usd: costUsd({ ...x.usage, reasoning_tokens: 0 }) };
+      const { width = 0, height = 0 } = await (await import("sharp")).default(imagen).metadata();
+      const res = await analizarDocumento(id, imagen, sinPedidos, { effort, previa: { ...r, imagen, width, height } });
+      a = inferirIva(normalize(id, res.leido));
+      avisos = res.avisos;
+      st = res.sello;
+      inv = { veredicto: res.inv?.veredicto ?? null, valido: res.inv?.valido ?? true, pasos: res.inv?.pasos.length ?? 0, usd: res.costeUsd, discrepancias: res.discrepancias, investigado: !!res.inv };
     }
     const s = scoreDoc(a, gt);
     if (!rescore || !conInvestigacion) writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ leido: r.leido, avisos, sello: st, score: s, ms: r.ms, usage: r.usage }, null, 1));
@@ -235,13 +237,14 @@ const aggregate = {
   por_dificultad: Object.fromEntries(Object.entries(TAGS).map(([t, list]) => [t, metrics(ok.filter((r) => list.includes(r.id)))])),
   investigacion: conInvestigacion
     ? {
-        investigados: ok.filter((r) => r.inv).length,
+        investigados: ok.filter((r) => r.inv?.investigado).length,
+        con_discrepancias: ok.filter((r) => (r.inv?.discrepancias ?? 0) > 0).length,
         reparadas: ok.filter((r) => r.inv?.veredicto === "celda_mal_leida" && r.inv.valido).length,
         confirmadas: ok.filter((r) => r.inv?.veredicto === "lectura_confirmada" && r.inv.valido).length,
         errores_proveedor: ok.filter((r) => r.inv?.veredicto === "error_proveedor" && r.inv.valido).length,
-        siguen_en_revisar: ok.filter((r) => r.inv && r.sello === "REVISAR").length,
+        siguen_en_revisar: ok.filter((r) => r.sello === "REVISAR").length,
         cierres_rechazados_por_el_codigo: ok.filter((r) => r.inv && !r.inv.valido).length,
-        pasos_medios: Math.round((sum((r) => r.inv?.pasos ?? 0) / Math.max(1, ok.filter((r) => r.inv).length)) * 10) / 10,
+        pasos_medios: Math.round((sum((r) => r.inv?.pasos ?? 0) / Math.max(1, ok.filter((r) => r.inv?.investigado).length)) * 10) / 10,
       }
     : null,
   tiempo_ms: { p50: pctl(ok.map((r) => r.ms), 0.5), p95: pctl(ok.map((r) => r.ms), 0.95) },

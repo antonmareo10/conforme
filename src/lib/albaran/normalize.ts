@@ -79,6 +79,7 @@ export function normalize(docId: string, leido: AlbaranLeido): Albaran {
     filasContadas: Number.isInteger(leido.filas_de_producto_contadas) ? leido.filas_de_producto_contadas : null,
     ilegible: leido.ilegible,
     noNumericos,
+    discrepancias: leido.discrepancias ?? [],
     cajas: {
       proveedor: leido.proveedor.caja,
       nif: leido.nif_proveedor.caja,
