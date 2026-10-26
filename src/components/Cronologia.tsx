@@ -2,6 +2,7 @@
 // What really happened, step by step: SAM, reading, checks, and every tool call of the investigator
 // with the crop it looked at. Timings are the real ones.
 import { motion } from "motion/react";
+import { useState } from "react";
 import type { DocEstado, SesionEstado } from "@/lib/sesion/estado";
 import { T, type Idioma } from "@/lib/sesion/textos";
 
@@ -57,8 +58,15 @@ export function Cronologia({ sesion, lang }: { sesion: SesionEstado; lang: Idiom
 function DocPasos({ d, n, lang }: { d: DocEstado; n: number; lang: Idioma }) {
   const t = T[lang];
   const inv = d.investigacion;
+  const [ampliada, setAmpliada] = useState<string | null>(null);
   return (
     <>
+      {ampliada && (
+        <li className="fixed inset-0 z-50 flex items-center justify-center bg-tinta/70 p-4" onClick={() => setAmpliada(null)}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={ampliada} alt={lang === "es" ? "Recorte ampliado que releyó el agente" : "Zoomed crop the agent re-read"} className="max-h-[80vh] w-full max-w-2xl rounded-lg bg-white object-contain shadow-2xl" />
+        </li>
+      )}
       <Paso ok={!!d.leido} activo={d.leyendo}>
         {n}. {d.proveedor ?? (lang === "es" ? "Albarán" : "Note")} · {t.etapas.leer.toLowerCase()} {d.leidoMs != null && <>· {d.leido?.lineas.length} {lang === "es" ? "líneas" : "lines"} · {s(d.leidoMs)}</>}
       </Paso>
@@ -72,8 +80,10 @@ function DocPasos({ d, n, lang }: { d: DocEstado; n: number; lang: Idioma }) {
                 return (
                   <motion.li key={p.n} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: p.n * 0.08 }} className="flex items-center gap-3">
                     {ev?.miniatura && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={ev.miniatura} alt="" className="h-10 w-24 shrink-0 rounded border border-linea object-cover object-left" />
+                      <button type="button" onClick={() => setAmpliada(ev.miniatura!)} className="shrink-0 rounded border border-linea transition hover:border-sello" aria-label={lang === "es" ? `Ver el recorte ${ev.id} ampliado` : `Show crop ${ev.id} enlarged`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={ev.miniatura} alt="" className="h-14 w-36 rounded object-cover object-left" />
+                      </button>
                     )}
                     <span>
                       {HERRAMIENTA[p.herramienta]?.[lang] ?? p.herramienta}

@@ -94,6 +94,14 @@ export const Papel = forwardRef<HTMLElement, { doc: DocEstado; lang: Idioma; foc
           )}
         </AnimatePresence>
       </svg>
+      {/* Where the investigator looked: one dashed box per crop, with its evidence id. */}
+      {doc.investigacion && doc.width && doc.height && doc.investigacion.evidencias.filter((e) => e.recorte).map((e, i) => (
+        <motion.div key={e.id} className="pointer-events-none absolute z-10 rounded-md border-2 border-dashed border-sello"
+          style={{ left: `${(e.recorte!.x / doc.width!) * 100}%`, top: `${(e.recorte!.y / doc.height!) * 100}%`, width: `${(e.recorte!.w / doc.width!) * 100}%`, height: `${(e.recorte!.h / doc.height!) * 100}%` }}
+          initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.04 }} animate={{ opacity: 0.9, scale: 1 }} transition={{ delay: 0.15 + i * 0.25 }}>
+          <span className="absolute -top-5 left-0 rounded bg-sello px-1.5 text-[10px] font-semibold text-white">{e.id}</span>
+        </motion.div>
+      ))}
       {/* Money pins next to the problem. */}
       {pines.map(({ a, c }, i) => (
         <motion.span key={`${a.codigo}-${a.lineaIdx}`} className="cifras absolute z-10 -translate-y-1/2 whitespace-nowrap rounded-full bg-rojo px-2 py-0.5 text-[11px] font-semibold text-white shadow-md sm:text-xs"
