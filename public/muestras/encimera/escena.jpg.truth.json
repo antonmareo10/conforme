@@ -1,0 +1,30 @@
+{
+ "width": 2400,
+ "height": 1700,
+ "docs": [
+  {
+   "file": "musel-1406.jpg",
+   "left": 80,
+   "top": 140,
+   "right": 882,
+   "bottom": 1101,
+   "angle": -7
+  },
+  {
+   "file": "huerta-0388.jpg",
+   "left": 860,
+   "top": 90,
+   "right": 1625,
+   "bottom": 1089,
+   "angle": 4
+  },
+  {
+   "file": "bebidas-77120.jpg",
+   "left": 1640,
+   "top": 180,
+   "right": 2361,
+   "bottom": 643,
+   "angle": -3
+  }
+ ]
+}

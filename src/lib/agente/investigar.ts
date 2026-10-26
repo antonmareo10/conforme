@@ -109,9 +109,10 @@ async function recortar(imagen: Buffer, W: number, H: number, caja: Caja, filaCo
   const x0 = (caja.x_min / 1000) * W, x1 = (caja.x_max / 1000) * W;
   const y0 = (caja.y_min / 1000) * H, y1 = (caja.y_max / 1000) * H;
   const bw = Math.max(1, x1 - x0), bh = Math.max(1, y1 - y0);
-  // Boxes can be off by about half a text line (measured on day 0): pad generously.
+  // Boxes can be off by up to a full text line (measured on day 0 and in replays): pad about two
+  // lines above and below; the prompt then names the line by its description.
   const padX = filaCompleta ? Math.max(0.02 * W, 0.05 * bw) : Math.max(0.6 * bw, 0.04 * W);
-  const padY = Math.max(1.0 * bh, 0.018 * H);
+  const padY = Math.max(2.2 * bh, 0.035 * H);
   const x = Math.max(0, Math.floor(x0 - padX)), y = Math.max(0, Math.floor(y0 - padY));
   const w = Math.min(W - x, Math.ceil(bw + 2 * padX)), h = Math.min(H - y, Math.ceil(bh + 2 * padY));
   const crop = sharp(imagen).extract({ left: x, top: y, width: Math.max(1, w), height: Math.max(1, h) });
@@ -174,16 +175,21 @@ export async function investigar(
   async function releerCelda(linea: number, campo: CampoLinea) {
     const l = lineaLeida(linea);
     if (!l) return { error: `no hay línea ${linea}` };
-    const caja = l[campo].caja ?? l.caja_fila;
-    if (!caja) return { error: "esa celda no tiene caja en el papel" };
-    const { zoom, rect, miniatura } = await recortar(imagen, W, H, caja, !l[campo].caja);
-    const { out, usage: u } = await preguntarImagen<{ texto: string | null; legible: boolean }>(client, zoom,
-      `This is a zoomed crop of a Spanish supplier delivery note, around the ${ETIQUETA[campo]} of product line ${linea}${l.descripcion.texto ? ` ("${l.descripcion.texto}")` : ""}. ` +
-        `Copy exactly the ${ETIQUETA[campo]} printed for that line, character by character (keep the comma). Do not compute anything. If you cannot read it with certainty, legible=false.`,
-      { type: "object", additionalProperties: false, required: ["texto", "legible"], properties: { texto: { type: ["string", "null"] }, legible: { type: "boolean" } } }, effort);
+    const celda = l[campo].caja;
+    const fila = l.caja_fila;
+    if (!celda && !fila) return { error: "esa celda no tiene caja en el papel" };
+    // From the start of the row to the cell, so the line's description is in the crop too.
+    const caja = celda && fila ? { x_min: Math.min(fila.x_min, celda.x_min), x_max: Math.max(celda.x_max, Math.min(fila.x_max, celda.x_max + 40)), y_min: Math.min(fila.y_min, celda.y_min), y_max: Math.max(fila.y_max, celda.y_max) } : (celda ?? fila)!;
+    const { zoom, rect, miniatura } = await recortar(imagen, W, H, caja, !!fila);
+    const desc = l.descripcion.texto ? `the product line whose description is "${l.descripcion.texto}"` : `product line ${linea}`;
+    const { out, usage: u } = await preguntarImagen<{ linea_visible: boolean; texto: string | null; legible: boolean }>(client, zoom,
+      `This is a zoomed crop of a Spanish supplier delivery note. It may show neighbouring lines too. Find ${desc} and copy exactly the ${ETIQUETA[campo]} printed on that line, character by character (keep the comma). ` +
+        "Do not compute anything. If that line is not in the crop, linea_visible=false. If you cannot read the value with certainty, legible=false.",
+      { type: "object", additionalProperties: false, required: ["linea_visible", "texto", "legible"], properties: { linea_visible: { type: "boolean" }, texto: { type: ["string", "null"] }, legible: { type: "boolean" } } }, effort);
     sumar(u);
-    const ev = nuevaEvidencia({ herramienta: "releer_celda", linea, campo, texto: out.legible ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: l[campo].texto, legible: out.legible } });
-    return { evidenciaId: ev.id, primera_lectura: l[campo].texto, relectura: ev.texto, legible: out.legible };
+    const ok = out.linea_visible && out.legible;
+    const ev = nuevaEvidencia({ herramienta: "releer_celda", linea, campo, texto: ok ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: l[campo].texto, legible: out.legible, lineaVisible: out.linea_visible } });
+    return { evidenciaId: ev.id, primera_lectura: l[campo].texto, relectura: ev.texto, legible: out.legible, linea_visible: out.linea_visible };
   }
   async function releerFila(linea: number) {
     const l = lineaLeida(linea);
@@ -191,13 +197,17 @@ export async function investigar(
     const { zoom, rect, miniatura } = await recortar(imagen, W, H, l.caja_fila, true);
     const props: Record<string, unknown> = Object.fromEntries(CAMPOS.map((c) => [c, { type: ["string", "null"] }]));
     props.numeros_en_la_fila = { type: "array", items: { type: "string" } };
-    const { out, usage: u } = await preguntarImagen<Record<CampoLinea, string | null> & { numeros_en_la_fila: string[] }>(client, zoom,
-      `This is a zoomed crop of one product line of a Spanish supplier delivery note${l.descripcion.texto ? ` ("${l.descripcion.texto}")` : ""}. ` +
-        "Copy exactly as printed the quantity the unit price applies to (for goods sold by weight, the weight, not the number of pieces or boxes), the unit price, discount % and line amount (null if not printed). " +
-        "Also list every number printed on this line, as printed. Do not compute anything.",
-      { type: "object", additionalProperties: false, required: [...CAMPOS, "numeros_en_la_fila"], properties: props }, effort);
+    props.linea_visible = { type: "boolean" };
+    const desc = l.descripcion.texto ? `the product line whose description is "${l.descripcion.texto}"` : `product line ${linea}`;
+    const { out, usage: u } = await preguntarImagen<Record<CampoLinea, string | null> & { numeros_en_la_fila: string[]; linea_visible: boolean }>(client, zoom,
+      `This is a zoomed crop of a Spanish supplier delivery note. It may show neighbouring lines too. Find ${desc}. ` +
+        "For that line only, copy exactly as printed the quantity the unit price applies to (for goods sold by weight, the weight, not the number of pieces or boxes), the unit price, discount % and line amount (null if not printed), " +
+        "and list every number printed on that line, as printed. Do not compute anything. If that line is not in the crop, linea_visible=false and everything null.",
+      { type: "object", additionalProperties: false, required: [...CAMPOS, "numeros_en_la_fila", "linea_visible"], properties: props }, effort);
     sumar(u);
-    const { numeros_en_la_fila: numeros, ...relectura } = out;
+    const { numeros_en_la_fila: numerosLeidos, linea_visible, ...relecturaLeida } = out;
+    const numeros = linea_visible ? numerosLeidos : [];
+    const relectura = linea_visible ? relecturaLeida : Object.fromEntries(CAMPOS.map((c) => [c, null]));
     const ev = nuevaEvidencia({ herramienta: "releer_fila", linea, recorte: rect, miniatura, datos: { relectura, numeros, primeraLectura: Object.fromEntries(CAMPOS.map((c) => [c, l[c].texto])) } });
     const otra = otraCantidadQueCuadra(linea, numeros);
     return {

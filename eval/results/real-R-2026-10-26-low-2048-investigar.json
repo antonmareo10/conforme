@@ -59,12 +59,12 @@
   }
  },
  "sellos": {
-  "CONFORME": 29,
+  "CONFORME": 28,
   "CON_RESERVAS": 0,
-  "REVISAR": 4
+  "REVISAR": 5
  },
  "revision_justificada": 3,
- "revision_innecesaria": 1,
+ "revision_innecesaria": 2,
  "conforme_no_perfecto": 1,
  "por_dificultad": {
   "girado": {
@@ -146,19 +146,19 @@
  },
  "investigacion": {
   "investigados": 7,
-  "reparadas": 2,
-  "confirmadas": 1,
+  "reparadas": 3,
+  "confirmadas": 0,
   "errores_proveedor": 0,
-  "siguen_en_revisar": 4,
-  "cierres_rechazados_por_el_codigo": 2,
-  "pasos_medios": 3.7
+  "siguen_en_revisar": 5,
+  "cierres_rechazados_por_el_codigo": 3,
+  "pasos_medios": 3.9
  },
  "tiempo_ms": {
   "p50": 15253,
   "p95": 28169
  },
  "coste_usd": {
-  "total": 0.78,
-  "por_albaran": 0.0236
+  "total": 0.791,
+  "por_albaran": 0.024
  }
 }
