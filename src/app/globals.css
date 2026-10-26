@@ -1,26 +1,66 @@
 @import "tailwindcss";
 
+/* Paper, ink, highlighter and rubber stamp. Light only, on purpose: it is paper. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --papel: #f3efe6;
+  --papel-2: #e9e3d6;
+  --tinta: #1b1712;
+  --tinta-2: #4a433a;
+  --apagado: #6f675b;
+  --linea: #d8d0c1;
+  --rotulador: #ffe45c;
+  --sello-azul: #1e4fa8;
+  --rojo: #c2362b;
+  --verde: #2e7d4f;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-papel: var(--papel);
+  --color-papel-2: var(--papel-2);
+  --color-tinta: var(--tinta);
+  --color-tinta-2: var(--tinta-2);
+  --color-apagado: var(--apagado);
+  --color-linea: var(--linea);
+  --color-rotulador: var(--rotulador);
+  --color-sello: var(--sello-azul);
+  --color-rojo: var(--rojo);
+  --color-verde: var(--verde);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  background: var(--papel);
+  color: var(--tinta);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.cifras {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sello-azul);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@keyframes pulso {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

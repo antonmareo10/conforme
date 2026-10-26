@@ -15,6 +15,6 @@ for await (const ev of analizar(m.fotos.map((f) => readFileSync(f)), m.ctx)) {
   eventos.push({ t: Date.now() - t0, ev });
   if ((ev as { tipo: string }).tipo === "fin") console.log(JSON.stringify(ev));
 }
-mkdirSync("src/data/replays", { recursive: true });
-writeFileSync(`src/data/replays/${id}.json`, JSON.stringify({ id, grabado: new Date().toISOString(), modelo: "muse-spark-1.3 + sam-3.1", contexto: m.ctx, eventos }));
+mkdirSync("public/replays", { recursive: true });
+writeFileSync(`public/replays/${id}.json`, JSON.stringify({ id, grabado: new Date().toISOString(), modelo: "muse-spark-1.3 + sam-3.1", contexto: m.ctx, eventos }));
 console.log("recorded", eventos.length, "events");
