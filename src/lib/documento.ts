@@ -6,6 +6,7 @@ import type OpenAI from "openai";
 import { readAlbaran, costUsd, type Effort, type ReadResult } from "./albaran/read";
 import { normalize } from "./albaran/normalize";
 import { afinarCajas, compararLecturas, localizarFilas } from "./albaran/localizar";
+import { enderezarLectura } from "./albaran/rotar";
 import type { AlbaranLeido } from "./albaran/schema";
 import { comprobar, inferirIva, sello } from "./checks/engine";
 import type { Aviso, Contexto, Sello } from "./checks/types";
@@ -37,9 +38,11 @@ export async function analizarDocumento(
   let coste = 0;
   const r = opts.previa ?? (await readAlbaran(foto, { client: opts.client, effort }));
   if (!opts.previa) coste += costUsd(r.usage);
-  const imagen = r.imagen!;
+  // Upright first: boxes rotate with the page.
+  const derecho = await enderezarLectura(r.imagen!, r.leido);
+  const imagen = derecho.imagen;
 
-  let leido: AlbaranLeido = r.leido;
+  let leido: AlbaranLeido = derecho.leido;
   let msSegunda = 0;
   if (opts.segundaLectura !== false && leido.lineas.length) {
     try {
@@ -51,7 +54,7 @@ export async function analizarDocumento(
       /* keep the first reading and its own boxes */
     }
   }
-  emit({ tipo: "doc", docId, imagen: `data:image/jpeg;base64,${imagen.toString("base64")}`, width: r.width, height: r.height });
+  emit({ tipo: "doc", docId, imagen: `data:image/jpeg;base64,${imagen.toString("base64")}`, width: derecho.width, height: derecho.height });
   emit({ tipo: "lectura", docId, leido, ms: r.ms + msSegunda });
   emit({ tipo: "etapa", etapa: "leer", estado: "fin", docId, ms: r.ms + msSegunda });
 
@@ -72,5 +75,5 @@ export async function analizarDocumento(
     emit({ tipo: "avisos", docId, avisos, sello: st, provisional: false });
     emit({ tipo: "etapa", etapa: "investigar", estado: "fin", docId, ms: inv.ms });
   }
-  return { leido, avisos, sello: st, inv, costeUsd: coste, discrepancias, ms: { lectura: r.ms, segunda: msSegunda, investigacion: inv?.ms ?? 0 }, imagen, width: r.width, height: r.height };
+  return { leido, avisos, sello: st, inv, costeUsd: coste, discrepancias, ms: { lectura: r.ms, segunda: msSegunda, investigacion: inv?.ms ?? 0 }, imagen, width: derecho.width, height: derecho.height };
 }

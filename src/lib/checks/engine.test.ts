@@ -234,3 +234,13 @@ describe("what changes the stamp", () => {
     expect(sello(comprobar({ ...musel, noNumericos: ["linea 2 precio"] }, vacio))).toBe("REVISAR");
   });
 });
+
+describe("upright pages", () => {
+  it("moves boxes with a clockwise page rotation and back", async () => {
+    const { rotarCaja } = await import("../albaran/rotar");
+    const c = { x_min: 100, y_min: 200, x_max: 300, y_max: 250 };
+    expect(rotarCaja(c, 90)).toEqual({ x_min: 750, x_max: 800, y_min: 100, y_max: 300 });
+    expect(rotarCaja(rotarCaja(c, 90), 270)).toEqual(c);
+    expect(rotarCaja(rotarCaja(c, 180), 180)).toEqual(c);
+  });
+});

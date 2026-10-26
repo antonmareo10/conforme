@@ -6,7 +6,8 @@ import { reducir, sesionVacia, type SesionEstado } from "@/lib/sesion/estado";
 import type { Evento } from "@/lib/pipeline";
 import type { Aviso } from "@/lib/checks/types";
 import type { Caja } from "@/lib/albaran/schema";
-import { T, type Idioma } from "@/lib/sesion/textos";
+import { T } from "@/lib/sesion/textos";
+import { BotonIdioma, useIdioma } from "./Idioma";
 import { Papel, type Foco } from "./Papel";
 import { Escena } from "./Escena";
 import { Panel } from "./Panel";
@@ -21,8 +22,42 @@ export interface Replay {
   eventos: { t: number; ev: Evento }[];
 }
 
-export function Sesion({ muestra, foto }: { muestra: string; foto: string }) {
-  const [lang, setLang] = useState<Idioma>("es");
+/** Read the SSE stream of /api/escaneo and dispatch every event as it arrives. */
+async function enVivo(fotos: Blob[], contexto: unknown, onEvento: (ev: Evento) => void, senal: AbortSignal): Promise<string | null> {
+  const fd = new FormData();
+  fotos.forEach((f, i) => fd.append("fotos", f, `foto${i + 1}.jpg`));
+  fd.append("contexto", JSON.stringify(contexto));
+  const res = await fetch("/api/escaneo", { method: "POST", body: fd, signal: senal });
+  if (!res.ok || !res.body) {
+    const j = await res.json().catch(() => ({}));
+    return (j as { error?: string }).error ?? `HTTP ${res.status}`;
+  }
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let i;
+    while ((i = buf.indexOf("\n\n")) >= 0) {
+      const bloque = buf.slice(0, i);
+      buf = buf.slice(i + 2);
+      const linea = bloque.split("\n").find((l) => l.startsWith("data: "));
+      if (linea) onEvento(JSON.parse(linea.slice(6)) as Evento);
+    }
+  }
+  return null;
+}
+
+const MENSAJE_ERROR: Record<string, { es: string; en: string }> = {
+  TOPE_DIARIO: { es: "Por hoy se acabaron las lecturas en vivo. Mira una muestra grabada.", en: "Live reads are done for today. Watch a recorded sample." },
+  TOPE_IP: { es: "Has hecho muchas lecturas en la última hora. Prueba en un rato o mira una muestra grabada.", en: "Too many reads in the last hour. Try again later or watch a recorded sample." },
+  SIN_DIRECTO: { es: "Las lecturas en vivo están en pausa. Mira una muestra grabada.", en: "Live reads are paused. Watch a recorded sample." },
+};
+
+export function Sesion({ muestra, foto, vivo, contexto }: { muestra?: string; foto: string; vivo?: Blob[]; contexto?: unknown }) {
+  const lang = useIdioma();
   const [velocidad, setVelocidad] = useState<1 | 4>(1);
   const [sesion, dispatch] = useReducer(reductor, undefined, sesionVacia);
   const [foco, setFoco] = useState<Foco | null>(null);
@@ -32,24 +67,13 @@ export function Sesion({ muestra, foto }: { muestra: string; foto: string }) {
   const papeles = useRef<Record<string, HTMLElement | null>>({});
   const t = T[lang];
 
-  useEffect(() => {
-    const id = setTimeout(() => {
-      try { const l = localStorage.getItem("conforme.lang"); if (l === "en" || l === "es") setLang(l); } catch { /* storage blocked */ }
-    }, 0);
-    return () => clearTimeout(id);
-  }, []);
-  const cambiarIdioma = () => {
-    const l = lang === "es" ? "en" : "es";
-    setLang(l);
-    try { localStorage.setItem("conforme.lang", l); } catch { /* storage blocked */ }
-    document.documentElement.lang = l;
-  };
 
   const reproducir = useCallback(async (vel: 1 | 4) => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
     dispatch({ tipo: "reiniciar" });
     setFoco(null);
+    if (!muestra) return;
     try {
       const r = (await fetch(`/replays/${muestra}.json`).then((x) => x.json())) as Replay;
       setGrabado(r.grabado);
@@ -60,11 +84,20 @@ export function Sesion({ muestra, foto }: { muestra: string; foto: string }) {
   }, [muestra, lang]);
 
   useEffect(() => {
+    if (vivo) {
+      const ctl = new AbortController();
+      const id = setTimeout(() => {
+        enVivo(vivo, contexto ?? {}, (ev) => dispatch({ tipo: "evento", ev }), ctl.signal)
+          .then((e) => { if (e) setError(MENSAJE_ERROR[e]?.[lang] ?? e); })
+          .catch((e) => { if ((e as Error).name !== "AbortError") setError(lang === "es" ? "Algo ha fallado al leer. Tus fotos siguen aquí: reintentar." : "Something went wrong while reading. Your photos are still here: try again."); });
+      }, 0);
+      return () => { clearTimeout(id); ctl.abort(); };
+    }
     const arranque = setTimeout(() => reproducir(velocidad), 0);
     const ts = timers.current;
     return () => { clearTimeout(arranque); ts.forEach(clearTimeout); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [muestra]);
+  }, [muestra, vivo]);
 
   // "Tap any euro": light up the boxes behind an amount, one paper after another.
   const enfocar = useCallback((avisos: Aviso[]) => {
@@ -98,19 +131,23 @@ export function Sesion({ muestra, foto }: { muestra: string; foto: string }) {
       <header className="flex items-center justify-between gap-3 py-2">
         <Link href="/" className="font-serif text-2xl font-semibold tracking-tight">Conforme</Link>
         <div className="flex items-center gap-2">
-          <span className="hidden rounded-full border border-linea bg-white/70 px-3 py-1 text-xs text-tinta-2 sm:inline">
-            {t.muestraGrabada}{grabado ? ` · ${new Date(grabado).toLocaleDateString(lang === "es" ? "es-ES" : "en-GB")}` : ""}
-          </span>
-          <button type="button" onClick={() => { const v = velocidad === 1 ? 4 : 1; setVelocidad(v); reproducir(v); }} className="min-h-[40px] rounded-full border border-linea bg-white px-3 text-sm">
-            {velocidad === 1 ? "×4" : "×1"}
-          </button>
-          <button type="button" onClick={() => reproducir(velocidad)} className="min-h-[40px] rounded-full border border-linea bg-white px-3 text-sm">{t.repetir}</button>
-          <button type="button" onClick={cambiarIdioma} className="min-h-[40px] min-w-[44px] rounded-full bg-tinta px-3 text-sm font-semibold text-papel" aria-label={lang === "es" ? "Switch to English" : "Cambiar a español"}>
-            {lang === "es" ? "EN" : "ES"}
-          </button>
+          {muestra ? (
+            <>
+              <span className="hidden rounded-full border border-linea bg-white/70 px-3 py-1 text-xs text-tinta-2 sm:inline">
+                {t.muestraGrabada}{grabado ? ` · ${new Date(grabado).toLocaleDateString(lang === "es" ? "es-ES" : "en-GB")}` : ""}
+              </span>
+              <button type="button" onClick={() => { const v = velocidad === 1 ? 4 : 1; setVelocidad(v); reproducir(v); }} className="min-h-[40px] rounded-full border border-linea bg-white px-3 text-sm">
+                {velocidad === 1 ? "×4" : "×1"}
+              </button>
+              <button type="button" onClick={() => reproducir(velocidad)} className="min-h-[40px] rounded-full border border-linea bg-white px-3 text-sm">{t.repetir}</button>
+            </>
+          ) : (
+            <span className="rounded-full bg-verde/10 px-3 py-1 text-xs font-medium text-verde">{lang === "es" ? "En vivo" : "Live"}</span>
+          )}
+          <BotonIdioma />
         </div>
       </header>
-      <p className="mb-4 text-xs text-apagado sm:hidden">{t.muestraGrabada}</p>
+      {muestra && <p className="mb-4 text-xs text-apagado sm:hidden">{t.muestraGrabada}</p>}
       {velocidad === 4 && <p className="mb-2 text-xs text-apagado">{lang === "es" ? "Reproduciendo a ×4 (tiempos reales ÷ 4)" : "Playing at ×4 (real timings ÷ 4)"}</p>}
       {error && <p className="rounded-lg bg-rojo/10 p-3 text-sm text-rojo">{error}</p>}
 

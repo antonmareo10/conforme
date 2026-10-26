@@ -64,3 +64,9 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Bilingual text: both languages are in the HTML; <html data-lang> picks one before paint. */
+html[data-lang="en"] [data-l="es"],
+html:not([data-lang="en"]) [data-l="en"] {
+  display: none !important;
+}
