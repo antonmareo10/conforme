@@ -85,6 +85,21 @@ export function responder(c: Consulta, docs: DocSesion[]): Respuesta {
       return { ...base, cifraCentimos: refs.reduce((s, x) => s + x.centimos, 0), referencias: refs, hechos: { ...base.hechos, subidas: refs.length, lista: productos.join(", ") } };
     }
     case "GASTO_PROVEEDOR": {
+      if (!c.proveedor) {
+        // No supplier named ("who charged me the most?"): rank them; the answer is the top one.
+        const porProv = new Map<string, { docs: typeof enPeriodo; cents: number }>();
+        for (const x of enPeriodo) {
+          const nombre = x.a.proveedor ?? "?";
+          const g = porProv.get(nombre) ?? { docs: [], cents: 0 };
+          g.docs.push(x);
+          g.cents += x.a.total ? toCents(x.a.total.candidates[0]) : 0;
+          porProv.set(nombre, g);
+        }
+        const ranking = [...porProv.entries()].sort((p1, p2) => p2[1].cents - p1[1].cents);
+        const [nombre, top] = ranking[0] ?? ["", { docs: [], cents: 0 }];
+        const refs = top.docs.map(({ a }) => ({ docId: a.docId, lineaIdx: null, centimos: a.total ? toCents(a.total.candidates[0]) : 0 }));
+        return { ...base, cifraCentimos: top.cents, referencias: refs, hechos: { ...base.hechos, proveedor: nombre, albaranesProveedor: top.docs.length, mayor: 1, ranking: ranking.slice(1, 4).map(([n2, g]) => `${n2}:${g.cents}`).join("|") } };
+      }
       const sel = enPeriodo.filter(delProveedor(c.proveedor));
       const refs = sel.map(({ a }) => ({ docId: a.docId, lineaIdx: null, centimos: a.total ? toCents(a.total.candidates[0]) : 0 }));
       return { ...base, cifraCentimos: refs.reduce((s, x) => s + x.centimos, 0), referencias: refs, hechos: { ...base.hechos, proveedor: c.proveedor ?? "", albaranesProveedor: sel.length } };

@@ -45,7 +45,7 @@ const LIMITES: Texto[] = [
   t("El agente tiene 4 llamadas a herramientas por albarán. Si las pruebas no son claras lo dice y el albarán pasa a ti; no adivina.", "The agent has 4 tool calls per note. When the evidence is unclear it says so and the note goes to you; it does not guess."),
   t("Las preguntas cubren un conjunto cerrado: pagado de más, subidas, gasto por proveedor o producto, último precio, albaranes con problemas e IVA.", "Questions cover a closed set: overpaid, price rises, spend by supplier or product, last price, notes with problems, and VAT."),
   t("La lectura usa Muse Spark por la Model API de Meta en modo estándar. Hay un modo privado con el modelo abierto Muse Glimmer 30B preparado tras una opción, pero aún sin medir.", "Reading uses Muse Spark through Meta's Model API in standard mode. A private mode on the open-weight Muse Glimmer 30B is wired behind a flag but not measured yet."),
-  t("La muestra de tres albaranes grabada tardó 53 s y costó 0,091 $.", "The recorded run of three notes took 53 s and cost $0.091."),
+  t("La muestra grabada de tres albaranes tardó 46 s y costó 0,106 $.", "The recorded run of three notes took 46 s and cost $0.106."),
 ];
 
 function Bucle() {
@@ -98,7 +98,7 @@ export default function Page() {
         <header className="flex items-center justify-between py-4">
           <Link href="/" className="font-serif text-2xl font-semibold tracking-tight">Conforme</Link>
           <nav className="flex items-center gap-2 text-sm">
-            <Link href="/sesion?muestra=encimera" className="hidden min-h-[40px] items-center rounded-full px-3 text-tinta-2 hover:text-tinta sm:inline-flex"><L es="Ver una muestra" en="See a sample" /></Link>
+            <Link href="/sesion?muestra=encimera" prefetch={false} className="hidden min-h-[40px] items-center rounded-full px-3 text-tinta-2 hover:text-tinta sm:inline-flex"><L es="Ver una muestra" en="See a sample" /></Link>
             <Link href="/eval" className="hidden min-h-[40px] items-center rounded-full px-3 text-tinta-2 hover:text-tinta sm:inline-flex"><L es="Cómo lo medimos" en="How we measure" /></Link>
             <BotonIdioma />
           </nav>
@@ -168,7 +168,7 @@ export default function Page() {
             ))}
           </ul>
           <p className="mt-4 text-sm">
-            <Link href="/sesion?muestra=encimera" className="font-medium underline decoration-rotulador decoration-4 underline-offset-4"><L es="Ver la traza real de cada reclamación" en="See the real trace behind each claim" /></Link>
+            <Link href="/sesion?muestra=encimera" prefetch={false} className="font-medium underline decoration-rotulador decoration-4 underline-offset-4"><L es="Ver la traza real de cada reclamación" en="See the real trace behind each claim" /></Link>
           </p>
         </section>
 

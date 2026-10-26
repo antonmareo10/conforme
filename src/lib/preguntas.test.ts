@@ -30,6 +30,13 @@ describe("questions", () => {
     expect(r.cifraCentimos).toBe(19536);
     expect(r.referencias.map((x) => x.lineaIdx)).toEqual([null, null]);
   });
+  it("with no supplier named, ranks them and answers with the one who charged the most", () => {
+    const r = responder({ intencion: "GASTO_PROVEEDOR", proveedor: null, producto: null, periodo: "todo" }, docs);
+    expect(r.cifraCentimos).toBe(19536);
+    expect(r.hechos.proveedor).toBe("Cárnicas del Nalón");
+    expect(r.hechos.ranking).toBe("Pescados del Musel:8116");
+    expect(r.referencias.map((x) => x.docId)).toEqual(["a", "b"]);
+  });
   it("finds the last price of a product and its history", () => {
     const r = responder({ intencion: "ULTIMO_PRECIO", proveedor: null, producto: "Ternera", periodo: "todo" }, docs);
     expect(r.cifraCentimos).toBe(1540);

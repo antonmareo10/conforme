@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { BotonIdioma, L } from "@/components/Idioma";
 import { HeroDemo } from "@/components/HeroDemo";
-import { CasoDeMuestra } from "@/components/CasoDeMuestra";
+import { HERO_SIZES, HERO_SRCSET } from "@/lib/hero";
+import { CasoDeMuestraPerezoso } from "@/components/CasoDeMuestraPerezoso";
 import { pruebaReal } from "@/lib/prueba";
 
 export default function Home() {
   const prueba = pruebaReal();
   return (
     <main className="flex-1">
-      <link rel="preload" as="image" href="/muestras/encimera/escena-1200.webp" type="image/webp" fetchPriority="high" />
+      <link rel="preload" as="image" href="/muestras/encimera/escena-1200.webp" imageSrcSet={HERO_SRCSET} imageSizes={HERO_SIZES} type="image/webp" fetchPriority="high" />
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6">
         <header className="flex items-center justify-between py-4">
           <span className="font-serif text-2xl font-semibold tracking-tight">Conforme</span>
@@ -41,7 +42,7 @@ export default function Home() {
               <Link href="/eval" className="cifras mt-8 inline-flex flex-wrap items-center gap-x-2 rounded-lg border border-linea bg-white/60 px-4 py-2 text-sm text-tinta-2 hover:border-tinta/40">
                 <L es={`Medido en ${prueba.albaranes} albaranes reales de un restaurante familiar`} en={`Measured on ${prueba.albaranes} real delivery notes from a family restaurant`} />
                 <span>·</span>
-                <L es={`${prueba.pctCentimo.toLocaleString("es-ES")} % de líneas al céntimo`} en={`${prueba.pctCentimo}% of lines to the cent`} />
+                <L es={`${prueba.pctCentimo.toLocaleString("es-ES")} % de líneas al céntimo${prueba.pasadas > 1 ? ` (media de ${prueba.pasadas} pasadas)` : ""}`} en={`${prueba.pctCentimo}% of lines to the cent${prueba.pasadas > 1 ? ` (mean of ${prueba.pasadas} runs)` : ""}`} />
                 <span>·</span>
                 <L es={`${prueba.okSilencioso} OK silenciosos`} en={`${prueba.okSilencioso} silent OKs`} />
                 <span className="font-medium text-tinta underline decoration-rotulador decoration-4 underline-offset-4"><L es="ver cómo" en="see how" /></span>
@@ -82,7 +83,7 @@ export default function Home() {
               <span aria-hidden className="transition group-hover:translate-x-1">→</span>
             </Link>
           </div>
-          <CasoDeMuestra />
+          <CasoDeMuestraPerezoso />
         </section>
 
         <section className="grid gap-4 border-t border-linea py-10 sm:grid-cols-2" aria-label="Muestras">

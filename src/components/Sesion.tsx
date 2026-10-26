@@ -135,7 +135,8 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
   const docs = sesion.orden.map((id) => sesion.docs[id]);
   // The month sample is about asking; the counter sample and live runs are about claiming.
   const preguntasPrimero = muestra === "mes";
-  const preguntas = (grabadas?.length || vivo) ? <Preguntas sesion={sesion} lang={lang} onFoco={enfocarRefs} grabadas={grabadas} directo={!!vivo} /> : null;
+  // Questions are live on the samples too (voice or text, rate-limited per IP); the example chips use recorded intents.
+  const preguntas = (grabadas?.length || vivo) ? <Preguntas sesion={sesion} lang={lang} onFoco={enfocarRefs} grabadas={grabadas} directo /> : null;
   return (
     <div className="mx-auto w-full max-w-[1400px] px-4 pb-24 pt-4 sm:px-6">
       <svg width="0" height="0" className="absolute" aria-hidden>

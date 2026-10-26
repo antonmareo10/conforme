@@ -198,9 +198,13 @@ export function Caso({ d, lang, onFoco, abierto: abiertoInicial }: { d: DocEstad
           {todoConfirmado ? (
             <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden><path d="M2.5 6.2 5 8.5 9.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
           ) : <span aria-hidden>!</span>}
-          {todoConfirmado
-            ? es ? "El agente lo confirmó en el papel · validado por el código" : "The agent confirmed it on the paper · validated by code"
-            : es ? "Sin confirmar en el papel: revísalo antes de enviar" : "Not confirmed on the paper: check before sending"}
+          {!todoConfirmado
+            ? es ? "Sin confirmar en el papel: revísalo antes de enviar" : "Not confirmed on the paper: check before sending"
+            : items.every((a) => a.codigo === "DUPLICADO")
+              ? es ? "Comprobado por el código contra los albaranes que ya registraste" : "Checked by code against the notes you already logged"
+              : items.some((a) => a.codigo === "DUPLICADO")
+                ? es ? "Confirmado en el papel por el agente y contra tu registro · validado por el código" : "Confirmed on the paper by the agent and against your log · validated by code"
+                : es ? "El agente lo confirmó en el papel · validado por el código" : "The agent confirmed it on the paper · validated by code"}
         </p>
         <ul className="mt-3 flex flex-col gap-2">
           {items.map((a, i) => (

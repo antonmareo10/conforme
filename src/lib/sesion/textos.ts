@@ -127,6 +127,12 @@ export function fraseRespuesta(r: { consulta: { intencion: string; periodo: stri
     case "SUBIDAS":
       return Number(h.subidas) ? (es ? `${h.subidas} ${Number(h.subidas) === 1 ? "subida" : "subidas"}: ${h.lista}. En total, ${e}.` : `${h.subidas} price ${Number(h.subidas) === 1 ? "rise" : "rises"}: ${h.lista}. ${e} in total.`) : es ? "No ha subido nada de precio." : "Nothing went up in price.";
     case "GASTO_PROVEEDOR":
+      if (h.mayor) {
+        const resto = String(h.ranking ?? "").split("|").filter(Boolean).map((x) => { const k = x.lastIndexOf(":"); return `${x.slice(0, k)} ${eur(Number(x.slice(k + 1)), lang)}`; });
+        return es
+          ? `${h.proveedor} es quien más te ha cobrado ${p}: ${e} en ${h.albaranesProveedor} ${Number(h.albaranesProveedor) === 1 ? "albarán" : "albaranes"}.${resto.length ? ` Después: ${resto.join(", ")}.` : ""}`
+          : `${h.proveedor} charged you the most ${p}: ${e} on ${h.albaranesProveedor} ${Number(h.albaranesProveedor) === 1 ? "note" : "notes"}.${resto.length ? ` Then: ${resto.join(", ")}.` : ""}`;
+      }
       return es ? `${h.proveedor || "Ese proveedor"} te ha cobrado ${e} ${p}, en ${h.albaranesProveedor} ${Number(h.albaranesProveedor) === 1 ? "albarán" : "albaranes"}.` : `${h.proveedor || "That supplier"} charged you ${e} ${p}, on ${h.albaranesProveedor} ${Number(h.albaranesProveedor) === 1 ? "note" : "notes"}.`;
     case "GASTO_PRODUCTO":
       return es ? `Llevas ${e} en ${String(h.producto).toLowerCase()} ${p} (${h.lineas} ${Number(h.lineas) === 1 ? "línea" : "líneas"}).` : `You've spent ${e} on ${String(h.producto).toLowerCase()} ${p} (${h.lineas} ${Number(h.lineas) === 1 ? "line" : "lines"}).`;

@@ -155,7 +155,7 @@ export function Preguntas({ sesion, lang, onFoco, grabadas, directo }: { sesion:
           </motion.div>
         )}
       </AnimatePresence>
-      {!directo && <p className="mt-3 text-xs text-apagado">{lang === "es" ? "Muestra grabada: las preguntas de ejemplo usan intenciones grabadas; las cifras se calculan aquí, ahora." : "Recorded sample: the example questions use recorded intents; the figures are computed here, now."}</p>}
+      {grabadas?.length ? <p className="mt-3 text-xs text-apagado">{lang === "es" ? "Las preguntas de ejemplo usan intenciones grabadas. Las tuyas, con voz o escritas, pasan por Muse Voice Transcribe y Muse Spark. Las cifras se calculan aquí, ahora." : "The example questions use recorded intents. Yours, spoken or typed, go through Muse Voice Transcribe and Muse Spark. The figures are computed here, now."}</p> : null}
     </section>
   );
 }

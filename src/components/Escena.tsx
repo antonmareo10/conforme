@@ -4,14 +4,14 @@ import { motion, useReducedMotion } from "motion/react";
 import type { SesionEstado } from "@/lib/sesion/estado";
 import type { Idioma } from "@/lib/sesion/textos";
 
-export function Escena({ foto, sesion, lang, fotoIdx = 0, prioridad = false }: { foto: string; sesion: SesionEstado; lang: Idioma; fotoIdx?: number; prioridad?: boolean }) {
+export function Escena({ foto, srcSet, sizes, sesion, lang, fotoIdx = 0, prioridad = false }: { foto: string; srcSet?: string; sizes?: string; sesion: SesionEstado; lang: Idioma; fotoIdx?: number; prioridad?: boolean }) {
   const reduce = useReducedMotion();
   const meta = sesion.fotos[fotoIdx];
   const docs = sesion.orden.map((id) => sesion.docs[id]).filter((d) => d.foto === fotoIdx && d.contornoSVG);
   return (
     <figure className="relative overflow-hidden rounded-xl bg-tinta/5 shadow-inner">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={foto} alt={lang === "es" ? "Foto de los albaranes" : "Photo of the delivery notes"} className="block h-auto w-full" width={1200} height={800} fetchPriority={prioridad ? "high" : "auto"} decoding="async" />
+      <img src={foto} srcSet={srcSet} sizes={sizes} alt={lang === "es" ? "Foto de los albaranes" : "Photo of the delivery notes"} className="block h-auto w-full" width={1200} height={800} fetchPriority={prioridad ? "high" : "auto"} decoding="async" />
       {meta && (
         <svg viewBox={`0 0 ${meta.width} ${meta.height}`} className="absolute inset-0 h-full w-full" aria-hidden>
           {docs.map((d, i) => (
