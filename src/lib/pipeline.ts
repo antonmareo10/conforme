@@ -1,4 +1,5 @@
-// Photo(s) → SAM split → Spark reads each note in parallel → code checks → investigator on doubts.
+// Photo(s) → SAM split → Spark reads each note in parallel → code checks → investigator on doubts
+// → claim file on money at stake.
 // Emits real progress events as they happen (the screen draws exactly these; no fake progress).
 import type OpenAI from "openai";
 import { segmentar } from "./segmentar";
@@ -9,9 +10,10 @@ import type { AlbaranLeido } from "./albaran/schema";
 import { enJuego } from "./checks/engine";
 import type { Aviso, Contexto, Sello } from "./checks/types";
 import type { Evidencia, Paso, Veredicto } from "./agente/investigar";
+import type { PuntoReclamacion } from "./agente/expediente";
 import { analizarDocumento } from "./documento";
 
-export type Etapa = "buscar" | "enderezar" | "leer" | "comprobar" | "investigar";
+export type Etapa = "buscar" | "enderezar" | "leer" | "comprobar" | "investigar" | "reclamar";
 
 export type Evento =
   | { tipo: "etapa"; etapa: Etapa; estado: "inicio" | "fin" | "error"; ms?: number; docId?: string; detalle?: string }
@@ -21,6 +23,7 @@ export type Evento =
   | { tipo: "lectura"; docId: string; leido: AlbaranLeido; ms: number }
   | { tipo: "avisos"; docId: string; avisos: Aviso[]; sello: Sello; provisional: boolean }
   | { tipo: "investigacion"; docId: string; pasos: Paso[]; evidencias: Evidencia[]; veredicto: Veredicto | null; valido: boolean; motivo?: string; explicacion?: string; leido: AlbaranLeido; ms: number }
+  | { tipo: "expediente"; docId: string; pasos: Paso[]; evidencias: Evidencia[]; puntos: PuntoReclamacion[]; valido: boolean; motivo?: string; explicacion?: string; leido: AlbaranLeido; ms: number }
   | { tipo: "albaran"; docId: string; sello: Sello; proveedor: string | null; numero: string | null; fecha: string | null; totalTexto: string | null }
   | { tipo: "resumen"; sellos: Record<Sello, number>; enJuegoCentimos: number; desglose: ReturnType<typeof enJuego>["desglose"] }
   | { tipo: "error"; codigo: string; mensaje: string; docId?: string }

@@ -137,3 +137,43 @@ export function afinarCajas(leido: AlbaranLeido, loc: Pick<SegundaLectura, "fila
     }),
   };
 }
+
+const mediana = (xs: number[]) => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+/**
+ * Row boxes the reader got wrong are re-placed from their neighbours before anything crops by them:
+ * rows are printed top to bottom at a steady pitch, so a row box with no height, or one out of the
+ * printed order, is put where its neighbours say it is. Code moves boxes; it never touches a number.
+ * (Seen on a recorded run: a row box of zero height above row 1 cut that row out of the table crop.)
+ */
+export function repararCajas(leido: AlbaranLeido): AlbaranLeido {
+  const filas = leido.lineas.map((l) => l.caja_fila);
+  const plausible = filas.map((c) => !!c && c.y_max - c.y_min >= 6 && c.x_max - c.x_min >= 50);
+  // Keep the longest run of plausible rows whose tops go down the page in printed order.
+  const idx = filas.map((_, i) => i).filter((i) => plausible[i]);
+  const largo = idx.map(() => 1), prev = idx.map(() => -1);
+  for (let a = 0; a < idx.length; a++)
+    for (let b = 0; b < a; b++)
+      if (filas[idx[b]]!.y_min < filas[idx[a]]!.y_min && largo[b] + 1 > largo[a]) { largo[a] = largo[b] + 1; prev[a] = b; }
+  let k = largo.indexOf(Math.max(...largo, 0));
+  const buenas = new Set<number>();
+  while (k >= 0) { buenas.add(idx[k]); k = prev[k]; }
+  if (!buenas.size || buenas.size === filas.length) return leido;
+
+  const v = [...buenas].sort((a, b) => a - b);
+  const alto = mediana(v.map((i) => filas[i]!.y_max - filas[i]!.y_min));
+  const pasos = v.slice(1).map((j, n) => (filas[j]!.y_min - filas[v[n]]!.y_min) / (j - v[n]));
+  const paso = pasos.length ? mediana(pasos) : alto * 1.4;
+  return {
+    ...leido,
+    lineas: leido.lineas.map((l, i) => {
+      if (buenas.has(i)) return l;
+      const p = [...v].reverse().find((j) => j < i) ?? v[0];
+      const ref = filas[p]!;
+      const y_min = Math.round(Math.min(1000 - alto, Math.max(0, ref.y_min + (i - p) * paso)));
+      const fila: Caja = { x_min: ref.x_min, x_max: ref.x_max, y_min, y_max: Math.round(y_min + alto) };
+      const aFila = <T extends { texto: string | null; caja: Caja | null }>(c: T): T => (c.caja ? { ...c, caja: { ...c.caja, y_min: fila.y_min, y_max: fila.y_max } } : c);
+      return { ...l, caja_fila: fila, descripcion: aFila(l.descripcion), cantidad: aFila(l.cantidad), precio_unitario: aFila(l.precio_unitario), descuento_pct: aFila(l.descuento_pct), importe: aFila(l.importe), iva_pct: aFila(l.iva_pct) };
+    }),
+  };
+}

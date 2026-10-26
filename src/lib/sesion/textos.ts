@@ -47,6 +47,10 @@ export function textoAviso(a: Aviso, lang: Idioma, producto?: string | null): st
     case "RECUENTO_FILAS":
       return es ? `Puede faltar una línea: hay ${d.contadas} filas y se leyeron ${d.leidas}` : `A line may be missing: ${d.contadas} rows, ${d.leidas} read`;
     case "ILEGIBLE":
+      if (d.motivo === "relectura_distinta")
+        return es ? `Reclamación retenida en la línea ${linea}: la primera lectura dice ${d.primera} y la relectura ampliada ${d.segunda}. Míralo antes de reclamar` : `Claim held back on line ${linea}: the first reading says ${d.primera}, the zoomed re-read ${d.segunda}. Take a look before claiming`;
+      if (d.motivo === "dos_lecturas")
+        return es ? `Dos lecturas no coinciden en la línea ${linea}: ${d.primera || "nada"} / ${d.segunda || "nada"}` : `Two readings disagree on line ${linea}: ${d.primera || "nothing"} / ${d.segunda || "nothing"}`;
       return es ? `No se lee con seguridad: ${d.campo}` : `Not clearly readable: ${d.campo}`;
     case "NIF":
       return es ? "NIF ilegible o no válido" : "Tax ID unreadable or invalid";

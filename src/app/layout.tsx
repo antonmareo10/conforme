@@ -8,7 +8,7 @@ const fraunces = Fraunces({ variable: "--font-fraunces", subsets: ["latin"], wei
 
 export const metadata: Metadata = {
   title: "Conforme · Check it before you sign",
-  description: "One photo of the morning's delivery notes. Conforme reads every line, checks every euro and shows you on the paper where the problem is.",
+  description: "One photo of the morning's delivery notes. Conforme checks every euro, and an agent confirms each problem on the paper before it writes the claim to the supplier, with the proof attached.",
 };
 
 export const viewport: Viewport = { themeColor: "#f3efe6" };
