@@ -262,6 +262,7 @@ const ALLOWED_STRING_VALUES = new Set([set, "muse-spark-1.3", effort, tag, aggre
 const resultsDir = new URL("./results/", import.meta.url);
 if (!existsSync(resultsDir)) mkdirSync(resultsDir, { recursive: true });
 const outFile = new URL(`./results/real-${set}-${aggregate.fecha}-${resultTag}.json`, import.meta.url);
-writeFileSync(outFile, JSON.stringify(aggregate, null, 1));
+// Partial runs (--only) never overwrite a published aggregate.
+if (!only) writeFileSync(outFile, JSON.stringify(aggregate, null, 1));
 console.log(JSON.stringify({ ...aggregate, por_dificultad: undefined }, null, 1));
 console.log("wrote", outFile.pathname);
