@@ -1,15 +1,16 @@
 import { Suspense } from "react";
 import { Sesion } from "@/components/Sesion";
 
-const MUESTRAS: Record<string, { foto: string }> = {
+const MUESTRAS: Record<string, { foto: string | null; instantaneo?: boolean }> = {
   encimera: { foto: "/muestras/encimera/escena.jpg" },
+  mes: { foto: null, instantaneo: true },
 };
 
 // searchParams are request data: with Cache Components they must be read inside a Suspense boundary.
 async function SesionDeLaUrl({ searchParams }: { searchParams: PageProps<"/sesion">["searchParams"] }) {
   const sp = await searchParams;
   const id = typeof sp.muestra === "string" && sp.muestra in MUESTRAS ? sp.muestra : "encimera";
-  return <Sesion muestra={id} foto={MUESTRAS[id].foto} />;
+  return <Sesion muestra={id} foto={MUESTRAS[id].foto} instantaneo={MUESTRAS[id].instantaneo} />;
 }
 
 export default function Page({ searchParams }: PageProps<"/sesion">) {

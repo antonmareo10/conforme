@@ -39,9 +39,11 @@ export function Cronologia({ sesion, lang }: { sesion: SesionEstado; lang: Idiom
   const docs = sesion.orden.map((id) => sesion.docs[id]);
   return (
     <ol className="flex flex-col gap-3" aria-label={lang === "es" ? "Pasos del análisis" : "Analysis steps"}>
-      <Paso ok={buscar?.estado === "fin"} activo={buscar?.estado === "inicio"}>
-        {t.etapas.buscar}{buscar?.estado === "fin" && <> · <b className="text-tinta">{buscar.detalle}</b> {lang === "es" ? "albaranes" : "notes"} · {s(buscar.ms)}</>}
-      </Paso>
+      {buscar && (
+        <Paso ok={buscar.estado === "fin"} activo={buscar.estado === "inicio"}>
+          {t.etapas.buscar}{buscar.estado === "fin" && <> · <b className="text-tinta">{buscar.detalle}</b> {lang === "es" ? "albaranes" : "notes"} · {s(buscar.ms)}</>}
+        </Paso>
+      )}
       {docs.map((d, i) => <DocPasos key={d.docId} d={d} n={i + 1} lang={lang} />)}
       {sesion.fin && (
         <li className="cifras pl-7 text-xs text-apagado">

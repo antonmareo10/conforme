@@ -118,3 +118,28 @@ export const ENCIMERA_CONTEXTO = {
     { proveedor: PROVEEDORES.huerta.nombre, producto: "Lechuga", cantidad: 10, unidad: "ud" },
   ],
 };
+
+const L = (descripcion: string, cantidad: number, unidad: string, precio: number, iva: number, extra: Partial<LineaDemo> = {}): LineaDemo => ({
+  descripcion, cantidad, decCantidad: unidad === "kg" ? 2 : 0, unidad, precio, decPrecio: 2, iva, ...extra,
+});
+
+/**
+ * "A month at Casa Nela": 12 fictional notes over four weeks, processed in date order so each one
+ * is checked against the history of the previous ones. Built-in facts the questions can find:
+ * veal goes up 8.5 % on 24/09 (7,20 € on that note), and note C-2209 from Cárnicas del Nalón
+ * arrives twice (01/10 is a duplicate of 24/09).
+ */
+export const MES: NotaDemo[] = [
+  { id: "m01-musel", plantilla: "a4", proveedor: PROVEEDORES.musel, numero: "A-1290", fecha: "2026-09-07", lineas: [L("Merluza volanta", 5.8, "kg", 10.6, 10, { codigo: "1012" }), L("Bonito del norte", 4.0, "kg", 8.4, 10, { codigo: "1031" })] },
+  { id: "m02-huerta", plantilla: "ticket", proveedor: PROVEEDORES.huerta, numero: "0331", fecha: "2026-09-07", lineas: [L("Tomate", 15, "kg", 1.8, 4), L("Lechuga", 8, "ud", 0.65, 4)] },
+  { id: "m03-carnes", plantilla: "a4", proveedor: PROVEEDORES.carnes, numero: "C-2187", fecha: "2026-09-09", lineas: [L("Ternera para guisar", 6, "kg", 14.2, 10, { codigo: "T10" }), L("Pollo de corral", 8, "kg", 4.1, 10, { codigo: "P02" })] },
+  { id: "m04-musel", plantilla: "a4", proveedor: PROVEEDORES.musel, numero: "A-1311", fecha: "2026-09-14", lineas: [L("Merluza volanta", 6.0, "kg", 10.7, 10, { codigo: "1012" }), L("Rape", 2.0, "kg", 16.5, 10, { codigo: "1044" })] },
+  { id: "m05-bebidas", plantilla: "matricial", proveedor: PROVEEDORES.bebidas, numero: "76844", fecha: "2026-09-14", lineas: [L("Agua mineral 50 cl", 24, "ud", 0.35, 10, { codigo: "AG05", decPrecio: 3 }), L("Cerveza barril 30 l", 30, "l", 2.1, 21, { codigo: "CB30", decPrecio: 3 })] },
+  { id: "m06-carnes", plantilla: "a4", proveedor: PROVEEDORES.carnes, numero: "C-2198", fecha: "2026-09-16", lineas: [L("Ternera para guisar", 6.5, "kg", 14.2, 10, { codigo: "T10" }), L("Pollo de corral", 8, "kg", 4.1, 10, { codigo: "P02" })] },
+  { id: "m07-musel", plantilla: "a4", proveedor: PROVEEDORES.musel, numero: "A-1334", fecha: "2026-09-21", lineas: [L("Merluza volanta", 5.5, "kg", 10.7, 10, { codigo: "1012" }), L("Bonito del norte", 4.2, "kg", 8.4, 10, { codigo: "1031" })] },
+  { id: "m08-huerta", plantilla: "ticket", proveedor: PROVEEDORES.huerta, numero: "0359", fecha: "2026-09-21", lineas: [L("Tomate", 18, "kg", 1.85, 4), L("Cebolla", 10, "kg", 0.95, 4)] },
+  { id: "m09-carnes", plantilla: "a4", proveedor: PROVEEDORES.carnes, numero: "C-2209", fecha: "2026-09-23", lineas: [L("Ternera para guisar", 6, "kg", 15.4, 10, { codigo: "T10" }), L("Pollo de corral", 8, "kg", 4.1, 10, { codigo: "P02" })] },
+  { id: "m10-musel", plantilla: "a4", proveedor: PROVEEDORES.musel, numero: "A-1358", fecha: "2026-09-28", lineas: [L("Merluza volanta", 6.2, "kg", 10.9, 10, { codigo: "1012" }), L("Rape", 2.1, "kg", 16.5, 10, { codigo: "1044" })] },
+  { id: "m11-bebidas", plantilla: "matricial", proveedor: PROVEEDORES.bebidas, numero: "76901", fecha: "2026-09-28", lineas: [L("Agua mineral 50 cl", 24, "ud", 0.35, 10, { codigo: "AG05", decPrecio: 3 }), L("Refresco cola 33 cl", 24, "ud", 0.95, 10, { codigo: "RF33", decPrecio: 3 })] },
+  { id: "m12-carnes", plantilla: "a4", proveedor: PROVEEDORES.carnes, numero: "C-2209", fecha: "2026-09-23", lineas: [L("Ternera para guisar", 6, "kg", 15.4, 10, { codigo: "T10" }), L("Pollo de corral", 8, "kg", 4.1, 10, { codigo: "P02" })] },
+];

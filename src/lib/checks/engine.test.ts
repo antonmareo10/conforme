@@ -183,10 +183,12 @@ describe("honesty rules", () => {
     expect(av.map((x) => x.codigo)).toEqual(["SIN_PRECIOS"]);
     expect(sello(av)).toBe("CONFORME");
   });
-  it("detects a duplicate note and puts its total at stake", () => {
+  it("detects a duplicate note and puts its total at stake, without counting its rises twice", () => {
     const a = { ...musel, numero: "A-1203" };
     const av = comprobar(a, { ...ctx, registrados: [{ docId: "old", proveedor: "Pescados del Musel", numero: "A-1203", fecha: "2026-10-01", totalCents: 16363 }] });
     expect(av.find((x) => x.codigo === "DUPLICADO")).toMatchObject({ centimos: 16363 });
+    expect(av.some((x) => x.codigo === "SUBIDA")).toBe(false);
+    expect(enJuego(av).totalCents).toBe(16363);
   });
   it("flags totals that do not add up", () => {
     const a = { ...musel, total: parsePrinted("170,00") };

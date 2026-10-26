@@ -97,3 +97,39 @@ export const T = {
     coste: "cost",
   },
 } as const;
+
+const PERIODO: Record<string, Record<Idioma, string>> = {
+  hoy: { es: "hoy", en: "today" },
+  esta_semana: { es: "esta semana", en: "this week" },
+  este_mes: { es: "este mes", en: "this month" },
+  mes_pasado: { es: "el mes pasado", en: "last month" },
+  todo: { es: "en total", en: "in total" },
+};
+
+/** The answer sentence. Every number in it comes from the computed answer. */
+export function fraseRespuesta(r: { consulta: { intencion: string; periodo: string; proveedor: string | null; producto: string | null }; cifraCentimos: number | null; referencias: unknown[]; hechos: Record<string, string | number> }, lang: Idioma): string {
+  const es = lang === "es";
+  const e = r.cifraCentimos != null ? eur(r.cifraCentimos, lang) : "";
+  const p = PERIODO[r.consulta.periodo]?.[lang] ?? "";
+  const h = r.hechos;
+  switch (r.consulta.intencion) {
+    case "PAGADO_DE_MAS":
+      return r.cifraCentimos ? (es ? `Has pagado de más ${e} ${p}, en ${h.conceptos} ${Number(h.conceptos) === 1 ? "concepto" : "conceptos"}.` : `You overpaid ${e} ${p}, in ${h.conceptos} ${Number(h.conceptos) === 1 ? "item" : "items"}.`) : es ? `No hay nada pagado de más ${p}.` : `Nothing overpaid ${p}.`;
+    case "SUBIDAS":
+      return Number(h.subidas) ? (es ? `${h.subidas} ${Number(h.subidas) === 1 ? "subida" : "subidas"}: ${h.lista}. En total, ${e}.` : `${h.subidas} price ${Number(h.subidas) === 1 ? "rise" : "rises"}: ${h.lista}. ${e} in total.`) : es ? "No ha subido nada de precio." : "Nothing went up in price.";
+    case "GASTO_PROVEEDOR":
+      return es ? `${h.proveedor || "Ese proveedor"} te ha cobrado ${e} ${p}, en ${h.albaranesProveedor} ${Number(h.albaranesProveedor) === 1 ? "albarán" : "albaranes"}.` : `${h.proveedor || "That supplier"} charged you ${e} ${p}, on ${h.albaranesProveedor} ${Number(h.albaranesProveedor) === 1 ? "note" : "notes"}.`;
+    case "GASTO_PRODUCTO":
+      return es ? `Llevas ${e} en ${String(h.producto).toLowerCase()} ${p} (${h.lineas} ${Number(h.lineas) === 1 ? "línea" : "líneas"}).` : `You've spent ${e} on ${String(h.producto).toLowerCase()} ${p} (${h.lineas} ${Number(h.lineas) === 1 ? "line" : "lines"}).`;
+    case "ULTIMO_PRECIO":
+      return r.cifraCentimos != null
+        ? (es ? `La última vez (${h.fecha}) te cobraron ${String(h.producto).toLowerCase()} a ${e}. Antes: ${h.evolucion}.` : `Last time (${h.fecha}) ${String(h.producto).toLowerCase()} cost ${e}. Before: ${h.evolucion}.`)
+        : es ? "No encuentro ese producto en tus albaranes." : "I can't find that product in your notes.";
+    case "AVISOS":
+      return es ? `${h.conProblemas} ${Number(h.conProblemas) === 1 ? "albarán tiene" : "albaranes tienen"} algo que mirar.` : `${h.conProblemas} ${Number(h.conProblemas) === 1 ? "note has" : "notes have"} something to look at.`;
+    case "IVA":
+      return es ? `Llevas ${e} de IVA ${p}.` : `${e} of VAT ${p}.`;
+    default:
+      return es ? "Todavía no sé responder eso. Prueba con: «¿cuánto he pagado de más este mes?»" : "I can't answer that yet. Try: \"how much have I overpaid this month?\"";
+  }
+}

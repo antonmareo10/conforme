@@ -12,6 +12,7 @@ import { Papel, type Foco } from "./Papel";
 import { Escena } from "./Escena";
 import { Panel } from "./Panel";
 import { Cronologia } from "./Cronologia";
+import { Preguntas, type PreguntaGrabada } from "./Preguntas";
 
 type Accion = { tipo: "evento"; ev: Evento } | { tipo: "reiniciar" };
 const reductor = (s: SesionEstado, a: Accion) => (a.tipo === "reiniciar" ? sesionVacia() : reducir(s, a.ev));
@@ -56,12 +57,13 @@ const MENSAJE_ERROR: Record<string, { es: string; en: string }> = {
   SIN_DIRECTO: { es: "Las lecturas en vivo están en pausa. Mira una muestra grabada.", en: "Live reads are paused. Watch a recorded sample." },
 };
 
-export function Sesion({ muestra, foto, vivo, contexto }: { muestra?: string; foto: string; vivo?: Blob[]; contexto?: unknown }) {
+export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra?: string; foto: string | null; vivo?: Blob[]; contexto?: unknown; instantaneo?: boolean }) {
   const lang = useIdioma();
   const [velocidad, setVelocidad] = useState<1 | 4>(1);
   const [sesion, dispatch] = useReducer(reductor, undefined, sesionVacia);
   const [foco, setFoco] = useState<Foco | null>(null);
   const [grabado, setGrabado] = useState<string | null>(null);
+  const [grabadas, setGrabadas] = useState<PreguntaGrabada[] | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const papeles = useRef<Record<string, HTMLElement | null>>({});
@@ -75,13 +77,15 @@ export function Sesion({ muestra, foto, vivo, contexto }: { muestra?: string; fo
     setFoco(null);
     if (!muestra) return;
     try {
-      const r = (await fetch(`/replays/${muestra}.json`).then((x) => x.json())) as Replay;
+      const r = (await fetch(`/replays/${muestra}.json`).then((x) => x.json())) as Replay & { preguntas?: PreguntaGrabada[] };
       setGrabado(r.grabado);
+      setGrabadas(r.preguntas);
+      if (instantaneo) { for (const { ev } of r.eventos) dispatch({ tipo: "evento", ev }); return; }
       for (const { t, ev } of r.eventos) timers.current.push(setTimeout(() => dispatch({ tipo: "evento", ev }), t / vel));
     } catch {
       setError(lang === "es" ? "No se pudo cargar la muestra." : "Could not load the sample.");
     }
-  }, [muestra, lang]);
+  }, [muestra, lang, instantaneo]);
 
   useEffect(() => {
     if (vivo) {
@@ -100,11 +104,12 @@ export function Sesion({ muestra, foto, vivo, contexto }: { muestra?: string; fo
   }, [muestra, vivo]);
 
   // "Tap any euro": light up the boxes behind an amount, one paper after another.
-  const enfocar = useCallback((avisos: Aviso[]) => {
+  const enfocarRefs = useCallback((refs: { docId: string; lineaIdx: number | null }[]) => {
     const porDoc = new Map<string, Caja[]>();
-    for (const a of avisos) {
-      const l = a.lineaIdx != null ? sesion.docs[a.docId]?.leido?.lineas[a.lineaIdx] : undefined;
-      const c = l?.caja_fila ?? l?.importe.caja;
+    for (const a of refs) {
+      const leido = sesion.docs[a.docId]?.leido;
+      const l = a.lineaIdx != null ? leido?.lineas[a.lineaIdx] : undefined;
+      const c = a.lineaIdx != null ? l?.caja_fila ?? l?.importe.caja : leido?.total.caja;
       if (c) porDoc.set(a.docId, [...(porDoc.get(a.docId) ?? []), c]);
     }
     const docs = [...porDoc.entries()];
@@ -115,6 +120,7 @@ export function Sesion({ muestra, foto, vivo, contexto }: { muestra?: string; fo
       }, i * 1400));
     });
   }, [sesion.docs]);
+  const enfocar = useCallback((avisos: Aviso[]) => enfocarRefs(avisos.map((a) => ({ docId: a.docId, lineaIdx: a.lineaIdx ?? null }))), [enfocarRefs]);
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => { if (e.key === "Escape") setFoco(null); };
@@ -153,7 +159,7 @@ export function Sesion({ muestra, foto, vivo, contexto }: { muestra?: string; fo
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-6">
-          <Escena foto={foto} sesion={sesion} lang={lang} />
+          {foto && <Escena foto={foto} sesion={sesion} lang={lang} />}
           <div className="grid gap-6 sm:grid-cols-2">
             {docs.map((d) => (
               <Papel key={d.docId} ref={(el) => { papeles.current[d.docId] = el; }} doc={d} lang={lang} foco={foco}
@@ -163,6 +169,7 @@ export function Sesion({ muestra, foto, vivo, contexto }: { muestra?: string; fo
         </div>
         <aside className="order-first flex flex-col gap-6 lg:order-none lg:sticky lg:top-4 lg:self-start">
           <Panel sesion={sesion} lang={lang} onFoco={enfocar} />
+          {(grabadas?.length || vivo) && <Preguntas sesion={sesion} lang={lang} onFoco={enfocarRefs} grabadas={grabadas} directo={!!vivo} />}
           <div className="rounded-2xl border border-linea bg-white/60 p-5">
             <Cronologia sesion={sesion} lang={lang} />
           </div>

@@ -4,13 +4,15 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright";
 import sharp from "sharp";
-import { ENCIMERA, importeLinea, impuestos, type NotaDemo } from "../../src/lib/demo/notas";
+import { ENCIMERA, MES, importeLinea, impuestos, type NotaDemo } from "../../src/lib/demo/notas";
 import type { AlbaranLeido, Caja, Campo } from "../../src/lib/albaran/schema";
 import { html, es } from "./templates.mjs";
 
 type Boxes = Record<string, { x: number; y: number; w: number; h: number }>;
 
-const SETS: Record<string, NotaDemo[]> = { encimera: ENCIMERA };
+const SETS: Record<string, NotaDemo[]> = Object.fromEntries(
+  Object.entries({ encimera: ENCIMERA, mes: MES }).filter(([k]) => !process.argv[2] || process.argv.slice(2).includes(k)),
+);
 
 function toGrid(b: { x: number; y: number; w: number; h: number } | undefined, W: number, H: number): Caja | null {
   if (!b) return null;

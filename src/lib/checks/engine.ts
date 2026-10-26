@@ -220,7 +220,13 @@ export function comprobar(a: Albaran, ctx: Contexto): Aviso[] {
       ((r.numero && a.numero && r.numero.replace(/\s/g, "") === a.numero.replace(/\s/g, "")) ||
         (r.fecha && a.fecha && r.fecha === a.fecha && r.totalCents != null && r.totalCents === totalCents)),
   );
-  if (dup) avisos.push(aviso("DUPLICADO", a.docId, totalCents ?? 0, { fecha: dup.fecha ?? "", docIdOriginal: dup.docId }));
+  if (dup) {
+    // A duplicate must not be paid at all: its total is the money at stake, and its other money
+    // warnings are already inside that total (counting them too would add the same euros twice).
+    const sinDinero = avisos.filter((x) => x.clase !== "dinero");
+    sinDinero.push(aviso("DUPLICADO", a.docId, totalCents ?? 0, { fecha: dup.fecha ?? "", docIdOriginal: dup.docId }));
+    return sinDinero;
+  }
 
   return avisos;
 }

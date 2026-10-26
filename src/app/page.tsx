@@ -50,6 +50,23 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="grid gap-4 border-t border-linea py-10 sm:grid-cols-2" aria-label="Muestras">
+          {[
+            { href: "/sesion?muestra=encimera", img: "/muestras/encimera/escena.jpg", es: ["Tres albaranes en la encimera", "Una foto, tres proveedores: una subida, una falta y un error del proveedor que el agente confirma en el papel."], en: ["Three notes on the counter", "One photo, three suppliers: a price rise, a shortage and a supplier error the agent confirms on the paper."] },
+            { href: "/sesion?muestra=mes", img: "/muestras/mes/m09-carnes.jpg", es: ["Un mes de Casa Nela", "Doce albaranes en cuatro semanas. Pregunta «¿cuánto he pagado de más este mes?» y mira qué líneas se encienden."], en: ["A month at Casa Nela", "Twelve notes over four weeks. Ask \"how much have I overpaid this month?\" and see which lines light up."] },
+          ].map((m) => (
+            <Link key={m.href} href={m.href} className="group flex gap-4 rounded-2xl border border-linea bg-white/60 p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={m.img} alt="" className="h-24 w-32 shrink-0 rounded-lg object-cover object-top" loading="lazy" />
+              <div>
+                <h2 className="font-semibold"><L es={m.es[0]} en={m.en[0]} /> <span aria-hidden className="inline-block transition group-hover:translate-x-1">→</span></h2>
+                <p className="mt-1 text-sm leading-relaxed text-tinta-2"><L es={m.es[1]} en={m.en[1]} /></p>
+                <p className="mt-2 text-xs text-apagado"><L es="Muestra grabada · datos ficticios" en="Recorded sample · fictional data" /></p>
+              </div>
+            </Link>
+          ))}
+        </section>
+
         <section className="grid gap-6 border-t border-linea py-12 sm:grid-cols-3">
           {[
             { n: "1", es: ["Haz una foto", "Uno o varios albaranes encima de la mesa. SAM 3.1 separa cada papel y lo endereza."], en: ["Take a photo", "One or several notes on the counter. SAM 3.1 cuts out each paper and straightens it."] },

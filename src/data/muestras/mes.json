@@ -1,0 +1,2471 @@
+[
+ {
+  "id": "m01-musel",
+  "imagen": "/muestras/mes/m01-musel.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Pescados del Musel S.L.",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 408,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001016",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "A-1290",
+    "caja": {
+     "x_min": 860,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "07/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Merluza volanta",
+      "caja": {
+       "x_min": 157,
+       "y_min": 273,
+       "x_max": 272,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "5,80",
+      "caja": {
+       "x_min": 447,
+       "y_min": 273,
+       "x_max": 479,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "10,60",
+      "caja": {
+       "x_min": 602,
+       "y_min": 273,
+       "x_max": 643,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "61,48",
+      "caja": {
+       "x_min": 822,
+       "y_min": 273,
+       "x_max": 863,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Bonito del norte",
+      "caja": {
+       "x_min": 157,
+       "y_min": 307,
+       "x_max": 272,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "4,00",
+      "caja": {
+       "x_min": 447,
+       "y_min": 307,
+       "x_max": 479,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "8,40",
+      "caja": {
+       "x_min": 611,
+       "y_min": 307,
+       "x_max": 643,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "33,60",
+      "caja": {
+       "x_min": 822,
+       "y_min": 307,
+       "x_max": 863,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 327,
+       "y_min": 387,
+       "x_max": 368,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "95,08",
+      "caja": {
+       "x_min": 220,
+       "y_min": 387,
+       "x_max": 261,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "9,51",
+      "caja": {
+       "x_min": 447,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "104,59",
+    "caja": {
+     "x_min": 821,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m02-huerta",
+  "imagen": "/muestras/mes/m02-huerta.jpg",
+  "width": 800,
+  "height": 920,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "HUERTA LA VEGA",
+    "caja": {
+     "x_min": 356,
+     "y_min": 70,
+     "x_max": 644,
+     "y_max": 109
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001024",
+    "caja": {
+     "x_min": 448,
+     "y_min": 168,
+     "x_max": 634,
+     "y_max": 207
+    }
+   },
+   "numero": {
+    "texto": "0331",
+    "caja": {
+     "x_min": 230,
+     "y_min": 262,
+     "x_max": 312,
+     "y_max": 301
+    }
+   },
+   "fecha": {
+    "texto": "07/09/26",
+    "caja": {
+     "x_min": 189,
+     "y_min": 311,
+     "x_max": 354,
+     "y_max": 350
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "TOMATE",
+      "caja": {
+       "x_min": 65,
+       "y_min": 450,
+       "x_max": 807,
+       "y_max": 499
+      }
+     },
+     "cantidad": {
+      "texto": "15,00",
+      "caja": {
+       "x_min": 65,
+       "y_min": 504,
+       "x_max": 154,
+       "y_max": 536
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "1,80",
+      "caja": {
+       "x_min": 262,
+       "y_min": 504,
+       "x_max": 333,
+       "y_max": 536
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "27,00",
+      "caja": {
+       "x_min": 832,
+       "y_min": 493,
+       "x_max": 935,
+       "y_max": 542
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 450,
+      "x_max": 935,
+      "y_max": 542
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "LECHUGA",
+      "caja": {
+       "x_min": 65,
+       "y_min": 542,
+       "x_max": 828,
+       "y_max": 591
+      }
+     },
+     "cantidad": {
+      "texto": "8",
+      "caja": {
+       "x_min": 65,
+       "y_min": 595,
+       "x_max": 83,
+       "y_max": 628
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "0,65",
+      "caja": {
+       "x_min": 190,
+       "y_min": 595,
+       "x_max": 262,
+       "y_max": 628
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "5,20",
+      "caja": {
+       "x_min": 853,
+       "y_min": 584,
+       "x_max": 935,
+       "y_max": 633
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 542,
+      "x_max": 935,
+      "y_max": 633
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "4,00",
+      "caja": {
+       "x_min": 65,
+       "y_min": 732,
+       "x_max": 148,
+       "y_max": 771
+      }
+     },
+     "base": {
+      "texto": "32,20",
+      "caja": {
+       "x_min": 230,
+       "y_min": 732,
+       "x_max": 333,
+       "y_max": 771
+      }
+     },
+     "cuota": {
+      "texto": "1,29",
+      "caja": {
+       "x_min": 395,
+       "y_min": 732,
+       "x_max": 478,
+       "y_max": 771
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "33,49",
+    "caja": {
+     "x_min": 700,
+     "y_min": 801,
+     "x_max": 831,
+     "y_max": 849
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m03-carnes",
+  "imagen": "/muestras/mes/m03-carnes.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Cárnicas del Nalón",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 339,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001040",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "C-2187",
+    "caja": {
+     "x_min": 859,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "09/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Ternera para guisar",
+      "caja": {
+       "x_min": 153,
+       "y_min": 273,
+       "x_max": 295,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "6,00",
+      "caja": {
+       "x_min": 467,
+       "y_min": 273,
+       "x_max": 499,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "14,20",
+      "caja": {
+       "x_min": 614,
+       "y_min": 273,
+       "x_max": 655,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "85,20",
+      "caja": {
+       "x_min": 825,
+       "y_min": 273,
+       "x_max": 866,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Pollo de corral",
+      "caja": {
+       "x_min": 153,
+       "y_min": 307,
+       "x_max": 258,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "8,00",
+      "caja": {
+       "x_min": 467,
+       "y_min": 307,
+       "x_max": 499,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "4,10",
+      "caja": {
+       "x_min": 623,
+       "y_min": 307,
+       "x_max": 655,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "32,80",
+      "caja": {
+       "x_min": 825,
+       "y_min": 307,
+       "x_max": 866,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 326,
+       "y_min": 387,
+       "x_max": 367,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "118,00",
+      "caja": {
+       "x_min": 211,
+       "y_min": 387,
+       "x_max": 260,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "11,80",
+      "caja": {
+       "x_min": 439,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "129,80",
+    "caja": {
+     "x_min": 821,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m04-musel",
+  "imagen": "/muestras/mes/m04-musel.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Pescados del Musel S.L.",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 408,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001016",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "A-1311",
+    "caja": {
+     "x_min": 862,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "14/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Merluza volanta",
+      "caja": {
+       "x_min": 157,
+       "y_min": 273,
+       "x_max": 272,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "6,00",
+      "caja": {
+       "x_min": 447,
+       "y_min": 273,
+       "x_max": 479,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "10,70",
+      "caja": {
+       "x_min": 602,
+       "y_min": 273,
+       "x_max": 643,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "64,20",
+      "caja": {
+       "x_min": 822,
+       "y_min": 273,
+       "x_max": 863,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Rape",
+      "caja": {
+       "x_min": 157,
+       "y_min": 307,
+       "x_max": 196,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "2,00",
+      "caja": {
+       "x_min": 447,
+       "y_min": 307,
+       "x_max": 479,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "16,50",
+      "caja": {
+       "x_min": 602,
+       "y_min": 307,
+       "x_max": 643,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "33,00",
+      "caja": {
+       "x_min": 822,
+       "y_min": 307,
+       "x_max": 863,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 327,
+       "y_min": 387,
+       "x_max": 368,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "97,20",
+      "caja": {
+       "x_min": 220,
+       "y_min": 387,
+       "x_max": 261,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "9,72",
+      "caja": {
+       "x_min": 447,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "106,92",
+    "caja": {
+     "x_min": 821,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m05-bebidas",
+  "imagen": "/muestras/mes/m05-bebidas.jpg",
+  "width": 1720,
+  "height": 984,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "BEBIDAS CANTÁBRICO S.L.",
+    "caja": {
+     "x_min": 56,
+     "y_min": 85,
+     "x_max": 291,
+     "y_max": 130
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001032",
+    "caja": {
+     "x_min": 127,
+     "y_min": 197,
+     "x_max": 220,
+     "y_max": 242
+    }
+   },
+   "numero": {
+    "texto": "76844",
+    "caja": {
+     "x_min": 893,
+     "y_min": 85,
+     "x_max": 944,
+     "y_max": 130
+    }
+   },
+   "fecha": {
+    "texto": "14/09/2026",
+    "caja": {
+     "x_min": 842,
+     "y_min": 141,
+     "x_max": 944,
+     "y_max": 186
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "AGUA MINERAL 50 CL",
+      "caja": {
+       "x_min": 185,
+       "y_min": 377,
+       "x_max": 369,
+       "y_max": 422
+      }
+     },
+     "cantidad": {
+      "texto": "24",
+      "caja": {
+       "x_min": 570,
+       "y_min": 377,
+       "x_max": 590,
+       "y_max": 422
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "0,350",
+      "caja": {
+       "x_min": 659,
+       "y_min": 377,
+       "x_max": 710,
+       "y_max": 422
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "8,40",
+      "caja": {
+       "x_min": 805,
+       "y_min": 377,
+       "x_max": 846,
+       "y_max": 422
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 914,
+       "y_min": 377,
+       "x_max": 935,
+       "y_max": 422
+      }
+     },
+     "caja_fila": {
+      "x_min": 56,
+      "y_min": 369,
+      "x_max": 944,
+      "y_max": 433
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "CERVEZA BARRIL 30 L",
+      "caja": {
+       "x_min": 185,
+       "y_min": 441,
+       "x_max": 379,
+       "y_max": 486
+      }
+     },
+     "cantidad": {
+      "texto": "30",
+      "caja": {
+       "x_min": 570,
+       "y_min": 441,
+       "x_max": 590,
+       "y_max": 486
+      }
+     },
+     "unidad": "l",
+     "precio_unitario": {
+      "texto": "2,100",
+      "caja": {
+       "x_min": 659,
+       "y_min": 441,
+       "x_max": 710,
+       "y_max": 486
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "63,00",
+      "caja": {
+       "x_min": 794,
+       "y_min": 441,
+       "x_max": 846,
+       "y_max": 486
+      }
+     },
+     "iva_pct": {
+      "texto": "21",
+      "caja": {
+       "x_min": 914,
+       "y_min": 441,
+       "x_max": 935,
+       "y_max": 486
+      }
+     },
+     "caja_fila": {
+      "x_min": 56,
+      "y_min": 433,
+      "x_max": 944,
+      "y_max": 497
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 158,
+       "y_min": 625,
+       "x_max": 209,
+       "y_max": 670
+      }
+     },
+     "base": {
+      "texto": "8,40",
+      "caja": {
+       "x_min": 331,
+       "y_min": 625,
+       "x_max": 372,
+       "y_max": 670
+      }
+     },
+     "cuota": {
+      "texto": "0,84",
+      "caja": {
+       "x_min": 494,
+       "y_min": 625,
+       "x_max": 535,
+       "y_max": 670
+      }
+     }
+    },
+    {
+     "iva_pct": {
+      "texto": "21,00",
+      "caja": {
+       "x_min": 158,
+       "y_min": 689,
+       "x_max": 209,
+       "y_max": 734
+      }
+     },
+     "base": {
+      "texto": "63,00",
+      "caja": {
+       "x_min": 321,
+       "y_min": 689,
+       "x_max": 372,
+       "y_max": 734
+      }
+     },
+     "cuota": {
+      "texto": "13,23",
+      "caja": {
+       "x_min": 484,
+       "y_min": 689,
+       "x_max": 535,
+       "y_max": 734
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "85,47",
+    "caja": {
+     "x_min": 879,
+     "y_min": 775,
+     "x_max": 944,
+     "y_max": 832
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m06-carnes",
+  "imagen": "/muestras/mes/m06-carnes.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Cárnicas del Nalón",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 339,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001040",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "C-2198",
+    "caja": {
+     "x_min": 859,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "16/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Ternera para guisar",
+      "caja": {
+       "x_min": 153,
+       "y_min": 273,
+       "x_max": 295,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "6,50",
+      "caja": {
+       "x_min": 467,
+       "y_min": 273,
+       "x_max": 499,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "14,20",
+      "caja": {
+       "x_min": 614,
+       "y_min": 273,
+       "x_max": 655,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "92,30",
+      "caja": {
+       "x_min": 825,
+       "y_min": 273,
+       "x_max": 866,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Pollo de corral",
+      "caja": {
+       "x_min": 153,
+       "y_min": 307,
+       "x_max": 258,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "8,00",
+      "caja": {
+       "x_min": 467,
+       "y_min": 307,
+       "x_max": 499,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "4,10",
+      "caja": {
+       "x_min": 623,
+       "y_min": 307,
+       "x_max": 655,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "32,80",
+      "caja": {
+       "x_min": 825,
+       "y_min": 307,
+       "x_max": 866,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 325,
+       "y_min": 387,
+       "x_max": 366,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "125,10",
+      "caja": {
+       "x_min": 209,
+       "y_min": 387,
+       "x_max": 259,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "12,51",
+      "caja": {
+       "x_min": 438,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "137,61",
+    "caja": {
+     "x_min": 821,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m07-musel",
+  "imagen": "/muestras/mes/m07-musel.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Pescados del Musel S.L.",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 408,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001016",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "A-1334",
+    "caja": {
+     "x_min": 860,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "21/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Merluza volanta",
+      "caja": {
+       "x_min": 157,
+       "y_min": 273,
+       "x_max": 272,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "5,50",
+      "caja": {
+       "x_min": 447,
+       "y_min": 273,
+       "x_max": 479,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "10,70",
+      "caja": {
+       "x_min": 602,
+       "y_min": 273,
+       "x_max": 643,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "58,85",
+      "caja": {
+       "x_min": 822,
+       "y_min": 273,
+       "x_max": 863,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Bonito del norte",
+      "caja": {
+       "x_min": 157,
+       "y_min": 307,
+       "x_max": 272,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "4,20",
+      "caja": {
+       "x_min": 447,
+       "y_min": 307,
+       "x_max": 479,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "8,40",
+      "caja": {
+       "x_min": 611,
+       "y_min": 307,
+       "x_max": 643,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "35,28",
+      "caja": {
+       "x_min": 822,
+       "y_min": 307,
+       "x_max": 863,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 327,
+       "y_min": 387,
+       "x_max": 368,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "94,13",
+      "caja": {
+       "x_min": 220,
+       "y_min": 387,
+       "x_max": 261,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "9,41",
+      "caja": {
+       "x_min": 447,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "103,54",
+    "caja": {
+     "x_min": 821,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m08-huerta",
+  "imagen": "/muestras/mes/m08-huerta.jpg",
+  "width": 800,
+  "height": 920,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "HUERTA LA VEGA",
+    "caja": {
+     "x_min": 356,
+     "y_min": 70,
+     "x_max": 644,
+     "y_max": 109
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001024",
+    "caja": {
+     "x_min": 448,
+     "y_min": 168,
+     "x_max": 634,
+     "y_max": 207
+    }
+   },
+   "numero": {
+    "texto": "0359",
+    "caja": {
+     "x_min": 230,
+     "y_min": 262,
+     "x_max": 312,
+     "y_max": 301
+    }
+   },
+   "fecha": {
+    "texto": "21/09/26",
+    "caja": {
+     "x_min": 189,
+     "y_min": 311,
+     "x_max": 354,
+     "y_max": 350
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "TOMATE",
+      "caja": {
+       "x_min": 65,
+       "y_min": 450,
+       "x_max": 807,
+       "y_max": 499
+      }
+     },
+     "cantidad": {
+      "texto": "18,00",
+      "caja": {
+       "x_min": 65,
+       "y_min": 504,
+       "x_max": 154,
+       "y_max": 536
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "1,85",
+      "caja": {
+       "x_min": 262,
+       "y_min": 504,
+       "x_max": 333,
+       "y_max": 536
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "33,30",
+      "caja": {
+       "x_min": 832,
+       "y_min": 493,
+       "x_max": 935,
+       "y_max": 542
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 450,
+      "x_max": 935,
+      "y_max": 542
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "CEBOLLA",
+      "caja": {
+       "x_min": 65,
+       "y_min": 542,
+       "x_max": 828,
+       "y_max": 591
+      }
+     },
+     "cantidad": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 65,
+       "y_min": 595,
+       "x_max": 154,
+       "y_max": 628
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "0,95",
+      "caja": {
+       "x_min": 262,
+       "y_min": 595,
+       "x_max": 333,
+       "y_max": 628
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "9,50",
+      "caja": {
+       "x_min": 853,
+       "y_min": 584,
+       "x_max": 935,
+       "y_max": 633
+      }
+     },
+     "iva_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "caja_fila": {
+      "x_min": 65,
+      "y_min": 542,
+      "x_max": 935,
+      "y_max": 633
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "4,00",
+      "caja": {
+       "x_min": 65,
+       "y_min": 732,
+       "x_max": 148,
+       "y_max": 771
+      }
+     },
+     "base": {
+      "texto": "42,80",
+      "caja": {
+       "x_min": 230,
+       "y_min": 732,
+       "x_max": 333,
+       "y_max": 771
+      }
+     },
+     "cuota": {
+      "texto": "1,71",
+      "caja": {
+       "x_min": 395,
+       "y_min": 732,
+       "x_max": 478,
+       "y_max": 771
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "44,51",
+    "caja": {
+     "x_min": 700,
+     "y_min": 801,
+     "x_max": 831,
+     "y_max": 849
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m09-carnes",
+  "imagen": "/muestras/mes/m09-carnes.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Cárnicas del Nalón",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 339,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001040",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "C-2209",
+    "caja": {
+     "x_min": 859,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "23/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Ternera para guisar",
+      "caja": {
+       "x_min": 153,
+       "y_min": 273,
+       "x_max": 295,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "6,00",
+      "caja": {
+       "x_min": 467,
+       "y_min": 273,
+       "x_max": 499,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "15,40",
+      "caja": {
+       "x_min": 614,
+       "y_min": 273,
+       "x_max": 655,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "92,40",
+      "caja": {
+       "x_min": 825,
+       "y_min": 273,
+       "x_max": 866,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Pollo de corral",
+      "caja": {
+       "x_min": 153,
+       "y_min": 307,
+       "x_max": 258,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "8,00",
+      "caja": {
+       "x_min": 467,
+       "y_min": 307,
+       "x_max": 499,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "4,10",
+      "caja": {
+       "x_min": 623,
+       "y_min": 307,
+       "x_max": 655,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "32,80",
+      "caja": {
+       "x_min": 825,
+       "y_min": 307,
+       "x_max": 866,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 325,
+       "y_min": 387,
+       "x_max": 366,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "125,20",
+      "caja": {
+       "x_min": 209,
+       "y_min": 387,
+       "x_max": 259,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "12,52",
+      "caja": {
+       "x_min": 438,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "137,72",
+    "caja": {
+     "x_min": 821,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m10-musel",
+  "imagen": "/muestras/mes/m10-musel.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Pescados del Musel S.L.",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 408,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001016",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "A-1358",
+    "caja": {
+     "x_min": 860,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "28/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Merluza volanta",
+      "caja": {
+       "x_min": 157,
+       "y_min": 273,
+       "x_max": 272,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "6,20",
+      "caja": {
+       "x_min": 447,
+       "y_min": 273,
+       "x_max": 479,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "10,90",
+      "caja": {
+       "x_min": 602,
+       "y_min": 273,
+       "x_max": 643,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "67,58",
+      "caja": {
+       "x_min": 822,
+       "y_min": 273,
+       "x_max": 863,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Rape",
+      "caja": {
+       "x_min": 157,
+       "y_min": 307,
+       "x_max": 196,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "2,10",
+      "caja": {
+       "x_min": 447,
+       "y_min": 307,
+       "x_max": 479,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "16,50",
+      "caja": {
+       "x_min": 602,
+       "y_min": 307,
+       "x_max": 643,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "34,65",
+      "caja": {
+       "x_min": 822,
+       "y_min": 307,
+       "x_max": 863,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 325,
+       "y_min": 387,
+       "x_max": 366,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "102,23",
+      "caja": {
+       "x_min": 209,
+       "y_min": 387,
+       "x_max": 259,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "10,22",
+      "caja": {
+       "x_min": 438,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "112,45",
+    "caja": {
+     "x_min": 822,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m11-bebidas",
+  "imagen": "/muestras/mes/m11-bebidas.jpg",
+  "width": 1720,
+  "height": 922,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "BEBIDAS CANTÁBRICO S.L.",
+    "caja": {
+     "x_min": 56,
+     "y_min": 91,
+     "x_max": 291,
+     "y_max": 139
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001032",
+    "caja": {
+     "x_min": 127,
+     "y_min": 211,
+     "x_max": 220,
+     "y_max": 258
+    }
+   },
+   "numero": {
+    "texto": "76901",
+    "caja": {
+     "x_min": 893,
+     "y_min": 91,
+     "x_max": 944,
+     "y_max": 139
+    }
+   },
+   "fecha": {
+    "texto": "28/09/2026",
+    "caja": {
+     "x_min": 842,
+     "y_min": 151,
+     "x_max": 944,
+     "y_max": 199
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "AGUA MINERAL 50 CL",
+      "caja": {
+       "x_min": 185,
+       "y_min": 403,
+       "x_max": 369,
+       "y_max": 451
+      }
+     },
+     "cantidad": {
+      "texto": "24",
+      "caja": {
+       "x_min": 570,
+       "y_min": 403,
+       "x_max": 590,
+       "y_max": 451
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "0,350",
+      "caja": {
+       "x_min": 659,
+       "y_min": 403,
+       "x_max": 710,
+       "y_max": 451
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "8,40",
+      "caja": {
+       "x_min": 805,
+       "y_min": 403,
+       "x_max": 846,
+       "y_max": 451
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 914,
+       "y_min": 403,
+       "x_max": 935,
+       "y_max": 451
+      }
+     },
+     "caja_fila": {
+      "x_min": 56,
+      "y_min": 394,
+      "x_max": 944,
+      "y_max": 463
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "REFRESCO COLA 33 CL",
+      "caja": {
+       "x_min": 185,
+       "y_min": 471,
+       "x_max": 379,
+       "y_max": 519
+      }
+     },
+     "cantidad": {
+      "texto": "24",
+      "caja": {
+       "x_min": 570,
+       "y_min": 471,
+       "x_max": 590,
+       "y_max": 519
+      }
+     },
+     "unidad": "ud",
+     "precio_unitario": {
+      "texto": "0,950",
+      "caja": {
+       "x_min": 659,
+       "y_min": 471,
+       "x_max": 710,
+       "y_max": 519
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "22,80",
+      "caja": {
+       "x_min": 794,
+       "y_min": 471,
+       "x_max": 846,
+       "y_max": 519
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 914,
+       "y_min": 471,
+       "x_max": 935,
+       "y_max": 519
+      }
+     },
+     "caja_fila": {
+      "x_min": 56,
+      "y_min": 463,
+      "x_max": 944,
+      "y_max": 531
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 158,
+       "y_min": 668,
+       "x_max": 209,
+       "y_max": 716
+      }
+     },
+     "base": {
+      "texto": "31,20",
+      "caja": {
+       "x_min": 321,
+       "y_min": 668,
+       "x_max": 372,
+       "y_max": 716
+      }
+     },
+     "cuota": {
+      "texto": "3,12",
+      "caja": {
+       "x_min": 494,
+       "y_min": 668,
+       "x_max": 535,
+       "y_max": 716
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "34,32",
+    "caja": {
+     "x_min": 879,
+     "y_min": 760,
+     "x_max": 944,
+     "y_max": 821
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ },
+ {
+  "id": "m12-carnes",
+  "imagen": "/muestras/mes/m12-carnes.jpg",
+  "width": 1588,
+  "height": 2000,
+  "verdad": {
+   "rotacion_para_leer": 0,
+   "proveedor": {
+    "texto": "Cárnicas del Nalón",
+    "caja": {
+     "x_min": 71,
+     "y_min": 55,
+     "x_max": 339,
+     "y_max": 80
+    }
+   },
+   "nif_proveedor": {
+    "texto": "B00001040",
+    "caja": {
+     "x_min": 97,
+     "y_min": 97,
+     "x_max": 168,
+     "y_max": 109
+    }
+   },
+   "numero": {
+    "texto": "C-2209",
+    "caja": {
+     "x_min": 859,
+     "y_min": 88,
+     "x_max": 913,
+     "y_max": 103
+    }
+   },
+   "fecha": {
+    "texto": "23/09/2026",
+    "caja": {
+     "x_min": 831,
+     "y_min": 107,
+     "x_max": 913,
+     "y_max": 122
+    }
+   },
+   "lineas": [
+    {
+     "descripcion": {
+      "texto": "Ternera para guisar",
+      "caja": {
+       "x_min": 153,
+       "y_min": 273,
+       "x_max": 295,
+       "y_max": 288
+      }
+     },
+     "cantidad": {
+      "texto": "6,00",
+      "caja": {
+       "x_min": 467,
+       "y_min": 273,
+       "x_max": 499,
+       "y_max": 288
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "15,40",
+      "caja": {
+       "x_min": 614,
+       "y_min": 273,
+       "x_max": 655,
+       "y_max": 288
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "92,40",
+      "caja": {
+       "x_min": 825,
+       "y_min": 273,
+       "x_max": 866,
+       "y_max": 288
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 273,
+       "x_max": 922,
+       "y_max": 288
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 265,
+      "x_max": 929,
+      "y_max": 299
+     }
+    },
+    {
+     "descripcion": {
+      "texto": "Pollo de corral",
+      "caja": {
+       "x_min": 153,
+       "y_min": 307,
+       "x_max": 258,
+       "y_max": 322
+      }
+     },
+     "cantidad": {
+      "texto": "8,00",
+      "caja": {
+       "x_min": 467,
+       "y_min": 307,
+       "x_max": 499,
+       "y_max": 322
+      }
+     },
+     "unidad": "kg",
+     "precio_unitario": {
+      "texto": "4,10",
+      "caja": {
+       "x_min": 623,
+       "y_min": 307,
+       "x_max": 655,
+       "y_max": 322
+      }
+     },
+     "descuento_pct": {
+      "texto": null,
+      "caja": null
+     },
+     "importe": {
+      "texto": "32,80",
+      "caja": {
+       "x_min": 825,
+       "y_min": 307,
+       "x_max": 866,
+       "y_max": 322
+      }
+     },
+     "iva_pct": {
+      "texto": "10",
+      "caja": {
+       "x_min": 904,
+       "y_min": 307,
+       "x_max": 922,
+       "y_max": 322
+      }
+     },
+     "caja_fila": {
+      "x_min": 71,
+      "y_min": 299,
+      "x_max": 929,
+      "y_max": 332
+     }
+    }
+   ],
+   "impuestos": [
+    {
+     "iva_pct": {
+      "texto": "10,00",
+      "caja": {
+       "x_min": 325,
+       "y_min": 387,
+       "x_max": 366,
+       "y_max": 402
+      }
+     },
+     "base": {
+      "texto": "125,20",
+      "caja": {
+       "x_min": 209,
+       "y_min": 387,
+       "x_max": 259,
+       "y_max": 402
+      }
+     },
+     "cuota": {
+      "texto": "12,52",
+      "caja": {
+       "x_min": 438,
+       "y_min": 387,
+       "x_max": 479,
+       "y_max": 402
+      }
+     }
+    }
+   ],
+   "total": {
+    "texto": "137,72",
+    "caja": {
+     "x_min": 821,
+     "y_min": 378,
+     "x_max": 890,
+     "y_max": 398
+    }
+   },
+   "filas_de_producto_contadas": 2,
+   "ilegible": []
+  }
+ }
+]
