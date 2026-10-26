@@ -2,7 +2,7 @@
 // One delivery note on screen: the straightened paper, a highlighter stroke per line read,
 // money pins where the problems are, the rubber stamp, and the "lights up where you tapped" focus.
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import type { Caja } from "@/lib/albaran/schema";
 import type { DocEstado } from "@/lib/sesion/estado";
 import { SELLO, type Idioma } from "@/lib/sesion/textos";
@@ -49,6 +49,57 @@ function sitioSello(leido: DocEstado["leido"], texto: string, aspecto: number): 
   return mejor;
 }
 
+/**
+ * Better still: where the paper itself has the least ink. The page is shrunk to a small grid of ink
+ * density (from its pixels, not from the model's boxes, which can be a line off) and the stamp goes in
+ * the emptiest window, as close as possible to the total's row. Runs once per page, in the browser.
+ */
+function usePapelLibre(imagen: string | undefined, texto: string | null, aspecto: number, yObjetivo: number | null) {
+  const [sitio, setSitio] = useState<{ x: number; y: number; clave: string } | null>(null);
+  const clave = `${imagen?.length ?? 0}-${texto}-${yObjetivo ?? ""}`;
+  useEffect(() => {
+    if (!imagen || !texto) return;
+    let vivo = true;
+    const img = new Image();
+    img.onload = () => {
+      if (!vivo) return;
+      const G = 64, GH = Math.max(8, Math.round(G / aspecto));
+      const cv = document.createElement("canvas");
+      cv.width = G; cv.height = GH;
+      const ctx = cv.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, G, GH);
+      const px = ctx.getImageData(0, 0, G, GH).data;
+      // Integral image of ink (dark pixels count, faint ones a little).
+      const I = new Float64Array((G + 1) * (GH + 1));
+      for (let y = 0; y < GH; y++)
+        for (let x = 0; x < G; x++) {
+          const k = (y * G + x) * 4;
+          const lum = (0.2126 * px[k] + 0.7152 * px[k + 1] + 0.0722 * px[k + 2]) / 255;
+          const tinta = Math.max(0, 0.93 - lum);
+          I[(y + 1) * (G + 1) + x + 1] = tinta + I[y * (G + 1) + x + 1] + I[(y + 1) * (G + 1) + x] - I[y * (G + 1) + x];
+        }
+      const suma = (x0: number, y0: number, x1: number, y1: number) => I[y1 * (G + 1) + x1] - I[y0 * (G + 1) + x1] - I[y1 * (G + 1) + x0] + I[y0 * (G + 1) + x0];
+      const w = Math.min(G - 2, Math.ceil((texto.length * 0.84 + 1.6) * SELLO_EM * G * 1.06));
+      const h = Math.max(2, Math.ceil(2.3 * SELLO_EM * G));
+      let mejor = { x: G - w / 2 - 2, y: GH - h / 2 - 2, coste: Infinity };
+      const yo = yObjetivo != null ? (yObjetivo / 1000) * GH : GH * 0.85;
+      for (let y0 = 1; y0 + h <= GH - 1; y0++)
+        for (let x0 = 1; x0 + w <= G - 1; x0++) {
+          const tinta = suma(x0, y0, x0 + w, y0 + h);
+          const coste = tinta + Math.abs(y0 + h / 2 - yo) * 0.02 + (G - (x0 + w)) * 0.004;
+          if (coste < mejor.coste) mejor = { x: x0 + w / 2, y: y0 + h / 2, coste };
+        }
+      setSitio({ x: (mejor.x / G) * 1000, y: (mejor.y / GH) * 1000, clave });
+    };
+    img.onerror = () => { if (vivo) setSitio({ x: 760, y: 900, clave }); };
+    img.src = imagen;
+    return () => { vivo = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clave]);
+  return sitio?.clave === clave ? sitio : null;
+}
+
 export const Sello = ({ sello, lang, provisional }: { sello: NonNullable<DocEstado["sello"]>; lang: Idioma; provisional?: boolean }) => {
   const color = sello === "CONFORME" ? "var(--sello-azul)" : sello === "CON_RESERVAS" ? "var(--rojo)" : "var(--apagado)";
   const reduce = useReducedMotion();
@@ -73,7 +124,11 @@ export const Papel = forwardRef<HTMLElement, { doc: DocEstado; lang: Idioma; foc
   const lineas = doc.leido?.lineas ?? [];
   const cajasFoco = foco?.docId === doc.docId ? foco.cajas.map((c) => pad(c)) : [];
   const miradas = [...(doc.investigacion?.evidencias ?? []), ...(doc.expediente?.evidencias ?? [])].filter((e) => e.recorte);
-  const sitio = doc.sello ? sitioSello(doc.leido, SELLO[doc.sello][lang], w / h) : null;
+  const textoSello = doc.sello ? SELLO[doc.sello][lang] : null;
+  const totalCaja = doc.leido?.total.caja;
+  const libre = usePapelLibre(doc.imagen, textoSello, w / h, totalCaja && totalCaja.y_max > totalCaja.y_min ? (totalCaja.y_min + totalCaja.y_max) / 2 : null);
+  // Wait for the ink map (a few ms after the page loads) so the stamp lands once, in its place.
+  const sitio = !textoSello ? null : doc.imagen ? libre : sitioSello(doc.leido, textoSello, w / h);
   const pines = doc.avisos
     .filter((a) => a.clase === "dinero" && a.centimos > 0 && a.lineaIdx != null)
     .map((a) => {
