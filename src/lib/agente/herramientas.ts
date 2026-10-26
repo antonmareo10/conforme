@@ -114,9 +114,15 @@ export function mesaDeTrabajo(o: MesaOpts) {
     usage.input_tokens += u?.input_tokens ?? 0;
     usage.output_tokens += u?.output_tokens ?? 0;
   };
-  const nuevaEvidencia = (e: Omit<Evidencia, "id">) => {
-    const ev = { id: `ev${base + evidencias.length + 1}`, ...e };
+  // Ids are reserved when a tool starts (synchronously, in call order), so tools that run in
+  // parallel still number their evidence in the order the agent asked for them.
+  let siguiente = base;
+  const reservar = () => `ev${++siguiente}`;
+  const numero = (id: string) => Number(id.slice(2));
+  const nuevaEvidencia = (e: Omit<Evidencia, "id">, id: string = reservar()) => {
+    const ev = { id, ...e };
     evidencias.push(ev);
+    evidencias.sort((a, b) => numero(a.id) - numero(b.id));
     return ev;
   };
   const lineaLeida = (n: number) => leido.lineas[n - 1];
@@ -152,12 +158,13 @@ export function mesaDeTrabajo(o: MesaOpts) {
     // From the start of the row to the cell, so the line's description is in the crop too.
     const caja = celda && fila ? { x_min: Math.min(fila.x_min, celda.x_min), x_max: Math.max(celda.x_max, Math.min(fila.x_max, celda.x_max + 40)), y_min: Math.min(fila.y_min, celda.y_min), y_max: Math.max(fila.y_max, celda.y_max) } : (celda ?? fila)!;
     const desc = l.descripcion.texto ? `the product line whose description is "${l.descripcion.texto}"` : `product line ${linea}`;
+    const id = reservar();
     const { out, rect, miniatura, ampliado } = await mirar<{ linea_visible: boolean; texto: string | null; legible: boolean }>(caja, !!fila,
       `This is a zoomed crop of a Spanish supplier delivery note. It may show neighbouring lines too. Find ${desc} and copy exactly the ${ETIQUETA[campo]} printed on that line, character by character (keep the comma). ` +
         "Do not compute anything. If that line is not in the crop, linea_visible=false. If you cannot read the value with certainty, legible=false.",
       { type: "object", additionalProperties: false, required: ["linea_visible", "texto", "legible"], properties: { linea_visible: { type: "boolean" }, texto: { type: ["string", "null"] }, legible: { type: "boolean" } } });
     const ok = out.linea_visible && out.legible;
-    const ev = nuevaEvidencia({ herramienta: "releer_celda", linea, campo, texto: ok ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: l[campo].texto, legible: out.legible, lineaVisible: out.linea_visible, ...(ampliado ? { ampliado: true } : {}) } });
+    const ev = nuevaEvidencia({ herramienta: "releer_celda", linea, campo, texto: ok ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: l[campo].texto, legible: out.legible, lineaVisible: out.linea_visible, ...(ampliado ? { ampliado: true } : {}) } }, id);
     return { evidenciaId: ev.id, primera_lectura: l[campo].texto, relectura: ev.texto, legible: out.legible, linea_visible: out.linea_visible };
   }
 
@@ -168,6 +175,7 @@ export function mesaDeTrabajo(o: MesaOpts) {
     props.numeros_en_la_fila = { type: "array", items: { type: "string" } };
     props.linea_visible = { type: "boolean" };
     const desc = l.descripcion.texto ? `the product line whose description is "${l.descripcion.texto}"` : `product line ${linea}`;
+    const id = reservar();
     const { out, rect, miniatura, ampliado } = await mirar<Record<CampoLinea, string | null> & { numeros_en_la_fila: string[]; linea_visible: boolean }>(l.caja_fila, true,
       `This is a zoomed crop of a Spanish supplier delivery note. It may show neighbouring lines too. Find ${desc}. ` +
         "For that line only, copy exactly as printed the quantity the unit price applies to (for goods sold by weight, the weight, not the number of pieces or boxes), the unit price, discount % and line amount (null if not printed), " +
@@ -176,7 +184,7 @@ export function mesaDeTrabajo(o: MesaOpts) {
     const { numeros_en_la_fila: numerosLeidos, linea_visible, ...relecturaLeida } = out;
     const numeros = linea_visible ? numerosLeidos : [];
     const relectura = linea_visible ? relecturaLeida : Object.fromEntries(CAMPOS.map((c) => [c, null]));
-    const ev = nuevaEvidencia({ herramienta: "releer_fila", linea, recorte: rect, miniatura, datos: { relectura, numeros, primeraLectura: Object.fromEntries(CAMPOS.map((c) => [c, l[c].texto])), ...(ampliado ? { ampliado: true } : {}) } });
+    const ev = nuevaEvidencia({ herramienta: "releer_fila", linea, recorte: rect, miniatura, datos: { relectura, numeros, primeraLectura: Object.fromEntries(CAMPOS.map((c) => [c, l[c].texto])), ...(ampliado ? { ampliado: true } : {}) } }, id);
     const otra = otraCantidadQueCuadra(linea, numeros);
     return {
       evidenciaId: ev.id, primera_lectura: ev.datos!.primeraLectura, relectura, numeros_en_la_fila: numeros,
@@ -188,13 +196,14 @@ export function mesaDeTrabajo(o: MesaOpts) {
     const f = campo === "total" ? leido.total : leido.impuestos[fila - 1]?.[campo];
     if (!f) return { error: `no hay ${campo} en la fila de IVA ${fila}` };
     if (!f.caja) return { error: "ese campo no tiene caja en el papel" };
+    const id = reservar();
     const { zoom, rect, miniatura } = await recortar(imagen, W, H, f.caja);
     const que = campo === "total" ? "the total amount of the note" : campo === "base" ? `the VAT base (taxable amount) of tax row ${fila}` : `the VAT amount of tax row ${fila}`;
     const { out, usage: u } = await preguntarImagen<{ texto: string | null; legible: boolean }>(client, zoom,
       `This is a zoomed crop of a Spanish supplier delivery note, around ${que}. Copy that number exactly as printed (keep the comma). Do not compute anything. If you cannot read it with certainty, legible=false.`,
       { type: "object", additionalProperties: false, required: ["texto", "legible"], properties: { texto: { type: ["string", "null"] }, legible: { type: "boolean" } } }, effort);
     sumar(u);
-    const ev = nuevaEvidencia({ herramienta: "releer_total", campo: campo === "total" ? "total" : `${campo} ${fila}`, texto: out.legible ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: f.texto, legible: out.legible } });
+    const ev = nuevaEvidencia({ herramienta: "releer_total", campo: campo === "total" ? "total" : `${campo} ${fila}`, texto: out.legible ? out.texto : null, recorte: rect, miniatura, datos: { primeraLectura: f.texto, legible: out.legible } }, id);
     return { evidenciaId: ev.id, primera_lectura: f.texto, relectura: ev.texto, legible: out.legible };
   }
 
@@ -228,11 +237,12 @@ export function mesaDeTrabajo(o: MesaOpts) {
   }
 
   async function recontarFilas() {
+    const id = reservar();
     const { out, usage: u } = await preguntarImagen<{ filas: number }>(client, imagen,
       "Count the product rows printed in the line table of this delivery note. Do not count headers, subtotals, tax rows or totals.",
       { type: "object", additionalProperties: false, required: ["filas"], properties: { filas: { type: "integer" } } }, effort);
     sumar(u);
-    const ev = nuevaEvidencia({ herramienta: "recontar_filas", datos: { filas: out.filas, primeraCuenta: leido.filas_de_producto_contadas, lineasLeidas: leido.lineas.length } });
+    const ev = nuevaEvidencia({ herramienta: "recontar_filas", datos: { filas: out.filas, primeraCuenta: leido.filas_de_producto_contadas, lineasLeidas: leido.lineas.length } }, id);
     return { evidenciaId: ev.id, filas: out.filas, lineas_leidas: leido.lineas.length };
   }
 
@@ -265,7 +275,9 @@ export type Mesa = ReturnType<typeof mesaDeTrabajo>;
 
 /**
  * The agent loop: the model picks tools until it calls the closing tool, within a call and time budget.
- * The Meta API only supports tool_choice "auto": at the limit, only the closing tool is offered.
+ * Tools asked for in the same turn run in parallel. When the budget runs out the model gets a
+ * close-only turn (the Meta API only supports tool_choice "auto", so only the closing tool is
+ * offered) and decides on the evidence it has; it never ends without a verdict because of time.
  */
 export async function bucleAgente<C>(o: {
   client: OpenAI;
@@ -283,8 +295,16 @@ export async function bucleAgente<C>(o: {
   const pasos: Paso[] = [];
   let cierre = null as C | null;
   let llamadas = 0;
-  for (let ronda = 0; ronda < maxLlamadas + 2 && !cierre && Date.now() - t0 < maxMs; ronda++) {
-    const soloCerrar = llamadas >= maxLlamadas;
+  let rondasDeCierre = 0;
+  let avisadoTiempo = false;
+  for (let ronda = 0; ronda < maxLlamadas + 4 && !cierre; ronda++) {
+    const tarde = Date.now() - t0 >= maxMs;
+    const soloCerrar = llamadas >= maxLlamadas || tarde;
+    if (soloCerrar && rondasDeCierre++ >= 2) break;
+    if (tarde && !avisadoTiempo) {
+      avisadoTiempo = true;
+      input.push({ role: "user", content: `Time is up. Call ${o.cierre.name} now with the evidence you have; if it is not enough, say so.` });
+    }
     const r = await client.responses.create({ model: MODELS.read, reasoning: { effort }, tools: soloCerrar ? [o.cierre] : todas, input });
     mesa.sumar(r.usage);
     const calls = r.output.filter((x): x is ResponseFunctionToolCall => x.type === "function_call");
@@ -293,24 +313,24 @@ export async function bucleAgente<C>(o: {
       input.push({ role: "user", content: soloCerrar ? `Call ${o.cierre.name} now.` : `Use a tool or call ${o.cierre.name}. Answer only with tool calls.` });
       continue;
     }
-    for (const call of calls) {
+    // Calls after the closing one are ignored; the ones before it run together.
+    const k = calls.findIndex((c) => c.name === o.cierre.name);
+    const turno = k >= 0 ? calls.slice(0, k + 1) : calls;
+    const resultados = await Promise.all(turno.map(async (call) => {
       const t1 = Date.now();
       let args: Record<string, unknown> = {};
       try { args = JSON.parse(call.arguments || "{}"); } catch { /* invalid args → error result */ }
-      let out: unknown;
-      if (call.name === o.cierre.name) {
-        cierre = args as unknown as C;
-        out = { ok: true };
-      } else if (llamadas >= maxLlamadas) {
-        out = { error: "límite de llamadas alcanzado: cierra ya" };
-      } else {
-        llamadas++;
-        out = await mesa.ejecutar(call.name, args);
-      }
+      if (call.name === o.cierre.name) return { call, args, out: { ok: true } as unknown, ms: 0, cierra: true };
+      if (llamadas >= maxLlamadas) return { call, args, out: { error: "límite de llamadas alcanzado: cierra ya" } as unknown, ms: 0, cierra: false };
+      llamadas++;
+      const out = await mesa.ejecutar(call.name, args);
+      return { call, args, out, ms: Date.now() - t1, cierra: false };
+    }));
+    for (const { call, args, out, ms, cierra } of resultados) {
+      if (cierra) cierre = args as unknown as C;
       const r2 = out as { evidenciaId?: string; error?: string };
-      pasos.push({ n: pasos.length + 1, herramienta: call.name, args, resumen: r2.error ?? JSON.stringify(out).slice(0, 240), evidenciaId: r2.evidenciaId, ms: Date.now() - t1 });
+      pasos.push({ n: pasos.length + 1, herramienta: call.name, args, resumen: r2.error ?? JSON.stringify(out).slice(0, 240), evidenciaId: r2.evidenciaId, ms });
       input.push({ type: "function_call_output", call_id: call.call_id, output: JSON.stringify(out) });
-      if (cierre) break;
     }
   }
   return { cierre, pasos };
