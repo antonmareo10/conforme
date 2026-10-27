@@ -1,0 +1,159 @@
+{
+ "resumen": {
+  "modelo": "meta-models/muse-spark-open-1026",
+  "privado": true,
+  "tag": "low-2048-privado-meta-models-muse-spark-open-1026",
+  "notas": 16,
+  "notas_con_error": 1,
+  "lineas_exactas": 34,
+  "lineas": 34,
+  "totales_exactos": 15,
+  "albaranes_perfectos": 15,
+  "ok_silenciosos": 0,
+  "revisiones_innecesarias": 0,
+  "cajas_en_su_fila": 31,
+  "cajas_total": 34,
+  "cajas_presentes": 34,
+  "iou_medio": 0.572,
+  "ms_mediana": 20819,
+  "ms_max": 35686,
+  "usd_por_albaran": 0
+ },
+ "notas": [
+  {
+   "id": "musel-1406",
+   "sello": "CONFORME",
+   "exact": 3,
+   "lineas": 3,
+   "totalOk": true,
+   "ms": 26903,
+   "usd": 0
+  },
+  {
+   "id": "huerta-0388",
+   "sello": "CONFORME",
+   "exact": 4,
+   "lineas": 4,
+   "totalOk": true,
+   "ms": 18993,
+   "usd": 0
+  },
+  {
+   "id": "bebidas-77120",
+   "sello": "CON_RESERVAS",
+   "exact": 3,
+   "lineas": 3,
+   "totalOk": true,
+   "ms": 35686,
+   "usd": 0
+  },
+  {
+   "id": "m01-musel",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 22009,
+   "usd": 0
+  },
+  {
+   "id": "m02-huerta",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 16726,
+   "usd": 0
+  },
+  {
+   "id": "m03-carnes",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 31422,
+   "usd": 0
+  },
+  {
+   "id": "m04-musel",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 21003,
+   "usd": 0
+  },
+  {
+   "id": "m05-bebidas",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 14300,
+   "usd": 0
+  },
+  {
+   "id": "m06-carnes",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 21081,
+   "usd": 0
+  },
+  {
+   "id": "m07-musel",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 19338,
+   "usd": 0
+  },
+  {
+   "id": "m08-huerta",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 13743,
+   "usd": 0
+  },
+  {
+   "id": "m09-carnes",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 20819,
+   "usd": 0
+  },
+  {
+   "id": "m10-musel",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 24735,
+   "usd": 0
+  },
+  {
+   "id": "m11-bebidas",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 14288,
+   "usd": 0
+  },
+  {
+   "id": "m12-carnes",
+   "sello": "CONFORME",
+   "exact": 2,
+   "lineas": 2,
+   "totalOk": true,
+   "ms": 19202,
+   "usd": 0
+  }
+ ]
+}

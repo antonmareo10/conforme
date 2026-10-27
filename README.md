@@ -54,8 +54,23 @@ What the model never decides: any figure, whether a line is right, the reference
 
 Standard API mode only. `src/lib/meta/models.ts` is an allowlist that refuses any `-contributor` model, with a test.
 
-## Private mode (open weights, not measured yet)
-The same reading can run on an open-weight Meta model, so supplier prices never leave hardware the restaurant controls. Setting `PRIVATE_MODEL_BASE_URL` routes every Muse Spark call (reading, second reading, both agents, question intent) through an adapter that speaks OpenAI-compatible chat completions (`src/lib/meta/privado.ts`); SAM and voice stay on the Meta API. The default private model is Muse Glimmer 30B (`meta-models/Muse-Glimmer-30B-GGUF`, Apache 2.0) on llama.cpp; Muse Spark Open on Baseten is configured the same way. The adapter is verified against Meta's own chat completions endpoint (a reading of a fictional note parsed and matched, and a tool round trip). It has not been run on Glimmer yet: the model needs about 19 GB and my laptop could not spare it tonight, and the Baseten credits have not arrived. When it runs, its results go to `eval/results/` with the model in the tag, next to Muse Spark's.
+## Private mode (open weights)
+The same reading can run on an open-weight Meta model, so supplier prices never leave hardware the restaurant controls. Setting `PRIVATE_MODEL_BASE_URL` routes every Muse Spark call (reading, second reading, both agents, question intent) through an adapter that speaks OpenAI-compatible chat completions (`src/lib/meta/privado.ts`); SAM and voice stay on the Meta API. Two open models are wired: Muse Glimmer 30B (`meta-models/Muse-Glimmer-30B-GGUF`, Apache 2.0) on llama.cpp, and Muse Spark Open (`meta-models/muse-spark-open-1026`) on Baseten.
+
+**Measured: Muse Spark Open on Baseten, whole product (reading, second reading, agents), effort low, 2048 px.** On the 16 fictional notes of the three samples (`eval/ficticio.mts`; 38 lines, true text and true row boxes known from the renderer), two runs each, next to Muse Spark 1.3 on the Meta API:
+
+| | Muse Spark 1.3 (Meta API) | Muse Spark Open (Baseten) |
+|---|---|---|
+| Lines exact (quantity, price, amount) | 38/38 and 38/38 | 38/38 in run 1; 34/34 on the 15 notes that finished in run 2 |
+| Totals exact | 16/16 and 16/16 | 16/16; 15/15 |
+| Silent OKs | 0 and 0 | 0; 0 |
+| Needless reviews | 0 and 0 | 1 (m11-bebidas); 0 |
+| Row box centred on its row | 35/38 and 36/38 | 28/38; 31/34 |
+| Mean box overlap (IoU) | 0.424 and 0.422 | 0.388; 0.572 |
+| Median time per note | 18.9 s and 17.5 s | 28.9 s; 20.8 s |
+| Cost per note | $0.0275 and $0.0274 | not measured |
+
+In run 2 one note of 16 (carnes-girado, the rotated one) ended in an error; run alone it read 4/4 lines and the total in 37.8 s. The two runs are noisy on boxes and time, not on the numbers. Cost is not in the table because I did not record Baseten's price per token; Spark's is the list price. This is the fictional set only. The real set of 33 notes is never sent to a hosted service; it is measured on my laptop with Muse Glimmer, and that run is separate and not in these numbers. Per-run files: `eval/results/ficticio-*.json`.
 
 ## What I learned (and fixed)
 - **The model invented a price that added up.** It read €1.175 where the paper says €0.950, because 24 × 1.175 is exactly the €28.20 charged. The second, independent reading exists because of this.
@@ -75,7 +90,7 @@ npx vitest run                             # 70 tests
 ```
 Samples work without a key (recorded runs in `public/replays`). Live reads and questions need the key; optional `UPSTASH_REDIS_REST_URL`/`TOKEN` for rate limits in production.
 
-Measurement: `eval/real.mts --investigar` (needs the private set via `REAL_EVAL_DIR`), `eval/combinar.mts` (mean and range of repeated runs), `eval/synthetic.mts` and `eval/cajas.mts` (fictional notes with true boxes), `scripts/gen/render.mts` (fictional note generator), `scripts/grabar-muestra.mts` and `scripts/grabar-mes.mts` (recorded samples), `scripts/smoke-privado.mts` (private mode check).
+Measurement: `eval/real.mts --investigar` (needs the private set via `REAL_EVAL_DIR`), `eval/combinar.mts` (mean and range of repeated runs), `eval/synthetic.mts` and `eval/cajas.mts` (fictional notes with true boxes), `scripts/gen/render.mts` (fictional note generator), `scripts/grabar-muestra.mts` and `scripts/grabar-mes.mts` (recorded samples), `eval/ficticio.mts` (whole pipeline on the fictional notes, any model), `scripts/smoke-privado.mts` (private mode check).
 
 ## Privacy
 Real delivery notes are used only to measure accuracy, on my laptop. They are never committed, shown or uploaded anywhere except the Meta Model API in standard mode. A pre-commit hook and CI block real data; the aggregate writer refuses anything that is not a number or a metric name. All samples are fictional (Casa Nela, fake tax IDs B0000000x) and labelled.
