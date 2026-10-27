@@ -5,6 +5,8 @@
 // Usage: npx tsx --env-file=.env.local eval/real.mts [--effort low] [--side 2048] [--tag name] [--set R|S|I] [--only 01,02] [--rescore]
 // Private mode (PRIVATE_MODEL_BASE_URL set): the same run on the private model. Its tag always carries
 // "-privado-<model>", so its readings and its aggregate never replace Muse Spark's (or real-R-latest.json).
+// REAL_EVAL_CONCURRENCY (default 6): notes in flight. --guardar-parcial with --only writes the aggregate of
+// that fixed subset to its own "-parcial<N>" file (a subset declared before the run, for slow local models).
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { readAlbaran, costUsd, prepareImage, type Effort } from "../src/lib/albaran/read";
@@ -33,7 +35,8 @@ const resultTag = process.argv.includes("--investigar") ? `${tag}-investigar` : 
 const only = arg("only", "");
 const rescore = process.argv.includes("--rescore"); // recompute from saved readings, no API calls
 const conInvestigacion = process.argv.includes("--investigar"); // run the investigator on notes with doubts
-const CONCURRENCY = 6;
+const CONCURRENCY = Number(process.env.REAL_EVAL_CONCURRENCY || 6);
+const guardarParcial = process.argv.includes("--guardar-parcial");
 
 const SETS: Record<string, string[]> = {
   R: ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "15", "16", "18", "19", "20", "21", "22", "23", "24", "25", "31", "32", "34", "35", "37", "38", "39", "40", "41", "42", "43"],
@@ -176,7 +179,9 @@ const outDir = join(DIR, "salidas", tag);
 mkdirSync(outDir, { recursive: true });
 const sinPedidos = { historial: [], registrados: [], pedidos: [] };
 
+const tPasada = Date.now();
 const rows = await pool(ids, CONCURRENCY, async ({ id, base }) => {
+  const tNota = Date.now();
   const gt = JSON.parse(readFileSync(join(DIR, "gt", `${base}.json`), "utf8")) as Gt;
   const img = readFileSync(join(DIR, "img", `${base}.jpg`));
   try {
@@ -198,7 +203,8 @@ const rows = await pool(ids, CONCURRENCY, async ({ id, base }) => {
     }
     const s = scoreDoc(a, gt);
     if (!rescore || !conInvestigacion) writeFileSync(join(outDir, `${id}.json`), JSON.stringify({ leido: r.leido, avisos, sello: st, score: s, ms: r.ms, usage: r.usage }, null, 1));
-    const row = { id, ok: true as const, sello: st, codigos: avisos.map((x) => x.codigo), ms: r.ms, usd: costUsd(r.usage) + (inv?.usd ?? 0), inv, ...s };
+    const msTotal = Date.now() - tNota; // the whole pipeline for this note: reading, second reading, investigator
+    const row = { id, ok: true as const, sello: st, codigos: avisos.map((x) => x.codigo), ms: r.ms, msTotal, usd: costUsd(r.usage) + (inv?.usd ?? 0), inv, ...s };
     process.stdout.write(`${id} ${st.padEnd(12)} lines ${s.alCentimo}/${s.conImporte} at cent, total ${s.header.total}, ${r.ms} ms\n`);
     return row;
   } catch (e) {
@@ -255,6 +261,10 @@ const aggregate = {
       }
     : null,
   tiempo_ms: { p50: pctl(ok.map((r) => r.ms), 0.5), p95: pctl(ok.map((r) => r.ms), 0.95) },
+  // First reading above; the whole per-note pipeline here, and the wall time of the run with its notes in flight.
+  tiempo_total_ms: { p50: pctl(ok.map((r) => r.msTotal), 0.5), p95: pctl(ok.map((r) => r.msTotal), 0.95) },
+  pasada: { segundos: Math.round((Date.now() - tPasada) / 1000), concurrencia: CONCURRENCY },
+  ...(only ? { solo: ids.map(({ id }) => Number(id)) } : {}),
   coste_usd: { total: Math.round(sum((r) => r.usd) * 1000) / 1000, por_albaran: ok.length ? Math.round((sum((r) => r.usd) / ok.length) * 10000) / 10000 : null },
 };
 
@@ -267,8 +277,9 @@ const ALLOWED_STRING_VALUES = new Set([set, modelo, effort, tag, aggregate.fecha
 
 const resultsDir = new URL("./results/", import.meta.url);
 if (!existsSync(resultsDir)) mkdirSync(resultsDir, { recursive: true });
-const outFile = new URL(`./results/real-${set}-${aggregate.fecha}-${resultTag}.json`, import.meta.url);
-// Partial runs (--only) never overwrite a published aggregate.
-if (!only) writeFileSync(outFile, JSON.stringify(aggregate, null, 1));
+const parcial = only && guardarParcial ? `-parcial${ids.length}` : "";
+const outFile = new URL(`./results/real-${set}-${aggregate.fecha}-${resultTag}${parcial}.json`, import.meta.url);
+// Partial runs (--only) never overwrite a published aggregate; a declared subset gets its own file.
+if (!only || parcial) writeFileSync(outFile, JSON.stringify(aggregate, null, 1));
 console.log(JSON.stringify({ ...aggregate, por_dificultad: undefined }, null, 1));
 console.log("wrote", outFile.pathname);
