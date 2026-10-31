@@ -47,7 +47,8 @@ export function HeroDemo() {
   const enJuego = s.resumen?.enJuegoCentimos ?? docs.filter((d) => !d.provisional).flatMap((d) => d.avisos).filter((a) => a.clase === "dinero").reduce((t, a) => t + a.centimos, 0);
 
   return (
-    <div className="relative">
+    // overflow-hidden: a stamp near the right edge (scaled up as it lands) must never widen the page on phones.
+    <div className="relative overflow-hidden rounded-xl">
       <Escena foto="/muestras/encimera/escena-1200.webp" srcSet={HERO_SRCSET} sizes={HERO_SIZES} sesion={s} lang={lang} prioridad />
       {foto && docs.map((d) => d.caja && d.sello && (
         <motion.div key={d.docId} className="pointer-events-none absolute" style={{ left: `${((d.caja.x + d.caja.w * 0.5) / foto.width) * 100}%`, top: `${((d.caja.y + d.caja.h * 0.4) / foto.height) * 100}%` }}
