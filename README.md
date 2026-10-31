@@ -92,7 +92,7 @@ You can watch it on the live site: the counter sample is also recorded read by M
 npm ci
 echo "MODEL_API_KEY=..." > .env.local      # Meta Model API key (standard mode)
 npm run dev                                # http://localhost:3000
-npx vitest run                             # 70 tests
+npx vitest run                             # 72 tests
 ```
 Samples work without a key (recorded runs in `public/replays`). Live reads and questions need the key; optional `UPSTASH_REDIS_REST_URL`/`TOKEN` for rate limits in production.
 
