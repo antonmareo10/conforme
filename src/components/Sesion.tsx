@@ -158,9 +158,10 @@ export function Sesion({ muestra, replay, modelo, foto, vivo, contexto, instanta
       <svg width="0" height="0" className="absolute" aria-hidden>
         <filter id="tinta"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" /><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.25" /><feComposite in="SourceGraphic" operator="in" /></filter>
       </svg>
-      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-2">
-        <Link href="/" className="font-serif text-2xl font-semibold tracking-tight">Conforme</Link>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+      {/* Phones: logo and language on the first row, replay controls on the second. */}
+      <header className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2">
+        <Link href="/" className="order-1 font-serif text-2xl font-semibold tracking-tight">Conforme</Link>
+        <div className="order-3 flex basis-full flex-wrap items-center gap-2 sm:order-2 sm:ml-auto sm:basis-auto sm:justify-end">
           {muestra ? (
             <>
               <span className="hidden rounded-full border border-linea bg-white/70 px-3 py-1 text-xs text-tinta-2 sm:inline">
@@ -184,8 +185,8 @@ export function Sesion({ muestra, replay, modelo, foto, vivo, contexto, instanta
           ) : (
             <span className="rounded-full bg-verde/10 px-3 py-1 text-xs font-medium text-verde">{lang === "es" ? "En vivo" : "Live"}</span>
           )}
-          <BotonIdioma />
         </div>
+        <BotonIdioma className="order-2 ml-auto sm:order-3 sm:ml-0" />
       </header>
       {muestra && <p className="mb-4 text-xs text-apagado sm:hidden">{t.muestraGrabada}{muestra === "encimera" ? t.fondoMuseImage : ""}</p>}
       {modelo && <SelectorModelo modelo={modelo} lang={lang} />}
