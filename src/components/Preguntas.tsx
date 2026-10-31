@@ -21,6 +21,14 @@ export function Preguntas({ sesion, lang, onFoco, grabadas, directo }: { sesion:
   const [nivel, setNivel] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const rec = useRef<{ mr: MediaRecorder; stream: MediaStream; ctx: AudioContext; raf: number; tope: ReturnType<typeof setTimeout> } | null>(null);
+  const respuesta = useRef<HTMLDivElement | null>(null);
+
+  // Phones and tablets: bring the answer into view (the papers only light up on "Show on the paper").
+  useEffect(() => {
+    if (!resp || window.matchMedia("(min-width: 1024px)").matches) return;
+    const id = setTimeout(() => respuesta.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 120);
+    return () => clearTimeout(id);
+  }, [resp]);
 
   const docs = sesion.orden.map((id) => sesion.docs[id]).filter((d) => d.leido && !d.provisional);
   const listo = docs.length > 0;
@@ -30,7 +38,9 @@ export function Preguntas({ sesion, lang, onFoco, grabadas, directo }: { sesion:
   const contestar = (c: Consulta) => {
     const r = responder(c, docs.map((d) => ({ docId: d.docId, leido: d.leido!, avisos: d.avisos })));
     setResp(r);
-    if (r.referencias.length) onFoco(r.referencias);
+    // Side by side (lg), the papers light up at once. On phones and tablets the answer sits above the papers:
+    // jumping away would hide it, so the papers light up only when "Show on the paper" is tapped.
+    if (r.referencias.length && window.matchMedia("(min-width: 1024px)").matches) onFoco(r.referencias);
   };
 
   const preguntar = async (body: { texto?: string; audio?: Blob }) => {
@@ -143,7 +153,7 @@ export function Preguntas({ sesion, lang, onFoco, grabadas, directo }: { sesion:
       </div>
       <AnimatePresence mode="wait">
         {resp && (
-          <motion.div key={JSON.stringify(resp.consulta)} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 rounded-xl bg-papel p-4">
+          <motion.div ref={respuesta} key={JSON.stringify(resp.consulta)} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mt-4 rounded-xl bg-papel p-4">
             {oido && <p className="text-xs text-apagado">{lang === "es" ? "He oído:" : "I heard:"} «{oido}»</p>}
             {resp.cifraCentimos != null && <div className="mt-1 font-serif text-4xl font-semibold text-tinta"><Cifra cents={resp.cifraCentimos} lang={lang} /></div>}
             <p className="mt-1 text-[15px] leading-snug text-tinta">{fraseRespuesta(resp, lang)}</p>
