@@ -11,7 +11,10 @@ const MUESTRAS: Record<string, { foto: string | null; instantaneo?: boolean }> =
 async function SesionDeLaUrl({ searchParams }: { searchParams: PageProps<"/sesion">["searchParams"] }) {
   const sp = await searchParams;
   const id = typeof sp.muestra === "string" && sp.muestra in MUESTRAS ? sp.muestra : "encimera";
-  return <Sesion muestra={id} foto={MUESTRAS[id].foto} instantaneo={MUESTRAS[id].instantaneo} />;
+  // The counter sample also exists read by Muse Spark Open (open weights, on Baseten): ?modelo=abierto.
+  const abierto = id === "encimera" && sp.modelo === "abierto";
+  return <Sesion muestra={id} replay={abierto ? "encimera-abierto" : id} modelo={id === "encimera" ? (abierto ? "abierto" : "spark") : undefined}
+    foto={MUESTRAS[id].foto} instantaneo={MUESTRAS[id].instantaneo} />;
 }
 
 export default function Page({ searchParams }: PageProps<"/sesion">) {

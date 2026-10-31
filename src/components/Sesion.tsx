@@ -61,7 +61,10 @@ const MENSAJE_ERROR: Record<string, { es: string; en: string }> = {
   SIN_DIRECTO: { es: "Las lecturas en vivo están en pausa. Mira una muestra grabada.", en: "Live reads are paused. Watch a recorded sample." },
 };
 
-export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra?: string; foto: string | null; vivo?: Blob[]; contexto?: unknown; instantaneo?: boolean }) {
+/** Which model read a recorded sample: Muse Spark 1.3 on the Meta API, or Muse Spark Open (open weights) on Baseten. */
+export type ModeloMuestra = "spark" | "abierto";
+
+export function Sesion({ muestra, replay, modelo, foto, vivo, contexto, instantaneo }: { muestra?: string; replay?: string; modelo?: ModeloMuestra; foto: string | null; vivo?: Blob[]; contexto?: unknown; instantaneo?: boolean }) {
   const lang = useIdioma();
   // Recorded runs play at ×2 by default (labelled, real timings ÷ 2); ×1 shows the real pace.
   const [velocidad, setVelocidad] = useState<Velocidad>(2);
@@ -71,6 +74,7 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
   const [grabadas, setGrabadas] = useState<PreguntaGrabada[] | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const cargado = useRef<Replay | null>(null);
   const papeles = useRef<Record<string, HTMLElement | null>>({});
   const t = T[lang];
 
@@ -82,7 +86,8 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
     setFoco(null);
     if (!muestra) return;
     try {
-      const r = (await fetch(`/replays/${muestra}.json`).then((x) => x.json())) as Replay & { preguntas?: PreguntaGrabada[] };
+      const r = (await fetch(`/replays/${replay ?? muestra}.json`).then((x) => x.json())) as Replay & { preguntas?: PreguntaGrabada[] };
+      cargado.current = r;
       setGrabado(r.grabado);
       setGrabadas(r.preguntas);
       if (instantaneo) { for (const { ev } of r.eventos) dispatch({ tipo: "evento", ev }); return; }
@@ -90,7 +95,17 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
     } catch {
       setError(lang === "es" ? "No se pudo cargar la muestra." : "Could not load the sample.");
     }
-  }, [muestra, lang, instantaneo]);
+  }, [muestra, replay, lang, instantaneo]);
+
+  // Skip the wait: every recorded event at once, same reducer, same final state as the timed replay.
+  const saltar = useCallback(() => {
+    const r = cargado.current;
+    if (!r) return;
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    dispatch({ tipo: "reiniciar" });
+    for (const { ev } of r.eventos) dispatch({ tipo: "evento", ev });
+  }, []);
 
   useEffect(() => {
     if (vivo) {
@@ -106,7 +121,7 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
     const ts = timers.current;
     return () => { clearTimeout(arranque); ts.forEach(clearTimeout); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [muestra, vivo]);
+  }, [muestra, replay, vivo]);
 
   // "Tap any euro": light up the boxes behind an amount, one paper after another.
   const enfocarRefs = useCallback((refs: { docId: string; lineaIdx: number | null }[]) => {
@@ -161,6 +176,9 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
                   ))}
                 </div>
               )}
+              {!instantaneo && !sesion.fin && (
+                <button type="button" onClick={saltar} className="min-h-[40px] rounded-full bg-tinta px-3 text-sm font-medium text-papel">{lang === "es" ? "Ver el resultado" : "Skip to result"}</button>
+              )}
               <button type="button" onClick={() => reproducir(velocidad)} className="min-h-[40px] rounded-full border border-linea bg-white px-3 text-sm">{t.repetir}</button>
             </>
           ) : (
@@ -170,6 +188,7 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
         </div>
       </header>
       {muestra && <p className="mb-4 text-xs text-apagado sm:hidden">{t.muestraGrabada}{muestra === "encimera" ? t.fondoMuseImage : ""}</p>}
+      {modelo && <SelectorModelo modelo={modelo} lang={lang} />}
       {muestra && !instantaneo && velocidad !== 1 && <p className="mb-2 text-xs text-apagado">{lang === "es" ? `Reproduciendo a ×${velocidad} (tiempos reales ÷ ${velocidad})` : `Playing at ×${velocidad} (real timings ÷ ${velocidad})`}</p>}
       {error && <p className="rounded-lg bg-rojo/10 p-3 text-sm text-rojo">{error}</p>}
 
@@ -194,6 +213,32 @@ export function Sesion({ muestra, foto, vivo, contexto, instantaneo }: { muestra
           </div>
         </aside>
       </div>
+    </div>
+  );
+}
+
+/** The counter sample was recorded twice, with the same pipeline and code: read by Muse Spark 1.3, and by Muse Spark Open. */
+function SelectorModelo({ modelo, lang }: { modelo: ModeloMuestra; lang: "es" | "en" }) {
+  const op = (m: ModeloMuestra, href: string, nombre: string, donde: string) => (
+    <Link href={href} replace scroll={false} prefetch={false} aria-current={modelo === m ? "true" : undefined}
+      className={`flex min-h-[40px] flex-col justify-center rounded-full px-3 text-left leading-tight transition ${modelo === m ? "bg-tinta text-papel" : "text-tinta-2 hover:text-tinta"}`}>
+      <span className="text-sm font-medium">{nombre}</span>
+      <span className={`text-[11px] ${modelo === m ? "text-papel/75" : "text-apagado"}`}>{donde}</span>
+    </Link>
+  );
+  return (
+    <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span className="text-xs font-medium uppercase tracking-[0.12em] text-apagado">{lang === "es" ? "Lee" : "Read by"}</span>
+      <nav aria-label={lang === "es" ? "Modelo que lee la muestra" : "Model that reads the sample"} className="flex flex-wrap rounded-3xl border border-linea bg-white p-0.5">
+        {op("spark", "/sesion?muestra=encimera", "Muse Spark 1.3", "Meta Model API")}
+        {op("abierto", "/sesion?muestra=encimera&modelo=abierto", "Muse Spark Open", lang === "es" ? "pesos abiertos · Baseten" : "open weights · Baseten")}
+      </nav>
+      {modelo === "abierto" && (
+        <p className="basis-full text-xs text-tinta-2 sm:basis-auto">
+          {lang === "es" ? "Mismo flujo y mismas comprobaciones del código; solo cambia el modelo que lee y razona. " : "Same pipeline and the same code checks; only the model that reads and reasons changes. "}
+          <Link href="/como#abierto" className="underline decoration-rotulador decoration-2 underline-offset-2">{lang === "es" ? "Cómo se compara" : "How it compares"}</Link>
+        </p>
+      )}
     </div>
   );
 }

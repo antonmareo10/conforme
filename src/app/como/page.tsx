@@ -45,8 +45,18 @@ const LIMITES: Texto[] = [
   t("El historial de precios y los pedidos de las muestras son ficticios. Una foto en vivo se comprueba en cuentas, IVA, totales y NIF; las subidas y las faltas necesitan tu historial y tus pedidos, que la app aún no importa.", "Price history and orders in the samples are fictional. A live photo is checked for arithmetic, VAT, totals and tax ID; price rises and shortages need your own history and orders, which the app does not import yet."),
   t("El agente tiene 4 llamadas a herramientas por albarán. Si las pruebas no son claras lo dice y el albarán pasa a ti; no adivina.", "The agent has 4 tool calls per note. When the evidence is unclear it says so and the note goes to you; it does not guess."),
   t("Las preguntas cubren un conjunto cerrado: pagado de más, subidas, gasto por proveedor o producto, último precio, albaranes con problemas e IVA.", "Questions cover a closed set: overpaid, price rises, spend by supplier or product, last price, notes with problems, and VAT."),
-  t("La lectura usa Muse Spark por la Model API de Meta en modo estándar. Hay un modo privado con modelos abiertos tras una opción: Muse Spark Open en Baseten leyó bien los 16 albaranes ficticios de las muestras (38 de 38 líneas, 16 de 16 totales), más lento y con cajas menos finas; el conjunto real no se manda a ningún servicio y se mide aparte en local con Glimmer.", "Reading uses Muse Spark through Meta's Model API in standard mode. A private mode on open-weight models sits behind a flag: Muse Spark Open on Baseten read the 16 fictional sample notes right (38 of 38 lines, 16 of 16 totals), slower and with looser boxes; the real set is never sent to a hosted service and is measured separately on my laptop with Glimmer."),
+  t("La web lee con Muse Spark por la Model API de Meta en modo estándar. El modo privado con modelos abiertos (arriba) está medido solo en albaranes ficticios: va más lento y con cajas menos finas, y Muse Glimmer en local aún no está medido.", "The website reads with Muse Spark through Meta's Model API in standard mode. Private mode on open weights (above) is measured on fictional notes only: it is slower, with looser boxes, and Muse Glimmer on a laptop is not measured yet."),
   t("La muestra grabada de tres albaranes tardó 46 s y costó 0,106 $.", "The recorded run of three notes took 46 s and cost $0.106."),
+];
+
+// From eval/ficticio.mts: eval/results/ficticio-spark-1.3-run{1,2}.json and ficticio-spark-open-run{1,2}.json.
+const ABIERTO: { que: Texto; spark: Texto; abierto: Texto }[] = [
+  { que: t("Líneas exactas", "Lines exact"), spark: t("38/38 y 38/38", "38/38 and 38/38"), abierto: t("38/38; 34/34 en los 15 que terminaron", "38/38; 34/34 on the 15 that finished") },
+  { que: t("Totales exactos", "Totals exact"), spark: t("16/16 y 16/16", "16/16 and 16/16"), abierto: t("16/16; 15/15", "16/16; 15/15") },
+  { que: t("OK silenciosos", "Silent OKs"), spark: t("0 y 0", "0 and 0"), abierto: t("0 y 0", "0 and 0") },
+  { que: t("Revisiones innecesarias", "Needless reviews"), spark: t("0 y 0", "0 and 0"), abierto: t("1 y 0", "1 and 0") },
+  { que: t("Caja centrada en su fila", "Row box on its row"), spark: t("35/38 y 36/38", "35/38 and 36/38"), abierto: t("28/38; 31/34", "28/38; 31/34") },
+  { que: t("Mediana por albarán", "Median per note"), spark: t("18,9 s y 17,5 s", "18.9 s and 17.5 s"), abierto: t("28,9 s y 20,8 s", "28.9 s and 20.8 s") },
 ];
 
 function Bucle() {
@@ -170,6 +180,40 @@ export default function Page() {
           </ul>
           <p className="mt-4 text-sm">
             <Link href="/sesion?muestra=encimera" prefetch={false} className="font-medium underline decoration-rotulador decoration-4 underline-offset-4"><L es="Ver la traza real de cada reclamación" en="See the real trace behind each claim" /></Link>
+          </p>
+        </section>
+
+        <section className="mt-16" aria-labelledby="abierto">
+          <h2 id="abierto" className="scroll-mt-6 font-serif text-2xl font-semibold"><L es="Modo privado, con pesos abiertos" en="Private mode, on open weights" /></h2>
+          <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-tinta-2">
+            <L es="Los precios de un proveedor son información del restaurante. Con una sola opción (PRIVATE_MODEL_BASE_URL), todas las llamadas de Spark (las dos lecturas, los dos trabajos del agente y la intención de las preguntas) pasan por un adaptador de chat completions hacia un modelo abierto de Meta. SAM y la voz siguen en la API de Meta. El código, las herramientas y las reglas de prueba no cambian."
+              en="A supplier's prices are the restaurant's business. One setting (PRIVATE_MODEL_BASE_URL) sends every Spark call (both readings, both agent jobs and the question intent) through a chat-completions adapter to an open-weight Meta model. SAM and voice stay on the Meta API. The code, the tools and the evidence rules do not change." />
+          </p>
+          <div className="mt-5 overflow-x-auto rounded-2xl border border-linea bg-white/70">
+            <table className="w-full min-w-[520px] text-left text-[15px]">
+              <caption className="px-4 pt-3 text-left text-sm text-tinta-2">
+                <L es="Producto entero sobre los 16 albaranes ficticios de las muestras (38 líneas, texto real conocido), esfuerzo bajo, dos pasadas por modelo." en="Whole product on the 16 fictional notes of the samples (38 lines, true text known), low effort, two runs per model." />
+              </caption>
+              <thead className="bg-papel-2/60 text-xs uppercase tracking-[0.1em] text-apagado">
+                <tr><th scope="col" className="px-4 py-2 font-semibold"></th><th scope="col" className="px-4 py-2 font-semibold">Muse Spark 1.3 <span className="normal-case tracking-normal">(Meta API)</span></th><th scope="col" className="px-4 py-2 font-semibold">Muse Spark Open <span className="normal-case tracking-normal">(Baseten)</span></th></tr>
+              </thead>
+              <tbody className="cifras">
+                {ABIERTO.map((f) => (
+                  <tr key={f.que.en} className="border-t border-linea align-top">
+                    <th scope="row" className="px-4 py-3 font-medium text-tinta"><L es={f.que.es} en={f.que.en} /></th>
+                    <td className="px-4 py-3 text-tinta-2"><L es={f.spark.es} en={f.spark.en} /></td>
+                    <td className="px-4 py-3 text-tinta-2"><L es={f.abierto.es} en={f.abierto.en} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-tinta-2">
+            <L es="En la pasada 2, el albarán girado acabó en error; leído solo, sacó 4 de 4 líneas y el total. El coste de Baseten no lo apunté, así que no lo doy. Los 33 albaranes reales no se mandan a ningún servicio alojado."
+              en="In run 2 the rotated note ended in an error; read on its own it got 4 of 4 lines and the total. I did not record Baseten's price, so I give no cost. The 33 real notes are never sent to a hosted service." />
+          </p>
+          <p className="mt-4 text-sm">
+            <Link href="/sesion?muestra=encimera&modelo=abierto" prefetch={false} className="font-medium underline decoration-rotulador decoration-4 underline-offset-4"><L es="Ver la muestra de la encimera leída por Muse Spark Open" en="Watch the counter sample read by Muse Spark Open" /></Link>
           </p>
         </section>
 

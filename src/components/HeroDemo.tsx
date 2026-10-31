@@ -1,6 +1,7 @@
 "use client";
 // Landing scene: the recorded run of the counter sample, played silently in a loop (×3, labelled).
-// Outlines from SAM, then each note's stamp, then the money at stake counting up to the real value.
+// The result comes first (stamps and the money at stake, held for a few seconds), then the run replays:
+// outlines from SAM, the papers being read, each note's stamp, the money at stake counting up to the real value.
 import { useEffect, useReducer, useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { reducir, sesionVacia, type SesionEstado } from "@/lib/sesion/estado";
@@ -34,7 +35,8 @@ export function HeroDemo() {
         for (const { t, ev } of r.eventos) timers.current.push(setTimeout(() => dispatch({ tipo: "ev", ev }), 400 + t / VEL));
         timers.current.push(setTimeout(ciclo, duracion + 5000));
       };
-      ciclo();
+      dispatch({ tipo: "todo", evs: r.eventos.map((e) => e.ev) });
+      timers.current.push(setTimeout(ciclo, 4500));
     })().catch(() => {});
     const ts = timers.current;
     return () => { vivo = false; ts.forEach(clearTimeout); };
@@ -48,9 +50,9 @@ export function HeroDemo() {
     <div className="relative">
       <Escena foto="/muestras/encimera/escena-1200.webp" srcSet={HERO_SRCSET} sizes={HERO_SIZES} sesion={s} lang={lang} prioridad />
       {foto && docs.map((d) => d.caja && d.sello && (
-        <motion.div key={d.docId} className="pointer-events-none absolute" style={{ left: `${((d.caja.x + d.caja.w * 0.5) / foto.width) * 100}%`, top: `${((d.caja.y + d.caja.h * 0.62) / foto.height) * 100}%` }}
+        <motion.div key={d.docId} className="pointer-events-none absolute" style={{ left: `${((d.caja.x + d.caja.w * 0.5) / foto.width) * 100}%`, top: `${((d.caja.y + d.caja.h * 0.4) / foto.height) * 100}%` }}
           initial={reduce ? false : { scale: 1.25, opacity: 0, rotate: -8 }} animate={{ scale: 1, opacity: d.provisional ? 0.45 : 0.95, rotate: -8 }} transition={{ type: "spring", stiffness: 520, damping: 22 }}>
-          <span className="block -translate-x-1/2 whitespace-nowrap rounded-md border-[2.5px] bg-white/75 px-1.5 py-0.5 font-serif text-[clamp(0.5rem,1.15vw,0.85rem)] font-semibold tracking-[0.08em]"
+          <span className="block -translate-x-1/2 whitespace-nowrap rounded-md border-[2.5px] bg-white/75 px-1.5 py-0.5 font-serif text-[clamp(0.45rem,0.95vw,0.72rem)] font-semibold tracking-[0.08em]"
             style={{ color: d.sello === "CONFORME" ? "var(--sello-azul)" : d.sello === "CON_RESERVAS" ? "var(--rojo)" : "var(--apagado)", borderColor: "currentColor" }}>
             {SELLO[d.sello][lang]}
           </span>

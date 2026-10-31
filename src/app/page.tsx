@@ -102,6 +102,12 @@ export default function Home() {
               </div>
             </Link>
           ))}
+          <p className="text-sm text-tinta-2 sm:col-span-2 lg:col-span-3">
+            <Link href="/sesion?muestra=encimera&modelo=abierto" className="group inline-flex min-h-[44px] items-center gap-2 font-medium text-tinta underline decoration-rotulador decoration-4 underline-offset-4">
+              <L es="La misma encimera, leída por Muse Spark Open" en="The same counter, read by Muse Spark Open" /> <span aria-hidden className="inline-block transition group-hover:translate-x-1">→</span>
+            </Link>
+            <span className="ml-2"><L es="Pesos abiertos de Meta en Baseten: mismo flujo, mismas comprobaciones del código." en="Meta's open weights on Baseten: same pipeline, same code checks." /></span>
+          </p>
         </section>
 
         <section className="grid gap-6 border-t border-linea py-12 sm:grid-cols-3">
@@ -127,7 +133,7 @@ export default function Home() {
         </section>
 
         <footer className="flex flex-col gap-2 border-t border-linea py-8 text-sm text-apagado sm:flex-row sm:items-center sm:justify-between">
-          <span><L es="Hecho con Muse Spark 1.3, SAM 3.1, Muse Voice Transcribe y Muse Image" en="Built with Muse Spark 1.3, SAM 3.1, Muse Voice Transcribe and Muse Image" /></span>
+          <span><L es="Hecho con Muse Spark 1.3, SAM 3.1, Muse Voice Transcribe y Muse Image; modo privado con Muse Spark Open" en="Built with Muse Spark 1.3, SAM 3.1, Muse Voice Transcribe and Muse Image; private mode on Muse Spark Open" /></span>
           <span><L es="Nada de lo que subes se usa para entrenar modelos (modo estándar de la API)" en="Nothing you upload is used to train models (standard API mode)" /></span>
         </footer>
       </div>

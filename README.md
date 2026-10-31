@@ -72,6 +72,8 @@ The same reading can run on an open-weight Meta model, so supplier prices never 
 
 In run 2 one note of 16 (carnes-girado, the rotated one) ended in an error; run alone it read 4/4 lines and the total in 37.8 s. The two runs are noisy on boxes and time, not on the numbers. Cost is not in the table because I did not record Baseten's price per token; Spark's is the list price. This is the fictional set only. The real set of 33 notes is never sent to a hosted service; it is measured on my laptop with Muse Glimmer, and that run is separate and not in these numbers. Per-run files: `eval/results/ficticio-*.json`.
 
+You can watch it on the live site: the counter sample is also recorded read by Muse Spark Open on Baseten (Oct 31), same pipeline and same code, with a switch between the two models: [`/sesion?muestra=encimera&modelo=abierto`](https://conforme-mu.vercel.app/sesion?muestra=encimera&modelo=abierto). It found the same €23.94 in 29.8 s. On the drinks note it also marked one field as unreadable, so code sent that note to a person instead of stamping it.
+
 ## What I learned (and fixed)
 - **The model invented a price that added up.** It read €1.175 where the paper says €0.950, because 24 × 1.175 is exactly the €28.20 charged. The second, independent reading exists because of this.
 - **A silent OK, by one cent.** In one run a blurry ticket was stamped ALL GOOD with its VAT read as 25.59 and its total as 147.42; the paper says 25.58 and 147.41. The two agreed with each other and the VAT was within rounding. The table was read twice; the tax summary was not. Now it is, and in the next two runs the total was exact on 31 of 31.
