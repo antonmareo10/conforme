@@ -177,6 +177,12 @@ describe("honesty rules", () => {
     expect(av.map((x) => x.codigo)).toContain("SALTO_RARO");
     expect(av.map((x) => x.codigo)).not.toContain("SUBIDA");
   });
+  it("never stamps a page with no line read as OK (a photo of something else)", () => {
+    const a = A("x", "", "2026-10-06", [], [], null, { filasContadas: 0 });
+    const av = comprobar(a, ctx);
+    expect(av.map((x) => x.codigo)).toEqual(["SIN_LINEAS"]);
+    expect(sello(av)).toBe("REVISAR");
+  });
   it("does not invent prices on unpriced notes", () => {
     const a = A("x", "Panadería", "2026-10-06", [L(0, "Pan", "20", "ud", null, null)], [], null);
     const av = comprobar(a, ctx);

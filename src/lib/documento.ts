@@ -76,7 +76,8 @@ export async function analizarDocumento(
   emit({ tipo: "avisos", docId, avisos, sello: st, provisional: st === "REVISAR" || (reclamar && necesitaExpediente(avisos)) });
 
   let inv: Investigacion | null = null;
-  if (st === "REVISAR" && opts.investigar !== false) {
+  // With no line read there is nothing for the agent to re-read: the note goes straight to a person.
+  if (st === "REVISAR" && opts.investigar !== false && leido.lineas.length > 0) {
     emit({ tipo: "etapa", etapa: "investigar", estado: "inicio", docId });
     inv = await investigar(docId, leido, imagen, ctx, { client: opts.client, effort });
     coste += costUsd({ ...inv.usage, reasoning_tokens: 0 });

@@ -151,6 +151,9 @@ export function comprobar(a: Albaran, ctx: Contexto): Aviso[] {
 
   if (a.nif && !isValidNif(a.nif)) avisos.push(aviso("NIF", a.docId, 0, { nif: a.nif }));
 
+  // Nothing read means nothing checked: a photo of something else, or a page cut off, is never ALL GOOD.
+  if (!a.lineas.length) avisos.push(aviso("SIN_LINEAS", a.docId, 0, {}));
+
   if (a.lineas.length && !conPrecio.length) {
     avisos.push(aviso("SIN_PRECIOS", a.docId, 0, {}));
   } else {

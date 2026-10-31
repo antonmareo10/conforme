@@ -92,6 +92,7 @@ export type CodigoAviso =
   | "SUBIDA"
   | "SALTO_RARO"
   | "SIN_PRECIOS"
+  | "SIN_LINEAS" // no product line was read: not a delivery note, or the photo missed it
   | "ILEGIBLE";
 
 export type ClaseAviso = "dinero" | "lectura" | "info";
@@ -122,5 +123,6 @@ export const CLASE: Record<CodigoAviso, ClaseAviso> = {
   SUBIDA: "dinero",
   SALTO_RARO: "lectura",
   SIN_PRECIOS: "info",
+  SIN_LINEAS: "lectura",
   ILEGIBLE: "lectura",
 };

@@ -84,6 +84,7 @@ You can watch it on the live site: the counter sample is also recorded read by M
 - **A box with no height hid a whole row.** The first reading put one row's box above row 1 with zero height; the table crop cut that row out. Code now re-places impossible boxes from their neighbours, and a tool that cannot find its line looks again at the whole table.
 - **Some pages ended upside down.** On 2 to 4 of the 20 sideways scans per run, the reader said 90° where 270° was needed. The numbers were still read right, but the paper showed upside down. Code now checks the boxes (header below the lines and total above means upside down) and adds 180°.
 - **Slow API, no verdict.** With the API slow, three sequential zoomed re-reads ran past the time budget and the agent never closed. Tools of one turn now run in parallel, and at the deadline the agent gets a closing turn.
+- **A photo of something else was stamped ALL GOOD.** Testing the live site like a judge would, I uploaded a photo with no delivery note in it: no line was read, so no check failed, and the stamp said ALL GOOD. Now a page with no line read always goes to a person (no agent call). None of the 66 note readings in the two measured runs had zero lines, so the published numbers are unchanged.
 - **Counting crates with SAM wasn't reliable** (exact on 5 of 23 counts on public photos), so it is not in the product.
 
 ## Run it

@@ -38,6 +38,8 @@ export function textoAviso(a: Aviso, lang: Idioma, producto?: string | null): st
       return es ? "Esta celda se leyó mal y se volvió a leer: ahora cuadra" : "This cell was misread and read again: it adds up now";
     case "DUPLICADO":
       return es ? `Este albarán ya lo registraste el ${d.fecha}` : `You already logged this note on ${d.fecha}`;
+    case "SIN_LINEAS":
+      return es ? "No he encontrado líneas de producto en este papel. ¿Es un albarán entero? Haz otra foto con la página completa" : "I found no product lines on this paper. Is it a whole delivery note? Take another photo with the full page";
     case "SIN_PRECIOS":
       return es ? "Albarán sin valorar: comprobadas las unidades, no hay precios que comprobar" : "No prices on this note: units checked, nothing to price-check";
     case "SALTO_RARO":
