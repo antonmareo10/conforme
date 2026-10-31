@@ -2,7 +2,9 @@
 
 **Check it before you sign.** Take one photo of the morning's supplier delivery notes. Conforme separates each note, reads every money number twice, and checks every euro in plain code. When something is off, an agent goes back to the paper: it picks what to re-read zoomed in, pulls the price history or the order, and closes the case citing its evidence, which code then checks. Before any claim reaches a supplier, every number it rests on has been confirmed on the paper. What you get is ready to use: the line to write on the note before signing, and the message to the supplier with the proof cut from their own note.
 
-**Live:** https://conforme-mu.vercel.app · try the recorded samples (no wait), ask the month sample a question by voice, or take a photo of your own notes.
+**Live:** https://conforme-mu.vercel.app · try the recorded samples ("Skip to result" if you don't want to wait), ask the month sample a question by voice, switch the counter sample to the open-weight model, or take a photo of your own notes.
+
+**Demo video (3 min):** https://youtu.be/o9SKkBdQkfg
 
 Built for Meta's Global AI Developer Hackathon (Oct 26 to Nov 4, 2026), problem statement *Build for Your World*. All code in this repository was written during the event; the first commit is from Oct 26, 2026, after the kickoff.
 
@@ -49,6 +51,7 @@ The claim message, the line to write on the note and the proof image are templat
 | Investigate, confirm claims | **Muse Spark 1.3 with tools** | The two agent phases above |
 | Ask | **Muse Voice Transcribe + Muse Spark** | Speech to text, then a closed-set intent with suppliers and products taken from the session; code computes the answer and lights the lines |
 | Test scenes | **Muse Image** | The kitchen-counter backgrounds of the fictional samples (labelled) |
+| Private mode | **Muse Spark Open** (open weights, on Baseten) | One setting runs both readings, both agent jobs and the question intent on the open-weight model (below) |
 
 What the model never decides: any figure, whether a line is right, the reference price, duplicates, unit conversions, which lines light up, the stamp, or the text a supplier receives.
 
