@@ -4,7 +4,7 @@
 
 **Live:** https://conforme-mu.vercel.app · try the recorded samples ("Skip to result" if you don't want to wait), ask the month sample a question by voice, switch the counter sample to the open-weight model, or take a photo of your own notes.
 
-**Demo video (3 min):** https://youtu.be/o9SKkBdQkfg
+**Demo video (3 min):** https://youtu.be/_ev_sB6WhY0
 
 Built for Meta's Global AI Developer Hackathon (Oct 26 to Nov 4, 2026), problem statement *Build for Your World*. All code in this repository was written during the event; the first commit is from Oct 26, 2026, after the kickoff.
 
